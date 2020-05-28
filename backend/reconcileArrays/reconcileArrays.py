@@ -13,20 +13,18 @@ import gspread
 
 def reconcileArraysFunction(runningOnDevelopmentServerBoolean):
 
-    # pathToRepos = _myPyFunc.getPathUpFolderTree(pathToThisPythonFile, 'repos')
-
     if runningOnDevelopmentServerBoolean:
-        p('********************Running on development server****************')
+        # p('********************Running on development server****************')
+
+        pathToRepos = _myPyFunc.getPathUpFolderTree(pathToThisPythonFile, 'repos')
+        arrayOfPartsToAddToPath = ['privateData', 'python', 'googleCredentials', 'usingServiceAccount', 'jsonWithAPIKey.json']
+        pathToCredentialsFileServiceAccount = _myPyFunc.addToPath(pathToRepos, arrayOfPartsToAddToPath)
+        gspObj = gspread.service_account(filename=pathToCredentialsFileServiceAccount)
     else:
-        p('********************Not running on development server****************')
+        # p('********************Not running on development server****************')
+    
 
-    return _myPyFunc.addToPath(Path("C:\\"), ['hi', 'hellow'])
 
-    # arrayOfPartsToAddToPath = ['privateData', 'python', 'googleCredentials']
-
-    # pathToCredentialsFileServiceAccount = _myPyFunc.addToPath(pathToRepos, arrayOfPartsToAddToPath + ['usingServiceAccount', 'jsonWithAPIKey.json'])
-
-    # gspObj = gspread.service_account(filename=pathToCredentialsFileServiceAccount)
     # gspSpreadsheet = gspObj.open("Reconcile Arrays")
     # gspFirstArraySheet = gspSpreadsheet.worksheet('firstArray')
     # gspSecondArraySheet = gspSpreadsheet.worksheet('secondArray')
@@ -70,10 +68,8 @@ def reconcileArraysFunction(runningOnDevelopmentServerBoolean):
     # _myGspreadFunc.updateCells(gspEndingFirstArraySheet, firstArray)
     # _myGspreadFunc.updateCells(gspEndingSecondArraySheet, secondArray)
 
+    return _myPyFunc.addToPath(Path("C:\\"), ['hi', 'hellow'])
 
-
-
-# reconcileArraysFunction(True)
 
 
 

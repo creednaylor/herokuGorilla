@@ -4,6 +4,7 @@ import os
 from pprint import pprint as p
 
 
+
 def runningOnDevelopmentServer(urlStr):
 	if any(strToFind in urlStr for strToFind in ['127.0.0.1:5000', 'localhost:5000']):
 		return True
@@ -43,6 +44,14 @@ def setupFlaskServer(flaskApp):
 				return render_template(requestObj['htmlPathToLoad'], valueFromBackend=urlOfSheet)
 
 
+	@flaskApp.route('/initialize-app-credentials')
+	def initAppCredentials():
+		encoded = base64.b64decode
+		f = open("demofile2.txt", "a")
+		f.write("Now the file has more content!")
+		f.close()	
+		
+		return Response(json.dumps({}), mimetype="application/json")
 
 	@flaskApp.route('/')
 	def returnMainPage():
@@ -52,6 +61,8 @@ def setupFlaskServer(flaskApp):
 		# 			<button onclick="privateClickFunction()">Private</button>
 		# 			<p></p>
 		# 			<img src="./frontend/assets/regal-cat.jpeg" alt="regal cat" />"""
+
+
 
 
 	if __name__ == '__main__':
