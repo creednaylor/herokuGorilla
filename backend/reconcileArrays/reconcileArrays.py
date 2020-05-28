@@ -19,8 +19,9 @@ def reconcileArraysFunction(runningOnDevelopmentServerBoolean):
         pathToRepos = _myPyFunc.getPathUpFolderTree(pathToThisPythonFile, 'repos')
         arrayOfPartsToAddToPath = ['privateData', 'python', 'googleCredentials', 'usingServiceAccount', 'jsonWithAPIKey.json']
         pathToCredentialsFileServiceAccount = _myPyFunc.addToPath(pathToRepos, arrayOfPartsToAddToPath)
-        gspObj = gspread.service_account(filename=pathToCredentialsFileServiceAccount)
+        # gspObj = gspread.service_account(filename=pathToCredentialsFileServiceAccount)
     else:
+        pass
         # p('********************Not running on development server****************')
     
 
