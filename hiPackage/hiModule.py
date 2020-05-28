@@ -1,2 +1,0 @@
-def hiFunction():
-    print('hello')
