@@ -1,3 +1,6 @@
+# clear resultArray sheet when opening google sheet...
+
+
 from pathlib import Path
 pathToThisPythonFile = Path(__file__).resolve()
 import sys
@@ -21,6 +24,13 @@ def reconcileArraysFunction(runningOnDevelopmentServerBoolean):
         p('********************Not running on development server****************')
 
     return _myPyFunc.addToPath(Path("C:\\"), ['hi', 'hellow'])
+
+
+
+
+
+
+
 
     # arrayOfPartsToAddToPath = ['privateData', 'python', 'googleCredentials']
 
