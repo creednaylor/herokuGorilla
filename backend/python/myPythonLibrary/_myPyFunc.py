@@ -1,10 +1,20 @@
+from collections import OrderedDict
+import copy
+from cryptography.fernet import Fernet
+from datetime import datetime, date
+import json
+from pathlib import Path
 from pprint import pprint as pp
+import pyautogui
+# import re
+import sqlite3
+import time
 
 
 
 def printElapsedTime(priorTime, message):
 
-    import time
+    
     currentTime = time.time()
 
     if not priorTime:
@@ -39,8 +49,6 @@ def convertToZero(s):
 
 
 # def excelNumToPyNum(s):
-#
-#     import re
 #
 #     quoted = re.compile("(?<=')[^']+(?=')")
 #     for value in quoted.findall(s):
@@ -78,7 +86,6 @@ def removeCommaFromStr(s):
 
 
 def repetitiveKeyPress(numberOfTabs, keyToPress):
-    import pyautogui
 
     for i in range(0, numberOfTabs):
         pyautogui.press(keyToPress)
@@ -271,7 +278,6 @@ def filterListOfLists(list, filterObj):
 
 def convertSerialDateToDateWithoutDashes(serialDate):
 
-    from datetime import date
 
     dateObj = date.fromordinal(date(1900, 1, 1).toordinal() + serialDate - 2)
     dateStr = str(dateObj.year) + str(dateObj.month).zfill(2) + str(dateObj.day).zfill(2)
@@ -282,8 +288,6 @@ def convertSerialDateToDateWithoutDashes(serialDate):
 
 def convertSerialDateToMySQLDate(serialDate):
 
-    from datetime import date
-
     dateObj = date.fromordinal(date(1900, 1, 1).toordinal() + serialDate - 2)
     dateStr = str(dateObj.year) + "-" + str(dateObj.month).zfill(2) + "-" + str(dateObj.day).zfill(2)
 
@@ -291,7 +295,6 @@ def convertSerialDateToMySQLDate(serialDate):
 
 
 def convertSerialDateToYear(serialDate):
-    from datetime import date
 
     dateObj = date.fromordinal(date(1900, 1, 1).toordinal() + serialDate - 2)
 
@@ -300,7 +303,6 @@ def convertSerialDateToYear(serialDate):
 
 
 def convertSerialDateToMonth(serialDate):
-    from datetime import date
 
     dateObj = date.fromordinal(date(1900, 1, 1).toordinal() + serialDate - 2)
 
@@ -309,8 +311,6 @@ def convertSerialDateToMonth(serialDate):
 
 
 def convertDateToSerialDate(dateObj):
-
-    import datetime
 
     temp = datetime.datetime(1899, 12, 30)    # Note, not 31st Dec but 30th!
     delta = dateObj - temp
@@ -329,8 +329,6 @@ def executeSQLStatements(sqlList, sqlCursor):
 
 
 def createDatabase(databaseName, dbPath):
-
-    import sqlite3
 
     dbPath = dbPath + "\\" + databaseName
     sqlObj = {"sqlConnection": sqlite3.connect(dbPath)}
@@ -351,7 +349,6 @@ def closeDatabase(sqlConnection):
 
 def createColumnsDict(list):
 
-    from collections import OrderedDict
     columnsDict = OrderedDict()
 
     for pair in list:
@@ -651,8 +648,6 @@ def mapData(map, valueToGive, valueToGiveColIndex, valueToGetColIndex):
 
 def removeRepeatedDataFromList(listToProcess):
 
-    import copy
-
     newList = copy.deepcopy(listToProcess)
 
     # for row in listToProcess:
@@ -671,7 +666,6 @@ def removeRepeatedDataFromList(listToProcess):
 
 def addTotal(listToProcess, colToTotal, totalsList):
 
-    import copy
     newList = copy.deepcopy(listToProcess)
 
     for rowIndex in range(1, len(listToProcess)):
@@ -698,7 +692,7 @@ def addTotal(listToProcess, colToTotal, totalsList):
 
 def getShortenedPathLib(pathToShorten, lastDirectoryToInclude):
 
-    from pathlib import Path
+    
 
     shortenedPath = pathToShorten.parts[:pathToShorten.parts.index('repos') + 1]
   
@@ -708,15 +702,13 @@ def getShortenedPathLib(pathToShorten, lastDirectoryToInclude):
 
 
 
-def getPathUpFolderTree(pathToClimb, lastDirectory):
+def getPathUpFolderTree(pathToClimb, directoryToFind):
 
-    # from pathlib import Path
-    
     for x in range(0, len(pathToClimb.parts) - 1):
 
         # print(pathToClimb.parents[x])
 
-        if pathToClimb.parents[x].name == lastDirectory:
+        if pathToClimb.parents[x].name == directoryToFind:
             return pathToClimb.parents[x]
 
     return pathToClimb
@@ -724,8 +716,6 @@ def getPathUpFolderTree(pathToClimb, lastDirectory):
 
 
 def replacePartOfPath(pathToConvert, partToBeReplaced, partToReplace):
-
-    from pathlib import Path
     
     return Path(str(pathToConvert).replace(partToBeReplaced, partToReplace))
 
@@ -735,9 +725,7 @@ def replacePartOfPath(pathToConvert, partToBeReplaced, partToReplace):
 def saveToFile(dataObj, nameOfDataObj, fileExtensionToSave, pathToSaveFileTo):
     
     if pathToSaveFileTo:
-        from pathlib import Path
-        import json
-
+        
         fullPathToSaveFileTo = Path(pathToSaveFileTo, nameOfDataObj + '.' + fileExtensionToSave)
 
         if fileExtensionToSave == 'json':
@@ -753,8 +741,6 @@ def saveToFile(dataObj, nameOfDataObj, fileExtensionToSave, pathToSaveFileTo):
 
 def addToPath(basePath, arrayOfPathParts):
 
-    from pathlib import Path
-
     tempPath = basePath
 
     for pathPart in arrayOfPathParts:
@@ -768,6 +754,76 @@ def addToPath(basePath, arrayOfPathParts):
 def getVariableNameStr(dictionaryOfVariables, variableToFind):
 
     return [k for k, v in dictionaryOfVariables if v == variableToFind][0]
+
+
+
+
+
+
+
+
+def generateKey(pathToKeyFile):
+    """
+    Generates a key and save it into a file
+    """
+    
+    generatedKey = Fernet.generate_key()
+
+    with open(pathToKeyFile, 'wb') as keyFileObj:
+        keyFileObj.write(generatedKey)
+
+
+
+def openSavedKey(pathToKeyFile):
+    """
+    Loads the key from the current directory named `keyFile.key`
+    """
+
+    return open(pathToKeyFile, 'rb').read()
+
+
+
+def encryptFile(pathOfFileToProcess, savedKey):
+    """
+    Given a pathOfFileToProcess (str) and key (bytes), it encrypts the file and write it
+    """
+
+    fernetObjUsingKey = Fernet(savedKey)
+
+    with open(pathOfFileToProcess, "rb") as fileObj:
+        # read all file data
+        fileData = fileObj.read()
+
+
+    # encrypt data
+    encryptedFileData = fernetObjUsingKey.encrypt(fileData)
+
+    # write the encrypted file
+    with open(pathOfFileToProcess, "wb") as fileObj:
+        fileObj.write(encryptedFileData)
+
+
+
+def decryptFile(pathOfFileToProcess, savedKey):
+    """
+    Given a pathOfFileToProcess (str) and key (bytes), it decrypts the file and write it
+    """
+
+    fernetObjUsingKey = Fernet(savedKey)
+
+    with open(pathOfFileToProcess, "rb") as fileObj:
+        # read the encrypted data
+        encryptedFileData = fileObj.read()
+
+    # decrypt data
+    decryptedFileData = fernetObjUsingKey.decrypt(encryptedFileData)
+
+    # write the original file
+    with open(pathOfFileToProcess, "wb") as fileObj:
+        fileObj.write(decryptedFileData)
+
+
+
 
 
 
