@@ -32,7 +32,7 @@ def reconcileArraysFunction(runningOnProductionServerBoolean):
         from python.googleSheets.myGoogleSheetsLibrary import _myGspreadFunc
 
         pathToRepos = _myPyFunc.getPathUpFolderTree(pathToThisPythonFile, 'repos')
-        loadedEncryptionKey = _myPyFunc.openSavedKey(Path(pathToRepos, 'privateData', 'python', 'encryption', 'savedEncryptionKey.key'))
+        loadedEncryptionKey = _myPyFunc.openSavedKey(Path(pathToRepos, 'privateData', 'python', 'configData', 'savedEncryptionKey.key'))
     
 
     pathToAPIKey = Path(pathToThisPythonFile.parents[1], 'encryption', 'encryptedAPIKey.json')

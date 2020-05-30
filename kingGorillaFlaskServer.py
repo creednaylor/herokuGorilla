@@ -19,7 +19,7 @@ def runningOnProductionServer(urlStr):
 def setupFlaskServer(flaskApp):
 
 	flaskApp.config['TEMPLATES_AUTO_RELOAD'] = True
-	urlOfSheet = os.environ.get('urlOfPublicGoogleSheet', 'https://www.google.com')
+	urlOfSheet = os.environ.get('urlOfKingGorillaGoogleSheetPublicStr', 'https://www.google.com')
 
 
 	@flaskApp.route('/datarequests', methods=['GET', 'POST'])
