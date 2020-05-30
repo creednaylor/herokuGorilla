@@ -108,7 +108,7 @@ def reconcileArraysFunction(runningOnProductionServerBoolean):
         fileObj.write('')
 
     # return _myPyFunc.addToPath(Path("C:\\"), ['hi', 'hellowasdf'])
-    return os.environ.get('urlOfPublicGoogleSheet', 'https://www.google.com')
+    return os.environ.get('urlOfPublicGoogleSheet', 'https://www.google.com')[:-1] + '871892682'
 
 
 
