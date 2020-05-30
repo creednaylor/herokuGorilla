@@ -5,85 +5,90 @@ from pathlib import Path
 pathToThisPythonFile = Path(__file__).resolve()
 import sys
 
-from ..python.myPythonLibrary import _myPyFunc
-from ..python.googleSheets.myGoogleSheetsLibrary import _myGoogleSheetsFunc
-from ..python.googleSheets.myGoogleSheetsLibrary import _myGspreadFunc
-
-
 from pprint import pprint as p
 import gspread
 
 
-def reconcileArraysFunction(runningOnDevelopmentServerBoolean):
+def reconcileArraysFunction(runningOnProductionServerBoolean):
 
     # pathToRepos = _myPyFunc.getPathUpFolderTree(pathToThisPythonFile, 'repos')
 
-    if runningOnDevelopmentServerBoolean:
-        p('********************Running on development server****************')
+    if runningOnProductionServerBoolean:
+        p('********************Running on production server****************')
+        from ..python.myPythonLibrary import _myPyFunc
+        from ..python.googleSheets.myGoogleSheetsLibrary import _myGoogleSheetsFunc
+        from ..python.googleSheets.myGoogleSheetsLibrary import _myGspreadFunc
+
+        loadedEncryptionKey = os.environ.get('savedEncryptionKeyStr', None)
+
+        
     else:
-        p('********************Not running on development server****************')
+        p('********************Not running on production server****************')
+        sys.path.append(str(pathToThisPythonFile.parents[1]))
+        from python.myPythonLibrary import _myPyFunc
+        from python.googleSheets.myGoogleSheetsLibrary import _myGoogleSheetsFunc
+        from python.googleSheets.myGoogleSheetsLibrary import _myGspreadFunc
 
-    return _myPyFunc.addToPath(Path("C:\\"), ['hi', 'hellow'])
+        pathToRepos = _myPyFunc.getPathUpFolderTree(pathToThisPythonFile, 'repos')
+        loadedEncryptionKey = _myPyFunc.openSavedKey(Path(pathToRepos, 'privateData', 'python', 'encryption', 'savedEncryptionKey.key'))
+    
+
+    pathToAPIKey = Path(pathToThisPythonFile.parents[1], 'encryption', 'encryptedAPIKey.json')
+    pathOfDecryptedFile = Path(pathToAPIKey.parents[0], 'decryptedAPIKey.json')
+    _myPyFunc.decryptFile(pathToAPIKey, loadedEncryptionKey, pathToSaveDecryptedFile=pathOfDecryptedFile)
+        
+    gspObj = gspread.service_account(filename=pathOfDecryptedFile)
+        
+    gspSpreadsheet = gspObj.open('Gorilla - Public')
+    gspFirstTableSheet = gspSpreadsheet.worksheet('firstTable')
+    gspSecondTableSheet = gspSpreadsheet.worksheet('secondTable')
+    gspComparisonTableSheet = gspSpreadsheet.worksheet('comparisonTable')
+    gspEndingFirstTableSheet = gspSpreadsheet.worksheet('endingFirstTable')
+    gspEndingSecondTableSheet = gspSpreadsheet.worksheet('endingSecondTable')
+
+    firstArray = gspFirstTableSheet.get_all_values()
+    secondArray = gspSecondTableSheet.get_all_values()
+    firstArrayFirstRow = firstArray.pop(0)
+    secondArrayFirstRow = secondArray.pop(0)
+
+    firstArrayColumnIndexToCompare = 1
+    secondArrayColumnIndexToCompare = 0
+
+    comparisonArray = [firstArrayFirstRow + ['Side-By-Side'] + secondArrayFirstRow]
+
+    while firstArray:
+
+        firstArrayCurrentRow = firstArray.pop(0)
+        # p(firstArrayCurrentRow)
+        rowToAppend = firstArrayCurrentRow + ['']
+
+        for secondArrayRowIndexCount, secondArrayCurrentRow in enumerate(secondArray):
+
+            # p(secondArrayCurrentRow)
+
+            if firstArrayCurrentRow[firstArrayColumnIndexToCompare] == secondArrayCurrentRow[secondArrayColumnIndexToCompare]:
+
+                secondArrayRowToAppend = secondArray.pop(secondArrayRowIndexCount)
+                rowToAppend = rowToAppend + secondArrayRowToAppend
+
+        comparisonArray.append(rowToAppend)
+
+    # _myGspreadFunc.clearAndResizeSheets([gspComparisonTableSheet, gspEndingFirstTableSheet, gspEndingSecondTableSheet])
+    _myGspreadFunc.updateCells(gspComparisonTableSheet, comparisonArray)
+
+    firstArray.insert(0, firstArrayFirstRow)
+    secondArray.insert(0, secondArrayFirstRow)
+
+    _myGspreadFunc.updateCells(gspEndingFirstTableSheet, firstArray)
+    _myGspreadFunc.updateCells(gspEndingSecondTableSheet, secondArray)
+
+ 
+    with open(pathOfDecryptedFile, "w") as fileObj:
+        fileObj.write('')
+
+    return _myPyFunc.addToPath(Path("C:\\"), ['hi', 'hellowasdf'])
 
 
-
-
-
-
-
-
-    # arrayOfPartsToAddToPath = ['privateData', 'python', 'googleCredentials']
-
-    # pathToCredentialsFileServiceAccount = _myPyFunc.addToPath(pathToRepos, arrayOfPartsToAddToPath + ['usingServiceAccount', 'jsonWithAPIKey.json'])
-
-    # gspObj = gspread.service_account(filename=pathToCredentialsFileServiceAccount)
-    # gspSpreadsheet = gspObj.open("Reconcile Arrays")
-    # gspFirstArraySheet = gspSpreadsheet.worksheet('firstArray')
-    # gspSecondArraySheet = gspSpreadsheet.worksheet('secondArray')
-    # gspComparisonSheet = gspSpreadsheet.worksheet('comparison')
-    # gspEndingFirstArraySheet = gspSpreadsheet.worksheet('endingFirstArray')
-    # gspEndingSecondArraySheet = gspSpreadsheet.worksheet('endingSecondArray')
-
-    # firstArray = gspFirstArraySheet.get_all_values()
-    # secondArray = gspSecondArraySheet.get_all_values()
-
-    # firstArrayColumnIndexToCompare = 8
-    # secondArrayColumnIndexToCompare = 5
-
-    # comparisonArray = [[''] * len(firstArray[0]) + ['Side-By-Side'] + [''] * len(secondArray[0])]
-
-    # # p(firstArray[0:5])
-    # # p(secondArray[14])
-
-    # while firstArray:
-
-    #     currentFirstArrayRow = firstArray.pop(0)
-    #     # p(currentFirstArrayRow)
-    #     rowToAppend = currentFirstArrayRow + ['']
-
-    #     for secondArrayRowCount, currentSecondArrayRow in enumerate(secondArray):
-
-    #         # p(currentSecondArrayRow)
-
-    #         if currentFirstArrayRow[firstArrayColumnIndexToCompare] == currentSecondArrayRow[secondArrayColumnIndexToCompare]:
-
-    #             secondArrayRowToAppend = secondArray.pop(secondArrayRowCount)
-    #             rowToAppend = rowToAppend + currentSecondArrayRow
-
-    #     comparisonArray.append(rowToAppend)
-
-
-    # # p(comparisonArray[0:2])
-
-    # _myGspreadFunc.clearAndResizeSheets([gspComparisonSheet, gspEndingFirstArraySheet, gspEndingSecondArraySheet])
-    # _myGspreadFunc.updateCells(gspComparisonSheet, comparisonArray)
-    # _myGspreadFunc.updateCells(gspEndingFirstArraySheet, firstArray)
-    # _myGspreadFunc.updateCells(gspEndingSecondArraySheet, secondArray)
-
-
-
-
-# reconcileArraysFunction(True)
 
 
 

@@ -1,14 +1,16 @@
+#get public spreadsheet from encryption, or something similar
+
 import json
 from flask import Flask, request, render_template, Response
 import os
 from pprint import pprint as p
 
 
-def runningOnDevelopmentServer(urlStr):
-	if any(strToFind in urlStr for strToFind in ['127.0.0.1:5000', 'localhost:5000']):
-		return True
-	else:
+def runningOnProductionServer(urlStr):
+	if any(strToFind in urlStr for strToFind in ['127.0.0.1:5000', 'localhost:5000', '0.0.0.0']):
 		return False
+	else:
+		return True
 
 
 def setupFlaskServer(flaskApp):
@@ -36,7 +38,7 @@ def setupFlaskServer(flaskApp):
 			if 'processToRun' in requestObj:
 
 				from backend.reconcileArrays import reconcileArrays as reconcileArrays
-				returnValue = reconcileArrays.reconcileArraysFunction(runningOnDevelopmentServer(request.url_root))
+				returnValue = reconcileArrays.reconcileArraysFunction(runningOnProductionServer(request.url_root))
 				return render_template(requestObj['htmlPathToLoad'], valueFromBackend=returnValue)
 
 			else:

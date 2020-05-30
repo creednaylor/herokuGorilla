@@ -783,12 +783,12 @@ def openSavedKey(pathToKeyFile):
 
 
 
-def encryptFile(pathOfFileToProcess, savedKey):
+def encryptFile(pathOfFileToProcess, loadedKey):
     """
     Given a pathOfFileToProcess (str) and key (bytes), it encrypts the file and write it
     """
 
-    fernetObjUsingKey = Fernet(savedKey)
+    fernetObjUsingKey = Fernet(loadedKey)
 
     with open(pathOfFileToProcess, "rb") as fileObj:
         # read all file data
@@ -804,22 +804,23 @@ def encryptFile(pathOfFileToProcess, savedKey):
 
 
 
-def decryptFile(pathOfFileToProcess, savedKey):
+def decryptFile(pathOfEncryptedFile, loadedKey, pathToSaveDecryptedFile=None):
     """
-    Given a pathOfFileToProcess (str) and key (bytes), it decrypts the file and write it
+    Given a pathOfEncryptedFile (str) and key (bytes), it decrypts the file and write it
     """
 
-    fernetObjUsingKey = Fernet(savedKey)
+    fernetObjUsingKey = Fernet(loadedKey)
 
-    with open(pathOfFileToProcess, "rb") as fileObj:
+    with open(pathOfEncryptedFile, "rb") as fileObj:
         # read the encrypted data
         encryptedFileData = fileObj.read()
 
     # decrypt data
     decryptedFileData = fernetObjUsingKey.decrypt(encryptedFileData)
 
+
     # write the original file
-    with open(pathOfFileToProcess, "wb") as fileObj:
+    with open(pathToSaveDecryptedFile, "wb") as fileObj:
         fileObj.write(decryptedFileData)
 
 
