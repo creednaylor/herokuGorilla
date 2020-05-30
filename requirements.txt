@@ -1,4 +1,4 @@
 Flask
 waitress
 gspread
-cryptograpy.fernet
+cryptography
