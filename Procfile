@@ -1,1 +1,1 @@
-web: waitress-serve --port=$PORT kingGorillaFlaskServer:flaskApp
+web: waitress-serve --port=$PORT kingGorillaFlaskServer:kingGorillaFlaskApp

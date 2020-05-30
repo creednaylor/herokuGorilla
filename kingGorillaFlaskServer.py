@@ -60,7 +60,7 @@ def setupFlaskServer(flaskApp):
 
 	if __name__ == '__main__':
 		
-		kingGorillaFlaskApp.run()
+		flaskApp.run()
 
 
 kingGorillaFlaskApp = Flask(__name__, template_folder='./', static_folder='./frontend')
