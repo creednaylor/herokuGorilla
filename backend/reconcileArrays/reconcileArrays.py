@@ -1,8 +1,8 @@
 # clear resultArray sheet when opening google sheet...
 
 
+import os
 from pathlib import Path
-pathToThisPythonFile = Path(__file__).resolve()
 import sys
 
 from pprint import pprint as p
@@ -12,6 +12,8 @@ import gspread
 def reconcileArraysFunction(runningOnProductionServerBoolean):
 
     # pathToRepos = _myPyFunc.getPathUpFolderTree(pathToThisPythonFile, 'repos')
+
+    pathToThisPythonFile = Path(__file__).resolve()
 
     if runningOnProductionServerBoolean:
         p('********************Running on production server****************')
