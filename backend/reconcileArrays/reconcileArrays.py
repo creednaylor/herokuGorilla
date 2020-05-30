@@ -41,7 +41,7 @@ def reconcileArraysFunction(runningOnProductionServerBoolean):
         
     gspObj = gspread.service_account(filename=pathOfDecryptedFile)
         
-    gspSpreadsheet = gspObj.open('Gorilla - Public')
+    gspSpreadsheet = gspObj.open('King Gorilla - Public')
     gspFirstTableSheet = gspSpreadsheet.worksheet('firstTable')
     gspSecondTableSheet = gspSpreadsheet.worksheet('secondTable')
     gspComparisonTableSheet = gspSpreadsheet.worksheet('comparisonTable')
