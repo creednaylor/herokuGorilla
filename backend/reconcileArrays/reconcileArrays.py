@@ -45,7 +45,7 @@ def reconcileArraysFunction(runningOnProductionServerBoolean):
     gspFirstTableSheet = gspSpreadsheet.worksheet('firstTable')
     gspSecondTableSheet = gspSpreadsheet.worksheet('secondTable')
     gspComparisonTableSheet = gspSpreadsheet.worksheet('comparisonTable')
-    gspEndingFirstTableSheet = gspSpreadsheet.worksheet('endingFirstTable')
+    # gspEndingFirstTableSheet = gspSpreadsheet.worksheet('endingFirstTable')
     gspEndingSecondTableSheet = gspSpreadsheet.worksheet('endingSecondTable')
 
     firstArray = gspFirstTableSheet.get_all_values()
@@ -56,7 +56,10 @@ def reconcileArraysFunction(runningOnProductionServerBoolean):
     firstArrayColumnIndexToCompare = 1
     secondArrayColumnIndexToCompare = 0
 
-    comparisonArray = [firstArrayFirstRow + ['Side-By-Side'] + secondArrayFirstRow]
+    comparisonArray = [['firstTable'] + [''] * (len(firstArray[0])) + ['secondTable'] + [''] * (len(secondArray[0]) - 1)]
+    arrayOfColumnTitles = firstArrayFirstRow + [''] + secondArrayFirstRow
+    comparisonArray.append(arrayOfColumnTitles)
+    # p(comparisonArray)
 
     while firstArray:
 
@@ -74,14 +77,30 @@ def reconcileArraysFunction(runningOnProductionServerBoolean):
                 rowToAppend = rowToAppend + secondArrayRowToAppend
 
         comparisonArray.append(rowToAppend)
+        # p(comparisonArray)
 
-    # _myGspreadFunc.clearAndResizeSheets([gspComparisonTableSheet, gspEndingFirstTableSheet, gspEndingSecondTableSheet])
+
+    clearAndResizeParameters = [{
+        'sheetObj': gspComparisonTableSheet,
+        'resizeRows': 3,
+        'startingRowIndexToClear': 0
+    },
+    {
+        'sheetObj': gspEndingSecondTableSheet,
+        'resizeRows': 2,
+        'startingRowIndexToClear': 0
+    }]
+
+
+    
+    _myGspreadFunc.clearAndResizeSheets(clearAndResizeParameters)
+
+
     _myGspreadFunc.updateCells(gspComparisonTableSheet, comparisonArray)
 
-    firstArray.insert(0, firstArrayFirstRow)
+    # firstArray.insert(0, firstArrayFirstRow)
+    # _myGspreadFunc.updateCells(gspEndingFirstTableSheet, firstArray)
     secondArray.insert(0, secondArrayFirstRow)
-
-    _myGspreadFunc.updateCells(gspEndingFirstTableSheet, firstArray)
     _myGspreadFunc.updateCells(gspEndingSecondTableSheet, secondArray)
 
  

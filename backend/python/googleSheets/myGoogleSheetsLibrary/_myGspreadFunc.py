@@ -65,6 +65,7 @@ def clearAndResizeSheets(arrayOfSheetObj):
                 if propertyToCheck not in sheetObj: sheetObj[propertyToCheck] = -1
                 
             clearSheet(sheetObj['startingRowIndexToClear'], sheetObj['endingRowIndexToClear'], sheetObj['startingColumnIndexToClear'], sheetObj['endingColumnIndexToClear'], sheetObj['sheetObj'])
+    
     else:
         for sheetObj in arrayOfSheetObjects:
             sheetObj.resize(rows=1, cols=1)
