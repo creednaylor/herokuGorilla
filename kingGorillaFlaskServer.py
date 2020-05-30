@@ -7,7 +7,10 @@ from pprint import pprint as p
 
 
 def runningOnProductionServer(urlStr):
-	if any(strToFind in urlStr for strToFind in ['127.0.0.1:5000', 'localhost:5000', '0.0.0.0']):
+
+	strToSearch = urlStr
+
+	if any(strToFind in strToSearch for strToFind in ['127.0.0.1:5000', 'localhost:5000', '0.0.0.0:5000']):
 		return False
 	else:
 		return True
@@ -16,7 +19,6 @@ def runningOnProductionServer(urlStr):
 def setupFlaskServer(flaskApp):
 
 	flaskApp.config['TEMPLATES_AUTO_RELOAD'] = True
-
 	urlOfSheet = os.environ.get('urlOfPublicGoogleSheet', 'https://www.google.com')
 
 
@@ -58,9 +60,8 @@ def setupFlaskServer(flaskApp):
 
 	if __name__ == '__main__':
 		
-		flaskAppLoadProcess = ''
-		flaskApp.run()
+		kingGorillaFlaskApp.run()
 
 
-flaskApp = Flask(__name__, template_folder='./', static_folder='./frontend')
-setupFlaskServer(flaskApp)
+kingGorillaFlaskApp = Flask(__name__, template_folder='./', static_folder='./frontend')
+setupFlaskServer(kingGorillaFlaskApp)
