@@ -11,8 +11,6 @@ import gspread
 
 def reconcileArraysFunction(runningOnProductionServerBoolean):
 
-    # pathToRepos = _myPyFunc.getPathUpFolderTree(pathToThisPythonFile, 'repos')
-
     pathToThisPythonFile = Path(__file__).resolve()
 
     if runningOnProductionServerBoolean:
@@ -108,7 +106,7 @@ def reconcileArraysFunction(runningOnProductionServerBoolean):
         fileObj.write('')
 
     # return _myPyFunc.addToPath(Path("C:\\"), ['hi', 'hellowasdf'])
-    return os.environ.get('urlOfPublicGoogleSheet', 'https://www.google.com')[:-1] + '871892682'
+    return os.environ.get('urlOfKingGorillaGoogleSheetPublicStr', 'https://www.google.com')[:-1] + '871892682'
 
 
 
