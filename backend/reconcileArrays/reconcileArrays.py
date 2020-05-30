@@ -107,8 +107,8 @@ def reconcileArraysFunction(runningOnProductionServerBoolean):
     with open(pathOfDecryptedFile, "w") as fileObj:
         fileObj.write('')
 
-    return _myPyFunc.addToPath(Path("C:\\"), ['hi', 'hellowasdf'])
-
+    # return _myPyFunc.addToPath(Path("C:\\"), ['hi', 'hellowasdf'])
+    return os.environ.get('urlOfPublicGoogleSheet', 'https://www.google.com')
 
 
 
