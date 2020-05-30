@@ -5,7 +5,6 @@ from datetime import datetime, date
 import json
 from pathlib import Path
 from pprint import pprint as pp
-import pyautogui
 # import re
 import sqlite3
 import time
@@ -86,6 +85,8 @@ def removeCommaFromStr(s):
 
 
 def repetitiveKeyPress(numberOfTabs, keyToPress):
+
+    import pyautogui
 
     for i in range(0, numberOfTabs):
         pyautogui.press(keyToPress)
