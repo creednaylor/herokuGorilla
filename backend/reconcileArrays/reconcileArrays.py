@@ -54,7 +54,6 @@ def reconcileArraysFunction(runningOnProductionServerBoolean):
 	gspFirstTableSheet = gspSpreadsheet.worksheet('firstTable')
 	gspSecondTableSheet = gspSpreadsheet.worksheet('secondTable')
 	gspComparisonTableSheet = gspSpreadsheet.worksheet('comparisonTable')
-	# gspEndingFirstTableSheet = gspSpreadsheet.worksheet('endingFirstTable')
 	gspEndingSecondTableSheet = gspSpreadsheet.worksheet('endingSecondTable')
 
 	firstArray = gspFirstTableSheet.get_all_values()
@@ -69,6 +68,7 @@ def reconcileArraysFunction(runningOnProductionServerBoolean):
 	arrayOfColumnTitles = firstArrayFirstRow + [''] + secondArrayFirstRow
 	comparisonArray.append(arrayOfColumnTitles)
 	# p(comparisonArray)
+
 
 	while firstArray:
 
@@ -107,8 +107,7 @@ def reconcileArraysFunction(runningOnProductionServerBoolean):
 
 	_myGspreadFunc.updateCells(gspComparisonTableSheet, comparisonArray)
 
-	# firstArray.insert(0, firstArrayFirstRow)
-	# _myGspreadFunc.updateCells(gspEndingFirstTableSheet, firstArray)
+
 	secondArray.insert(0, secondArrayFirstRow)
 	_myGspreadFunc.updateCells(gspEndingSecondTableSheet, secondArray)
 
@@ -118,6 +117,50 @@ def reconcileArraysFunction(runningOnProductionServerBoolean):
 
 
 	return strToReturn
+
+
+
+
+
+# for oauth
+
+# Advanced Usage
+# Custom Authentication
+# Google Colaboratory
+# If you familiar with the Jupyter Notebook, Google Colaboratory is probably the easiest way to get started using gspread:
+
+# from google.colab import auth
+# auth.authenticate_user()
+
+# import gspread
+# from oauth2client.client import GoogleCredentials
+
+# gc = gspread.authorize(GoogleCredentials.get_application_default())
+
+
+
+
+# def authorize(credentials, client_class=Client):
+#     """Login to Google API using OAuth2 credentials.
+#     This is a shortcut function which
+#     instantiates `client_class`.
+#     By default :class:`gspread.Client` is used.
+#     :returns: `client_class` instance.
+#     """
+
+#     client = client_class(auth=credentials)
+#     return client
+
+
+
+
+
+
+
+
+
+
+
 
 
 
