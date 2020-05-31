@@ -21,6 +21,8 @@ def reconcileArraysFunction(runningOnProductionServerBoolean):
 
         loadedEncryptionKey = os.environ.get('savedEncryptionKeyStr', None)
 
+        strToReturn = os.environ.get('urlOfKingGorillaGoogleSheetPublicStr', 'https://www.google.com')[:-1] + '871892682'
+
         
     else:
         p('********************Not running on production server****************')
@@ -28,6 +30,9 @@ def reconcileArraysFunction(runningOnProductionServerBoolean):
         from python.myPythonLibrary import _myPyFunc
         from python.googleSheets.myGoogleSheetsLibrary import _myGoogleSheetsFunc
         from python.googleSheets.myGoogleSheetsLibrary import _myGspreadFunc
+
+        strToReturn = 'hellowasdf'
+        strToReturn = '' 
 
         pathToRepos = _myPyFunc.getPathUpFolderTree(pathToThisPythonFile, 'repos')
         loadedEncryptionKey = _myPyFunc.openSavedKey(Path(pathToRepos, 'privateData', 'python', 'encryption', 'savedEncryptionKey.key'))
@@ -105,8 +110,8 @@ def reconcileArraysFunction(runningOnProductionServerBoolean):
     with open(pathOfDecryptedFile, "w") as fileObj:
         fileObj.write('')
 
-    # return _myPyFunc.addToPath(Path("C:\\"), ['hi', 'hellowasdf'])
-    return os.environ.get('urlOfKingGorillaGoogleSheetPublicStr', 'https://www.google.com')[:-1] + '871892682'
+
+    return strToReturn
 
 
 

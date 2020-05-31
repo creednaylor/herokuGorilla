@@ -1,5 +1,3 @@
-#get public spreadsheet from encryption, or something similar
-
 import json
 from flask import Flask, request, render_template, Response
 import os
