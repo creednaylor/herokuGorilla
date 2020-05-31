@@ -1,7 +1,9 @@
 import json
 from flask import Flask, request, render_template, Response
 import os
+from pathlib import Path
 from pprint import pprint as p
+import sys
 
 
 def runningOnProductionServer(urlStr):
@@ -17,7 +19,19 @@ def runningOnProductionServer(urlStr):
 def setupFlaskServer(flaskApp):
 
 	flaskApp.config['TEMPLATES_AUTO_RELOAD'] = True
-	urlOfSheet = os.environ.get('urlOfKingGorillaGoogleSheetPublicStr', 'https://www.google.com')
+	urlOfSheet = os.environ.get('urlOfKingGorillaGoogleSheetPublicStr')
+
+	if not urlOfSheet:
+
+		pathToThisPythonFile = Path(__file__).resolve()
+		sys.path.append(str(pathToThisPythonFile.parents[0]))
+		from backend.python.myPythonLibrary import _myPyFunc	
+		pathToRepos = _myPyFunc.getPathUpFolderTree(pathToThisPythonFile, 'repos')
+		pathToConfigDataJSON = Path(pathToRepos, 'privateData', 'herokuGorilla', 'configData.json')
+
+		jsonFileObj = open(pathToConfigDataJSON)
+		urlOfSheet = json.load(jsonFileObj)['urlOfKingGorillaGoogleSheetPublicStr']
+
 
 
 	@flaskApp.route('/datarequests', methods=['GET', 'POST'])
