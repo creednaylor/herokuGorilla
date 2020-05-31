@@ -1,6 +1,5 @@
 # clear resultArray sheet when opening google sheet...
 
-
 import json
 import os
 from pathlib import Path
@@ -8,7 +7,6 @@ from pprint import pprint as p
 import sys
 
 import gspread
-
 
 def reconcileArraysFunction(runningOnProductionServerBoolean):
 
