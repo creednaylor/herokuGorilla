@@ -36,7 +36,7 @@ def reconcileArraysFunction(runningOnProductionServerBoolean):
 	strToReturn = 'hellowasdf'
 	strToReturn = os.environ.get('urlOfKingGorillaGoogleSheetPublicStr')
 
-	if strToReturn is None:
+	if not strToReturn:
 
 		pathToConfigDataJSON = Path(pathToRepos, 'privateData', 'herokuGorilla', 'configData.json')
 
