@@ -61,12 +61,17 @@ def reconcileArraysFunction(runningOnProductionServerBoolean):
 	firstArrayFirstRow = firstArray.pop(0)
 	secondArrayFirstRow = secondArray.pop(0)
 
-	firstArrayColumnIndexToCompare = 1
-	secondArrayColumnIndexToCompare = 0
+
+	matchingColumnTitle = ''
+
+	for indexOfColumnIndexFirstArray, columnTitleFirstArray in enumerate(firstArrayFirstRow):
+		for indexOfColumnIndexSecondArray, columnTitleSecondArray in enumerate(secondArrayFirstRow):
+			if columnTitleFirstArray == columnTitleSecondArray:
+				firstArrayColumnIndexToCompare = indexOfColumnIndexFirstArray
+				secondArrayColumnIndexToCompare = indexOfColumnIndexSecondArray
 
 	comparisonArray = [['firstTable'] + [''] * (len(firstArray[0])) + ['secondTable'] + [''] * (len(secondArray[0]) - 1)]
-	arrayOfColumnTitles = firstArrayFirstRow + [''] + secondArrayFirstRow
-	comparisonArray.append(arrayOfColumnTitles)
+	comparisonArray.append(firstArrayFirstRow + [''] + secondArrayFirstRow)
 	# p(comparisonArray)
 
 
