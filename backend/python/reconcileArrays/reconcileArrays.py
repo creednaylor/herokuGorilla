@@ -14,18 +14,19 @@ def reconcileArraysFunction(runningOnProductionServerBoolean):
 
 	if runningOnProductionServerBoolean:
 		p('********************Running on production server****************')
-		from ..python.myPythonLibrary import _myPyFunc
-		from ..python.googleSheets.myGoogleSheetsLibrary import _myGoogleSheetsFunc
-		from ..python.googleSheets.myGoogleSheetsLibrary import _myGspreadFunc
+		from ..myPythonLibrary import _myPyFunc
+		from ..googleSheets.myGoogleSheetsLibrary import _myGoogleSheetsFunc
+		from ..googleSheets.myGoogleSheetsLibrary import _myGspreadFunc
 
 		loadedEncryptionKey = os.environ.get('savedEncryptionKeyStr', None)
 		
 	else:
 		p('********************Not running on production server****************')
+
 		sys.path.append(str(pathToThisPythonFile.parents[1]))
-		from python.myPythonLibrary import _myPyFunc
-		from python.googleSheets.myGoogleSheetsLibrary import _myGoogleSheetsFunc
-		from python.googleSheets.myGoogleSheetsLibrary import _myGspreadFunc
+		from myPythonLibrary import _myPyFunc
+		from googleSheets.myGoogleSheetsLibrary import _myGoogleSheetsFunc
+		from googleSheets.myGoogleSheetsLibrary import _myGspreadFunc
 
 		pathToRepos = _myPyFunc.getPathUpFolderTree(pathToThisPythonFile, 'repos')
 		loadedEncryptionKey = _myPyFunc.openSavedKey(Path(pathToRepos, 'privateData', 'python', 'encryption', 'savedEncryptionKey.key'))
@@ -44,7 +45,7 @@ def reconcileArraysFunction(runningOnProductionServerBoolean):
 	strToReturn = strToReturn[:-1] + '871892682'
 
 
-	pathToAPIKey = Path(pathToThisPythonFile.parents[1], 'configData', 'encryptedAPIKey.json')
+	pathToAPIKey = Path(pathToThisPythonFile.parents[2], 'configData', 'encryptedAPIKey.json')
 	pathOfDecryptedFile = Path(pathToAPIKey.parents[0], 'decryptedAPIKey.json')
 	_myPyFunc.decryptFile(pathToAPIKey, loadedEncryptionKey, pathToSaveDecryptedFile=pathOfDecryptedFile)
 		
@@ -155,16 +156,6 @@ def reconcileArraysFunction(runningOnProductionServerBoolean):
 
 #     client = client_class(auth=credentials)
 #     return client
-
-
-
-
-
-
-
-
-
-
 
 
 

@@ -51,7 +51,7 @@ def setupFlaskServer(flaskApp):
 
 			if 'processToRun' in requestObj:
 
-				from backend.reconcileArrays import reconcileArrays as reconcileArrays
+				from backend.python.reconcileArrays import reconcileArrays as reconcileArrays
 				returnValue = reconcileArrays.reconcileArraysFunction(runningOnProductionServer(request.url_root))
 				return render_template(requestObj['htmlPathToLoad'], valueFromBackend=returnValue)
 
