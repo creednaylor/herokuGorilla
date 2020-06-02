@@ -12,8 +12,8 @@ def runningOnProductionServer(urlStr):
 
 	if any(strToFind in strToSearch for strToFind in ['127.0.0.1:5000', 'localhost:5000', '0.0.0.0:5000']):
 		return False
-	else:
-		return True
+	
+	return True
 
 
 def setupFlaskServer(flaskApp):

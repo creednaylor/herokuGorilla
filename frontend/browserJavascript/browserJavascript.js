@@ -2,21 +2,6 @@ function c(textToLogToConsole) {
 	console.log(textToLogToConsole)
 }
 
-// async function receiveResponseForGetRequestFromServer() {
-// 	async function sendGetRequestFromBrowser() {
-// 		try {
-// 			return (await axios.get('/datarequests')).data
-// 		} catch (e) {
-// 			return null;
-// 		}
-// 	}
-
-// 	var dataReceivedFromServer = await sendGetRequestFromBrowser();
-// 	var jsonReceivedFromServer = JSON.stringify(dataReceivedFromServer)
-
-// 	c(`Received data from server from GET request: ${jsonReceivedFromServer}`)
-// };
-
 
 function sendRequest(requestType, dataWithRequest) {
 		axios({method: requestType, url: '/datarequests', data: dataWithRequest
@@ -39,8 +24,6 @@ function sendRequest(requestType, dataWithRequest) {
 		c(error);
 	});
 }
-
-
 
 
 
@@ -94,6 +77,23 @@ function loadPath(requestType, pathToLoad) {
 	sendRequest(requestType, {"htmlPathToLoad": pathToLoad})
 }
 
+
+
+
+// async function receiveResponseForGetRequestFromServer() {
+// 	async function sendGetRequestFromBrowser() {
+// 		try {
+// 			return (await axios.get('/datarequests')).data
+// 		} catch (e) {
+// 			return null;
+// 		}
+// 	}
+
+// 	var dataReceivedFromServer = await sendGetRequestFromBrowser();
+// 	var jsonReceivedFromServer = JSON.stringify(dataReceivedFromServer)
+
+// 	c(`Received data from server from GET request: ${jsonReceivedFromServer}`)
+// };
 
 
 
