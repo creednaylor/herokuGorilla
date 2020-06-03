@@ -37,13 +37,13 @@ def setupFlaskServer(flaskApp):
 	@flaskApp.route('/datarequests', methods=['GET', 'POST'])
 	def datarequests():
 
-		if request.method == 'GET':
-			dataToSendToFrontend = {
-				'cat eyes': 'yellow',
-				'collar': 'red'
-			}
+		# if request.method == 'GET':
+		# 	dataToSendToFrontend = {
+		# 		'cat eyes': 'yellow',
+		# 		'collar': 'red'
+		# 	}
 
-			return Response(json.dumps(dataToSendToFrontend), mimetype='application/json')
+		# 	return Response(json.dumps(dataToSendToFrontend), mimetype='application/json')
 
 
 		if request.method == 'POST':
@@ -65,13 +65,7 @@ def setupFlaskServer(flaskApp):
 	@flaskApp.route('/')
 	def returnMainPage():
 		return render_template('frontend/htmlTemplates/index.html')
-		# return """	<p>Spreadsheet to reconcile:</p>
-		# 			<button onclick="publicClickFunction()">Public</button>
-		# 			<button onclick="privateClickFunction()">Private</button>
-		# 			<p></p>
-		# 			<img src="./frontend/assets/regal-cat.jpeg" alt="regal cat" />"""
-
-
+		
 	if __name__ == '__main__':
 		
 		flaskApp.run()
