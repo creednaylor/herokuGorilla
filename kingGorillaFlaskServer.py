@@ -51,7 +51,7 @@ def setupFlaskServer(flaskApp):
 
 			if 'processToRun' in requestObj:
 
-				privateSpreadsheetBoolean = True
+				privateSpreadsheetBoolean = False
 				
 				from backend.python.reconcileArrays import reconcileArrays as reconcileArrays
 				returnValue = reconcileArrays.reconcileArraysFunction(runningOnProductionServer(request.url_root), privateSpreadsheetBoolean)
