@@ -45,9 +45,7 @@ def reconcileArraysFunction(runningOnProductionServerBoolean, privateSpreadsheet
 			SAMPLE_RANGE_NAME = 'Class Data!A2:E'
 
 			creds = None
-
 			usePickleFile = True
-
 
 			if usePickleFile:
 
@@ -81,17 +79,13 @@ def reconcileArraysFunction(runningOnProductionServerBoolean, privateSpreadsheet
 
 			# Call the Sheets API
 			sheet = service.spreadsheets()
-			result = sheet.values().get(spreadsheetId=SAMPLE_SPREADSHEET_ID,
-										range=SAMPLE_RANGE_NAME).execute()
+			result = sheet.values().get(spreadsheetId=SAMPLE_SPREADSHEET_ID, range=SAMPLE_RANGE_NAME).execute()
 			values = result.get('values', [])
 
 			if not values:
 				print('No data found.')
 			else:
-				print('Name, Major:')
-				for row in values:
-					# Print columns A and E, which correspond to indices 0 and 4.
-					print('%s, %s' % (row[0], row[4]))
+				print(values)
 
 			return 'completed'
 
