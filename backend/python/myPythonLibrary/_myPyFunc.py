@@ -784,7 +784,7 @@ def openSavedKey(pathToKeyFile):
 
 
 
-def encryptFile(pathOfFileToProcess, loadedKey):
+def encryptFile(pathOfFileToProcess, loadedKey, pathToSaveEncryptedFile=None):
     """
     Given a pathOfFileToProcess (str) and key (bytes), it encrypts the file and write it
     """
@@ -800,7 +800,7 @@ def encryptFile(pathOfFileToProcess, loadedKey):
     encryptedFileData = fernetObjUsingKey.encrypt(fileData)
 
     # write the encrypted file
-    with open(pathOfFileToProcess, "wb") as fileObj:
+    with open(pathToSaveEncryptedFile, "wb") as fileObj:
         fileObj.write(encryptedFileData)
 
 

@@ -29,11 +29,11 @@ def reconcileArraysFunction(runningOnProductionServerBoolean, privateSpreadsheet
 			pathToDecryptedJSONCredentialsFile = Path(pathToEncryptedJSONCredentialsFile.parents[0], 'decryptedJSONCredentialsFile.json')
 			_myPyFunc.decryptFile(pathToEncryptedJSONCredentialsFile, loadedEncryptionKey, pathToSaveDecryptedFile=pathToDecryptedJSONCredentialsFile)
 
-			pathToEncryptedAuthorizedUserForGspreadFile = Path(pathToThisPythonFile.parents[2], 'configData', 'encryptedAuthorizedUserForGspreadFile.json')
-			pathToDecryptedAuthorizedUserForGspreadFile = Path(pathToEncryptedAuthorizedUserForGspreadFile.parents[0], 'decryptedAuthorizedUserForGspreadFile.json')
-			_myPyFunc.decryptFile(pathToEncryptedAuthorizedUserForGspreadFile, loadedEncryptionKey, pathToSaveDecryptedFile=pathToDecryptedAuthorizedUserForGspreadFile)
+			pathToEncryptedAuthorizedUserFile = Path(pathToThisPythonFile.parents[2], 'configData', 'encryptedAuthorizedUserFile.json')
+			pathToDecryptedAuthorizedUserFile = Path(pathToEncryptedAuthorizedUserFile.parents[0], 'decryptedAuthorizedUserFile.json')
+			_myPyFunc.decryptFile(pathToEncryptedAuthorizedUserFile, loadedEncryptionKey, pathToSaveDecryptedFile=pathToDecryptedAuthorizedUserFile)
 
-			decryptedFilesToClear = [pathToDecryptedJSONCredentialsFile, pathToDecryptedAuthorizedUserForGspreadFile]
+			decryptedFilesToClear = [pathToDecryptedJSONCredentialsFile, pathToDecryptedAuthorizedUserFile]
 
 		if not runningOnProductionServerBoolean:
 
@@ -43,19 +43,19 @@ def reconcileArraysFunction(runningOnProductionServerBoolean, privateSpreadsheet
 			from googleSheets.myGoogleSheetsLibrary import _myGspreadFunc
 
 			pathToRepos = _myPyFunc.getPathUpFolderTree(pathToThisPythonFile, 'repos')
-			pathToOAuthCredentialsFolder = Path(pathToRepos, 'privateData', 'python', 'googleCredentials', 'usingOAuth')
-			pathToDecryptedJSONCredentialsFile = Path(pathToOAuthCredentialsFolder, 'jsonForCredentialsRetrieval.json')
-			pathToDecryptedAuthorizedUserForGspreadFile = Path(pathToOAuthCredentialsFolder, 'authorizedUserForGspreadFile.json')
+			pathToOAuthCredentialsFolder = Path(pathToRepos, 'privateData', 'python', 'googleCredentials', 'usingOAuthGspread')
+			pathToDecryptedJSONCredentialsFile = Path(pathToOAuthCredentialsFolder, 'jsonCredentialsFile.json')
+			pathToDecryptedAuthorizedUserFile = Path(pathToOAuthCredentialsFolder, 'authorizedUserFile.json')
 
 
-		credentialsObj = gspread.auth.load_credentials(filename=pathToDecryptedAuthorizedUserForGspreadFile)
+		credentialsObj = gspread.auth.load_credentials(filename=pathToDecryptedAuthorizedUserFile)
 
 		if not credentialsObj:
 
 			flowObj = InstalledAppFlow.from_client_secrets_file(pathToDecryptedJSONCredentialsFile, scopesArray)
 			credentialsObj = flowObj.run_local_server(port=0)
 
-			gspread.auth.store_credentials(credentialsObj, filename=pathToDecryptedAuthorizedUserForGspreadFile)
+			gspread.auth.store_credentials(credentialsObj, filename=pathToDecryptedAuthorizedUserFile)
 
 		gspObj = gspread.client.Client(auth=credentialsObj)
 			
