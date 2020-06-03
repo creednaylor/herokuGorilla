@@ -68,7 +68,7 @@ def reconcileArraysFunction(runningOnProductionServerBoolean, privateSpreadsheet
 			pathToRepos = _myPyFunc.getPathUpFolderTree(pathToThisPythonFile, 'repos')
 			loadedEncryptionKey = _myPyFunc.openSavedKey(Path(pathToRepos, 'privateData', 'python', 'encryption', 'savedEncryptionKey.key'))
 		
-
+		# change code for development server, no need to decrypt file, just get from privateData
 		pathToAPIKey = Path(pathToThisPythonFile.parents[2], 'configData', 'encryptedAPIKey.json')
 		pathOfDecryptedFile = Path(pathToAPIKey.parents[0], 'decryptedAPIKey.json')
 		_myPyFunc.decryptFile(pathToAPIKey, loadedEncryptionKey, pathToSaveDecryptedFile=pathOfDecryptedFile)
@@ -147,7 +147,7 @@ def reconcileArraysFunction(runningOnProductionServerBoolean, privateSpreadsheet
 	_myGspreadFunc.updateCells(gspEndingSecondTableSheet, secondArray)
 
 
-	strToReturn = 'hellowasdf'
+	strToReturn = 'helloresd'
 	strToReturn = os.environ.get('urlOfKingGorillaGoogleSheetPublicStr')
 
 	if not strToReturn:
