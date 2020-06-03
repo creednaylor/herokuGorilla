@@ -27,69 +27,26 @@ def reconcileArraysFunction(runningOnProductionServerBoolean, privateSpreadsheet
 
 			pathToRepos = _myPyFunc.getPathUpFolderTree(pathToThisPythonFile, 'repos')
 			pathToOAuthCredentialsFolder = Path(pathToRepos, 'privateData', 'python', 'googleCredentials', 'usingOAuth')
-			pathToPickleCredentialsFile = Path(pathToOAuthCredentialsFolder, 'pickleFileWithCredentials.pickle')
 			pathToJSONCredentialsFile = Path(pathToOAuthCredentialsFolder, 'jsonForCredentialsRetrieval.json')
+			pathToAuthorizedUserForGspreadFile = Path(pathToOAuthCredentialsFolder, 'authorizedUserForGspreadFile.json')
 
 
-			import pickle
-			import os.path
-			from googleapiclient.discovery import build
+			scopesArray = ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive']
+
+
 			from google_auth_oauthlib.flow import InstalledAppFlow
-			from google.auth.transport.requests import Request
 
-			# If modifying these scopes, delete the file token.pickle.
-			SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly']
+			credentialsObj = gspread.auth.load_credentials(filename=pathToAuthorizedUserForGspreadFile)
 
-			# The ID and range of a sample spreadsheet.
-			SAMPLE_SPREADSHEET_ID = '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms'
-			SAMPLE_RANGE_NAME = 'Class Data!A2:E'
+			if not credentialsObj:
 
-			creds = None
-			usePickleFile = True
+				flowObj = InstalledAppFlow.from_client_secrets_file(pathToJSONCredentialsFile, scopesArray)
+				credentialsObj = flowObj.run_local_server(port=0)
 
-			if usePickleFile:
+				gspread.auth.store_credentials(credentialsObj, filename=pathToAuthorizedUserForGspreadFile)
 
-				# The file token.pickle stores the user's access and refresh tokens, and is
-				# created automatically when the authorization flow completes for the first
-				# time.
-				
-				if os.path.exists(pathToPickleCredentialsFile):
-					with open(pathToPickleCredentialsFile, 'rb') as token:
-						creds = pickle.load(token)
-			
-
-			# If there are no (valid) credentials available, let the user log in.
-			if not creds or not creds.valid:
-
-				if usePickleFile and creds and creds.expired and creds.refresh_token:
-						creds.refresh(Request())
-
-				else:
-
-					flow = InstalledAppFlow.from_client_secrets_file(pathToJSONCredentialsFile, SCOPES)
-					creds = flow.run_local_server(port=0)
-				
-				if usePickleFile:
-					# Save the credentials for the next run
-					with open(pathToPickleCredentialsFile, 'wb') as token:
-						pickle.dump(creds, token)
-
-
-			service = build('sheets', 'v4', credentials=creds)
-
-			# Call the Sheets API
-			sheet = service.spreadsheets()
-			result = sheet.values().get(spreadsheetId=SAMPLE_SPREADSHEET_ID, range=SAMPLE_RANGE_NAME).execute()
-			values = result.get('values', [])
-
-			if not values:
-				print('No data found.')
-			else:
-				print(values)
-
-			return 'completed'
-
-
+			gspObj = gspread.client.Client(auth=credentialsObj)
+			gspSpreadsheet = gspObj.open('King Gorilla - Private')
 
 	else:
 
@@ -112,97 +69,97 @@ def reconcileArraysFunction(runningOnProductionServerBoolean, privateSpreadsheet
 			loadedEncryptionKey = _myPyFunc.openSavedKey(Path(pathToRepos, 'privateData', 'python', 'encryption', 'savedEncryptionKey.key'))
 		
 
-		strToReturn = 'hellowasdf'
-		strToReturn = os.environ.get('urlOfKingGorillaGoogleSheetPublicStr')
-
-		if not strToReturn:
-
-			pathToConfigDataJSON = Path(pathToRepos, 'privateData', 'herokuGorilla', 'configData.json')
-
-			jsonFileObj = open(pathToConfigDataJSON)
-			strToReturn = json.load(jsonFileObj)['urlOfKingGorillaGoogleSheetPublicStr']
-		
-		strToReturn = strToReturn[:-1] + '871892682'
-
-
 		pathToAPIKey = Path(pathToThisPythonFile.parents[2], 'configData', 'encryptedAPIKey.json')
 		pathOfDecryptedFile = Path(pathToAPIKey.parents[0], 'decryptedAPIKey.json')
 		_myPyFunc.decryptFile(pathToAPIKey, loadedEncryptionKey, pathToSaveDecryptedFile=pathOfDecryptedFile)
 			
 		gspObj = gspread.service_account(filename=pathOfDecryptedFile)
+
+		with open(pathOfDecryptedFile, "w") as fileObj:
+			fileObj.write('')
 			
 		gspSpreadsheet = gspObj.open('King Gorilla - Public')
-		gspFirstTableSheet = gspSpreadsheet.worksheet('firstTable')
-		gspSecondTableSheet = gspSpreadsheet.worksheet('secondTable')
-		gspComparisonTableSheet = gspSpreadsheet.worksheet('comparisonTable')
-		gspEndingSecondTableSheet = gspSpreadsheet.worksheet('endingSecondTable')
-
-		firstArray = gspFirstTableSheet.get_all_values()
-		secondArray = gspSecondTableSheet.get_all_values()
-		firstArrayFirstRow = firstArray.pop(0)
-		secondArrayFirstRow = secondArray.pop(0)
 
 
-		matchingColumnTitle = ''
+	gspFirstTableSheet = gspSpreadsheet.worksheet('firstTable')
+	gspSecondTableSheet = gspSpreadsheet.worksheet('secondTable')
+	gspComparisonTableSheet = gspSpreadsheet.worksheet('comparisonTable')
+	gspEndingSecondTableSheet = gspSpreadsheet.worksheet('endingSecondTable')
 
-		for indexOfColumnIndexFirstArray, columnTitleFirstArray in enumerate(firstArrayFirstRow):
-			for indexOfColumnIndexSecondArray, columnTitleSecondArray in enumerate(secondArrayFirstRow):
-				if columnTitleFirstArray == columnTitleSecondArray:
-					firstArrayColumnIndexToCompare = indexOfColumnIndexFirstArray
-					secondArrayColumnIndexToCompare = indexOfColumnIndexSecondArray
+	firstArray = gspFirstTableSheet.get_all_values()
+	secondArray = gspSecondTableSheet.get_all_values()
+	firstArrayFirstRow = firstArray.pop(0)
+	secondArrayFirstRow = secondArray.pop(0)
 
-		comparisonArray = [['firstTable'] + [''] * (len(firstArray[0])) + ['secondTable'] + [''] * (len(secondArray[0]) - 1)]
-		comparisonArray.append(firstArrayFirstRow + [''] + secondArrayFirstRow)
+
+	matchingColumnTitle = ''
+
+	for indexOfColumnIndexFirstArray, columnTitleFirstArray in enumerate(firstArrayFirstRow):
+		for indexOfColumnIndexSecondArray, columnTitleSecondArray in enumerate(secondArrayFirstRow):
+			if columnTitleFirstArray == columnTitleSecondArray:
+				firstArrayColumnIndexToCompare = indexOfColumnIndexFirstArray
+				secondArrayColumnIndexToCompare = indexOfColumnIndexSecondArray
+
+	comparisonArray = [['firstTable'] + [''] * (len(firstArray[0])) + ['secondTable'] + [''] * (len(secondArray[0]) - 1)]
+	comparisonArray.append(firstArrayFirstRow + [''] + secondArrayFirstRow)
+	# p(comparisonArray)
+
+
+	while firstArray:
+
+		firstArrayCurrentRow = firstArray.pop(0)
+		# p(firstArrayCurrentRow)
+		rowToAppend = firstArrayCurrentRow + ['']
+
+		for secondArrayRowIndexCount, secondArrayCurrentRow in enumerate(secondArray):
+
+			# p(secondArrayCurrentRow)
+
+			if firstArrayCurrentRow[firstArrayColumnIndexToCompare] == secondArrayCurrentRow[secondArrayColumnIndexToCompare]:
+
+				secondArrayRowToAppend = secondArray.pop(secondArrayRowIndexCount)
+				rowToAppend = rowToAppend + secondArrayRowToAppend
+
+		comparisonArray.append(rowToAppend)
 		# p(comparisonArray)
 
 
-		while firstArray:
+	clearAndResizeParameters = [{
+		'sheetObj': gspComparisonTableSheet,
+		'resizeRows': 3,
+		'startingRowIndexToClear': 0
+	},
+	{
+		'sheetObj': gspEndingSecondTableSheet,
+		'resizeRows': 2,
+		'startingRowIndexToClear': 0
+	}]
 
-			firstArrayCurrentRow = firstArray.pop(0)
-			# p(firstArrayCurrentRow)
-			rowToAppend = firstArrayCurrentRow + ['']
-
-			for secondArrayRowIndexCount, secondArrayCurrentRow in enumerate(secondArray):
-
-				# p(secondArrayCurrentRow)
-
-				if firstArrayCurrentRow[firstArrayColumnIndexToCompare] == secondArrayCurrentRow[secondArrayColumnIndexToCompare]:
-
-					secondArrayRowToAppend = secondArray.pop(secondArrayRowIndexCount)
-					rowToAppend = rowToAppend + secondArrayRowToAppend
-
-			comparisonArray.append(rowToAppend)
-			# p(comparisonArray)
-
-
-		clearAndResizeParameters = [{
-			'sheetObj': gspComparisonTableSheet,
-			'resizeRows': 3,
-			'startingRowIndexToClear': 0
-		},
-		{
-			'sheetObj': gspEndingSecondTableSheet,
-			'resizeRows': 2,
-			'startingRowIndexToClear': 0
-		}]
-
-
-		
-		_myGspreadFunc.clearAndResizeSheets(clearAndResizeParameters)
-
-
-		_myGspreadFunc.updateCells(gspComparisonTableSheet, comparisonArray)
-
-
-		secondArray.insert(0, secondArrayFirstRow)
-		_myGspreadFunc.updateCells(gspEndingSecondTableSheet, secondArray)
 
 	
-		with open(pathOfDecryptedFile, "w") as fileObj:
-			fileObj.write('')
+	_myGspreadFunc.clearAndResizeSheets(clearAndResizeParameters)
 
 
-		return strToReturn
+	_myGspreadFunc.updateCells(gspComparisonTableSheet, comparisonArray)
+
+
+	secondArray.insert(0, secondArrayFirstRow)
+	_myGspreadFunc.updateCells(gspEndingSecondTableSheet, secondArray)
+
+
+	strToReturn = 'hellowasdf'
+	strToReturn = os.environ.get('urlOfKingGorillaGoogleSheetPublicStr')
+
+	if not strToReturn:
+
+		pathToConfigDataJSON = Path(pathToRepos, 'privateData', 'herokuGorilla', 'configData.json')
+
+		jsonFileObj = open(pathToConfigDataJSON)
+		strToReturn = json.load(jsonFileObj)['urlOfKingGorillaGoogleSheetPublicStr']
+	
+	strToReturn = strToReturn[:-1] + '871892682'
+
+	return strToReturn
 
 
 
@@ -227,15 +184,15 @@ def reconcileArraysFunction(runningOnProductionServerBoolean, privateSpreadsheet
 
 
 # def authorize(credentials, client_class=Client):
-#     """Login to Google API using OAuth2 credentials.
-#     This is a shortcut function which
-#     instantiates `client_class`.
-#     By default :class:`gspread.Client` is used.
-#     :returns: `client_class` instance.
-#     """
+#	 """Login to Google API using OAuth2 credentials.
+#	 This is a shortcut function which
+#	 instantiates `client_class`.
+#	 By default :class:`gspread.Client` is used.
+#	 :returns: `client_class` instance.
+#	 """
 
-#     client = client_class(auth=credentials)
-#     return client
+#	 client = client_class(auth=credentials)
+#	 return client
 
 
 #################################################################################################
@@ -321,3 +278,69 @@ def reconcileArraysFunction(runningOnProductionServerBoolean, privateSpreadsheet
 		# 	for row in values:
 		# 		# Print columns A and E, which correspond to indices 0 and 4.
 		# 		print('%s, %s' % (row[0], row[4]))
+
+
+
+###############################################################################################################
+
+
+
+			# pathToPickleCredentialsFile = Path(pathToOAuthCredentialsFolder, 'pickleFileWithCredentials.pickle')
+
+
+			# import pickle
+			# import os.path
+			# from googleapiclient.discovery import build
+			# from google_auth_oauthlib.flow import InstalledAppFlow
+			# from google.auth.transport.requests import Request
+
+			# # If modifying these scopes, delete the file token.pickle.
+			# SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly']
+
+			# # The ID and range of a sample spreadsheet.
+			# SAMPLE_SPREADSHEET_ID = '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms'
+			# SAMPLE_RANGE_NAME = 'Class Data!A2:E'
+
+			# creds = None
+			# usePickleFile = False
+
+			# if usePickleFile:
+
+			# 	# The file token.pickle stores the user's access and refresh tokens, and is
+			# 	# created automatically when the authorization flow completes for the first
+			# 	# time.
+				
+			# 	if os.path.exists(pathToPickleCredentialsFile):
+			# 		with open(pathToPickleCredentialsFile, 'rb') as token:
+			# 			creds = pickle.load(token)
+			
+
+			# # If there are no (valid) credentials available, let the user log in.
+			# if not creds or not creds.valid:
+
+			# 	if usePickleFile and creds and creds.expired and creds.refresh_token:
+			# 		creds.refresh(Request())
+
+			# 	else:
+
+			# 		flowObj = InstalledAppFlow.from_client_secrets_file(pathToJSONCredentialsFile, SCOPES)
+			# 		creds = flowObj.run_local_server(port=0)
+			# 		p(flowObj)
+				
+			# 	if usePickleFile:
+			# 		# Save the credentials for the next run
+			# 		with open(pathToPickleCredentialsFile, 'wb') as token:
+			# 			pickle.dump(creds, token)
+
+
+			# service = build('sheets', 'v4', credentials=creds)
+
+
+			# sheet = service.spreadsheets()
+			# result = sheet.values().get(spreadsheetId=SAMPLE_SPREADSHEET_ID, range=SAMPLE_RANGE_NAME).execute()
+			# values = result.get('values', [])
+
+			# if not values:
+			# 	print('No data found.')
+			# else:
+			# 	print(values)
