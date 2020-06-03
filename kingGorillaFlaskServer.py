@@ -51,8 +51,10 @@ def setupFlaskServer(flaskApp):
 
 			if 'processToRun' in requestObj:
 
+				privateSpreadsheetBoolean = True
+				
 				from backend.python.reconcileArrays import reconcileArrays as reconcileArrays
-				returnValue = reconcileArrays.reconcileArraysFunction(runningOnProductionServer(request.url_root), 'Private')
+				returnValue = reconcileArrays.reconcileArraysFunction(runningOnProductionServer(request.url_root), privateSpreadsheetBoolean)
 				return render_template(requestObj['htmlPathToLoad'], valueFromBackend=returnValue)
 
 			else:
