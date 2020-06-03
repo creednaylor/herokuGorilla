@@ -1,5 +1,6 @@
 # clear resultArray sheet when opening google sheet...
 
+from google_auth_oauthlib.flow import InstalledAppFlow
 import json
 import os
 from pathlib import Path
@@ -8,50 +9,62 @@ import sys
 
 import gspread
 
-def reconcileArraysFunction(runningOnProductionServerBoolean, privateSpreadsheetBoolean):
+def reconcileArraysFunction(runningOnProductionServerBoolean, privateSpreadsheetBoolean, googleSheetTitle):
 
 	pathToThisPythonFile = Path(__file__).resolve()
 
 	if privateSpreadsheetBoolean:
 
+		scopesArray = ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive']
+
 		if runningOnProductionServerBoolean:
 			
-			pass
+			from ..myPythonLibrary import _myPyFunc
+			# from ..googleSheets.myGoogleSheetsLibrary import _myGoogleSheetsFunc
+			from ..googleSheets.myGoogleSheetsLibrary import _myGspreadFunc
 
-		else:
+			loadedEncryptionKey = os.environ.get('savedEncryptionKeyStr', None)
+
+			pathToEncryptedJSONCredentialsFile = Path(pathToThisPythonFile.parents[2], 'configData', 'encryptedJSONCredentialsFile.json')
+			pathToDecryptedJSONCredentialsFile = Path(pathToEncryptedJSONCredentialsFile.parents[0], 'decryptedJSONCredentialsFile.json')
+			_myPyFunc.decryptFile(pathToEncryptedJSONCredentialsFile, loadedEncryptionKey, pathToSaveDecryptedFile=pathToDecryptedJSONCredentialsFile)
+
+			pathToEncryptedAuthorizedUserForGspreadFile = Path(pathToThisPythonFile.parents[2], 'configData', 'encryptedAuthorizedUserForGspreadFile.json')
+			pathToDecryptedAuthorizedUserForGspreadFile = Path(pathToEncryptedAuthorizedUserForGspreadFile.parents[0], 'decryptedAuthorizedUserForGspreadFile.json')
+			_myPyFunc.decryptFile(pathToEncryptedAuthorizedUserForGspreadFile, loadedEncryptionKey, pathToSaveDecryptedFile=pathToDecryptedAuthorizedUserForGspreadFile)
+
+			decryptedFilesToClear = [pathToDecryptedJSONCredentialsFile, pathToDecryptedAuthorizedUserForGspreadFile]
+
+		if not runningOnProductionServerBoolean:
 
 			sys.path.append(str(pathToThisPythonFile.parents[1]))
 			from myPythonLibrary import _myPyFunc
-			from googleSheets.myGoogleSheetsLibrary import _myGoogleSheetsFunc
+			# from googleSheets.myGoogleSheetsLibrary import _myGoogleSheetsFunc
 			from googleSheets.myGoogleSheetsLibrary import _myGspreadFunc
 
 			pathToRepos = _myPyFunc.getPathUpFolderTree(pathToThisPythonFile, 'repos')
 			pathToOAuthCredentialsFolder = Path(pathToRepos, 'privateData', 'python', 'googleCredentials', 'usingOAuth')
-			pathToJSONCredentialsFile = Path(pathToOAuthCredentialsFolder, 'jsonForCredentialsRetrieval.json')
-			pathToAuthorizedUserForGspreadFile = Path(pathToOAuthCredentialsFolder, 'authorizedUserForGspreadFile.json')
+			pathToDecryptedJSONCredentialsFile = Path(pathToOAuthCredentialsFolder, 'jsonForCredentialsRetrieval.json')
+			pathToDecryptedAuthorizedUserForGspreadFile = Path(pathToOAuthCredentialsFolder, 'authorizedUserForGspreadFile.json')
 
 
-			scopesArray = ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive']
+		credentialsObj = gspread.auth.load_credentials(filename=pathToDecryptedAuthorizedUserForGspreadFile)
 
+		if not credentialsObj:
 
-			from google_auth_oauthlib.flow import InstalledAppFlow
+			flowObj = InstalledAppFlow.from_client_secrets_file(pathToDecryptedJSONCredentialsFile, scopesArray)
+			credentialsObj = flowObj.run_local_server(port=0)
 
-			credentialsObj = gspread.auth.load_credentials(filename=pathToAuthorizedUserForGspreadFile)
+			gspread.auth.store_credentials(credentialsObj, filename=pathToDecryptedAuthorizedUserForGspreadFile)
 
-			if not credentialsObj:
+		gspObj = gspread.client.Client(auth=credentialsObj)
+			
 
-				flowObj = InstalledAppFlow.from_client_secrets_file(pathToJSONCredentialsFile, scopesArray)
-				credentialsObj = flowObj.run_local_server(port=0)
+	if not privateSpreadsheetBoolean:
 
-				gspread.auth.store_credentials(credentialsObj, filename=pathToAuthorizedUserForGspreadFile)
-
-			gspObj = gspread.client.Client(auth=credentialsObj)
-			gspSpreadsheet = gspObj.open('King Gorilla - Private')
-
-	else:
 		if runningOnProductionServerBoolean:
 			from ..myPythonLibrary import _myPyFunc
-			from ..googleSheets.myGoogleSheetsLibrary import _myGoogleSheetsFunc
+			# from ..googleSheets.myGoogleSheetsLibrary import _myGoogleSheetsFunc
 			from ..googleSheets.myGoogleSheetsLibrary import _myGspreadFunc
 
 			loadedEncryptionKey = os.environ.get('savedEncryptionKeyStr', None)
@@ -59,13 +72,14 @@ def reconcileArraysFunction(runningOnProductionServerBoolean, privateSpreadsheet
 			pathToEncryptedAPIKey = Path(pathToThisPythonFile.parents[2], 'configData', 'encryptedAPIKey.json')
 			pathToDecryptedAPIKey = Path(pathToEncryptedAPIKey.parents[0], 'decryptedAPIKey.json')
 			_myPyFunc.decryptFile(pathToEncryptedAPIKey, loadedEncryptionKey, pathToSaveDecryptedFile=pathToDecryptedAPIKey)
-			
-		else:
+			decryptedFilesToClear = [pathToDecryptedAPIKey]
+
+		if not runningOnProductionServerBoolean:
 			p('********************Not running on production server****************')
 
 			sys.path.append(str(pathToThisPythonFile.parents[1]))
 			from myPythonLibrary import _myPyFunc
-			from googleSheets.myGoogleSheetsLibrary import _myGoogleSheetsFunc
+			# from googleSheets.myGoogleSheetsLibrary import _myGoogleSheetsFunc
 			from googleSheets.myGoogleSheetsLibrary import _myGspreadFunc
 
 			pathToRepos = _myPyFunc.getPathUpFolderTree(pathToThisPythonFile, 'repos')
@@ -75,13 +89,14 @@ def reconcileArraysFunction(runningOnProductionServerBoolean, privateSpreadsheet
 		gspObj = gspread.service_account(filename=pathToDecryptedAPIKey)
 
 
-		if runningOnProductionServerBoolean:
-			with open(pathToDecryptedAPIKey, "w") as fileObj:
+
+	if runningOnProductionServerBoolean:
+
+		for decryptedFileToClear in decryptedFilesToClear:
+			with open(decryptedFileToClear, "w") as fileObj:
 				fileObj.write('')
 
-
-		gspSpreadsheet = gspObj.open('King Gorilla - Public')
-
+	gspSpreadsheet = gspObj.open(googleSheetTitle)
 
 	gspFirstTableSheet = gspSpreadsheet.worksheet('firstTable')
 	gspSecondTableSheet = gspSpreadsheet.worksheet('secondTable')
@@ -258,7 +273,7 @@ def reconcileArraysFunction(runningOnProductionServerBoolean, privateSpreadsheet
 		# 		creds.refresh(Request())
 		# 	else:
 		# 		flow = InstalledAppFlow.from_client_secrets_file(
-		# 			pathToJSONCredentialsFile, SCOPES)
+		# 			pathToDecryptedJSONCredentialsFile, SCOPES)
 		# 		creds = flow.run_local_server(port=0)
 			
 		# 	# Save the credentials for the next run
@@ -325,7 +340,7 @@ def reconcileArraysFunction(runningOnProductionServerBoolean, privateSpreadsheet
 
 			# 	else:
 
-			# 		flowObj = InstalledAppFlow.from_client_secrets_file(pathToJSONCredentialsFile, SCOPES)
+			# 		flowObj = InstalledAppFlow.from_client_secrets_file(pathToDecryptedJSONCredentialsFile, SCOPES)
 			# 		creds = flowObj.run_local_server(port=0)
 			# 		p(flowObj)
 				
