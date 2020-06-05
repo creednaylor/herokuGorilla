@@ -64,26 +64,24 @@ function sendRequest(requestType, dataWithRequest) {
 
 
 
-function reconcilePublicClickFunction() {
+function reconcileClickFunction(publicOrPrivateStr) {
 	// sendRequest('get', {});
+
+	if (publicOrPrivateStr == 'Public') {
+		oAuth = false;
+	}
+	else {
+		oAuth = true;
+	}
+
+
 	sendRequest('post', {
-		"htmlPathToLoad": "frontend/htmlTemplates/reconcileArraysHTML/publicOrPrivateHTML/doneHTML/doneReconcilePublic.html",
+		"htmlPathToLoad": "frontend/htmlTemplates/reconcileArraysHTML/publicOrPrivateHTML/doneHTML/doneReconcile" + publicOrPrivateStr + ".html",
 		"processToRun": ["reconcileArrays.py"],
-		"oAuth": false,
-		"googleSheetTitle": 'King Gorilla - Public'
+		"oAuth": oAuth,
+		"googleSheetTitle": "King Gorilla - " + publicOrPrivateStr
 	})
 	// window.location = '/';
-}
-
-
-
-function reconcilePrivateClickFunction() {
-	sendRequest('post', {
-		"htmlPathToLoad": "frontend/htmlTemplates/reconcileArraysHTML/publicOrPrivateHTML/doneHTML/doneReconcilePrivate.html",
-		"processToRun": ["reconcileArrays.py"],
-		"oAuth": true,
-		"googleSheetTitle": 'King Gorilla - Private'
-	})
 }
 
 
