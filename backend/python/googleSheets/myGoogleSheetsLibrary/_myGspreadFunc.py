@@ -1,14 +1,25 @@
-#local application imports
-from pathlib import Path
-import sys
-pathToThisPythonFile = Path(__file__).resolve()
-
-
 #standard library imports
+import os
+from pathlib import Path
 from pprint import pprint as p
+import sys
 
 #third-party imports
 import gspread
+
+
+#local application imports
+pathToThisPythonFile = Path(__file__).resolve()
+
+if os.environ.get('runningOnProductionServer') == 'true':
+	from ...myPythonLibrary import _myPyFunc
+	runningOnProductionServer = True
+else:
+	sys.path.append(str(pathToThisPythonFile.parents[2]))
+	from myPythonLibrary import _myPyFunc
+	runningOnProductionServer = False
+
+
 
 
 def clearArray(startingRowIndex, endingRowIndex, startingColumnIndex, endingColumnIndex, arrayOfSheet):
@@ -122,3 +133,63 @@ def getObjOfSheets(spreadsheetName):
         }
 
     return objOfSheets
+
+
+
+
+
+
+def authorizeGspread(oAuthMode, pathToThisProjectRoot):
+
+	pathToConfigData = Path(pathToThisProjectRoot, 'backend', 'configData')
+
+	if runningOnProductionServer:
+		loadedEncryptionKey = os.environ.get('savedEncryptionKeyStr', None)
+	else:
+		pathToRepos = _myPyFunc.getPathUpFolderTree(pathToThisProjectRoot, 'repos')
+		pathToGoogleCredentials = Path(pathToRepos, 'privateData', 'python', 'googleCredentials')
+
+
+	if oAuthMode:
+
+		scopesArray = ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive']
+
+		if runningOnProductionServer:
+
+			pathToDecryptedJSONCredentialsFile = _myPyFunc.decryptIntoSameFolder(pathToConfigData, 'JSONCredentialsFile.json', loadedEncryptionKey)
+			pathToDecryptedAuthorizedUserFile = _myPyFunc.decryptIntoSameFolder(pathToConfigData, 'AuthorizedUserFile.json', loadedEncryptionKey)
+			decryptedFilesToClear = [pathToDecryptedJSONCredentialsFile, pathToDecryptedAuthorizedUserFile]
+
+		if not runningOnProductionServer:
+
+			pathToDecryptedJSONCredentialsFile = Path(pathToGoogleCredentials, 'usingOAuthGspread', 'jsonCredentialsFile.json')
+			pathToDecryptedAuthorizedUserFile = Path(pathToGoogleCredentials, 'usingOAuthGspread', 'authorizedUserFile.json')
+
+		credentialsObj = gspread.auth.load_credentials(filename=pathToDecryptedAuthorizedUserFile)
+
+
+		if not credentialsObj:
+
+			flowObj = InstalledAppFlow.from_client_secrets_file(pathToDecryptedJSONCredentialsFile, scopesArray)
+			credentialsObj = flowObj.run_local_server(port=0)
+
+			gspread.auth.store_credentials(credentialsObj, filename=pathToDecryptedAuthorizedUserFile)
+
+		gspObj = gspread.client.Client(auth=credentialsObj)
+
+
+	if not oAuthMode:
+
+		if runningOnProductionServer:
+			
+			pathToDecryptedAPIKey = _myPyFunc.decryptIntoSameFolder(pathToConfigData, 'APIKey.json', loadedEncryptionKey)
+			decryptedFilesToClear = [pathToDecryptedAPIKey]
+
+		if not runningOnProductionServer: pathToDecryptedAPIKey = Path(pathToGoogleCredentials, 'usingServiceAccount', 'jsonWithAPIKey.json')
+
+		gspObj = gspread.service_account(filename=pathToDecryptedAPIKey)
+
+
+	if runningOnProductionServer: _myPyFunc.clearDecryptedFiles(decryptedFilesToClear)
+
+	return gspObj

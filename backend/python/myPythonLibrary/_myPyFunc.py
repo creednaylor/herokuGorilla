@@ -827,6 +827,20 @@ def decryptFile(pathOfEncryptedFile, loadedKey, pathToSaveDecryptedFile=None):
 
 
 
+def decryptIntoSameFolder(pathToFolder, fileName, encryptionKey):
+
+	pathToDecryptedFile = Path(pathToFolder, 'decrypted' + fileName)
+
+	decryptFile(Path(pathToFolder, 'encrypted' + fileName), encryptionKey, pathToSaveDecryptedFile=pathToDecryptedFile)
+	return pathToDecryptedFile
+
+
+
+def clearDecryptedFiles(decryptedFilesToClear):
+	for decryptedFileToClear in decryptedFilesToClear:
+			with open(decryptedFileToClear, "w") as fileObj:
+				fileObj.write('')
+
 
 
 
