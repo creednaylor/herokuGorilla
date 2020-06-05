@@ -51,9 +51,17 @@ def setupFlaskServer(flaskApp):
 			requestObj = request.json
 
 			if 'processToRun' in requestObj:
-				from backend.python.googleSheetsApps import reconcileArrays as reconcileArrays
-				returnValue = reconcileArrays.reconcileArraysFunction(requestObj['oAuth'], requestObj['googleSheetTitle'])
-				return render_template(requestObj['htmlPathToLoad'], valueFromBackend=returnValue)
+
+				if requestObj['processToRun'] == ['reconcileArrays.py']:
+					from backend.python.googleSheetsApps import reconcileArrays
+					returnValue = reconcileArrays.reconcileArraysFunction(requestObj['oAuth'], requestObj['googleSheetTitle'])
+					return render_template(requestObj['htmlPathToLoad'], valueFromBackend=returnValue)
+				
+				if requestObj['processToRun'] == ['looper.py']:
+					from backend.python.googleSheetsApps import looper
+					returnValue = looper.reconcileArraysFunction(requestObj['oAuth'], requestObj['googleSheetTitle'])
+					return render_template(requestObj['htmlPathToLoad'], valueFromBackend=returnValue)
+
 			else:
 				return render_template(requestObj['htmlPathToLoad'], valueFromBackend=urlOfSheet)
 
