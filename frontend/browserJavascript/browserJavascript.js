@@ -69,7 +69,7 @@ function reconcilePublicClickFunction() {
 	sendRequest('post', {
 		"htmlPathToLoad": "frontend/htmlTemplates/reconcileArraysHTML/publicOrPrivateHTML/doneHTML/doneReconcilePublic.html",
 		"processToRun": ["python", "googleSheets", "reconcileArrays", "reconcileArrays.py"],
-		"privateSpreadsheetBoolean": false,
+		"oAuth": false,
 		"googleSheetTitle": 'King Gorilla - Public'
 	})
 	// window.location = '/';
@@ -81,7 +81,7 @@ function reconcilePrivateClickFunction() {
 	sendRequest('post', {
 		"htmlPathToLoad": "frontend/htmlTemplates/reconcileArraysHTML/publicOrPrivateHTML/doneHTML/doneReconcilePrivate.html",
 		"processToRun": ["python", "googleSheets", "reconcileArrays", "reconcileArrays.py"],
-		"privateSpreadsheetBoolean": true,
+		"oAuth": true,
 		"googleSheetTitle": 'King Gorilla - Private'
 	})
 }

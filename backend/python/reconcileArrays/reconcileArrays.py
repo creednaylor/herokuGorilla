@@ -1,5 +1,3 @@
-# clear resultArray sheet when opening google sheet...
-
 from google_auth_oauthlib.flow import InstalledAppFlow
 import json
 import os
@@ -10,52 +8,50 @@ import sys
 import gspread
 
 
-
-def gspreadOAuth():
-	pass
-
-
+def decryptConfigData(pathToConfigData, fileNameEncrypted, fileNameDecrypted, encryptionKey):
+	_myPyFunc.decryptFile(Path(pathToConfigData, fileNameEncrypted), encryptionKey, pathToSaveDecryptedFile=Path(pathToConfigData, fileNameDecrypted))
+	return Path(pathToConfigData, fileNameDecrypted)
 
 
-def reconcileArraysFunction(runningOnProductionServerBoolean, privateSpreadsheetBoolean, googleSheetTitle):
+def clearDecryptedFiles(decryptedFilesToClear):
+	for decryptedFileToClear in decryptedFilesToClear:
+			with open(decryptedFileToClear, "w") as fileObj:
+				fileObj.write('')
+
+
+
+def reconcileArraysFunction(runningOnProductionServer, oAuthMode, googleSheetTitle):
 
 	pathToThisPythonFile = Path(__file__).resolve()
+	pathToConfigData = Path(pathToThisPythonFile.parents[2], 'configData')
 
-	if runningOnProductionServerBoolean:
+	if runningOnProductionServer:
 		from ..myPythonLibrary import _myPyFunc
 		from ..googleSheets.myGoogleSheetsLibrary import _myGspreadFunc
 		loadedEncryptionKey = os.environ.get('savedEncryptionKeyStr', None)
 
-	else:
+	if not runningOnProductionServer:
 		sys.path.append(str(pathToThisPythonFile.parents[1]))
 		from myPythonLibrary import _myPyFunc
 		from googleSheets.myGoogleSheetsLibrary import _myGspreadFunc
 
+		pathToRepos = _myPyFunc.getPathUpFolderTree(pathToThisPythonFile, 'repos')
+		pathToGoogleCredentials = Path(pathToRepos, 'privateData', 'python', 'googleCredentials')
 
-
-	if privateSpreadsheetBoolean:
+	if oAuthMode:
 
 		scopesArray = ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive']
 
-		if runningOnProductionServerBoolean:
+		if runningOnProductionServer:
 
-			pathToEncryptedJSONCredentialsFile = Path(pathToThisPythonFile.parents[2], 'configData', 'encryptedJSONCredentialsFile.json')
-			pathToDecryptedJSONCredentialsFile = Path(pathToEncryptedJSONCredentialsFile.parents[0], 'decryptedJSONCredentialsFile.json')
-			_myPyFunc.decryptFile(pathToEncryptedJSONCredentialsFile, loadedEncryptionKey, pathToSaveDecryptedFile=pathToDecryptedJSONCredentialsFile)
-
-			pathToEncryptedAuthorizedUserFile = Path(pathToThisPythonFile.parents[2], 'configData', 'encryptedAuthorizedUserFile.json')
-			pathToDecryptedAuthorizedUserFile = Path(pathToEncryptedAuthorizedUserFile.parents[0], 'decryptedAuthorizedUserFile.json')
-			_myPyFunc.decryptFile(pathToEncryptedAuthorizedUserFile, loadedEncryptionKey, pathToSaveDecryptedFile=pathToDecryptedAuthorizedUserFile)
-
+			pathToDecryptedJSONCredentialFile = decryptConfigData(pathToConfigData, 'encryptedJSONCredentialsFile.json', 'decryptedJSONCredentialsFile.json', loadedEncryptionKey)
+			pathToDecryptedAuthorizedUserFile = decryptConfigData(pathToConfigData, 'encryptedAuthorizedUserFile.json', 'decryptedAuthorizedUserFile.json', loadedEncryptionKey)
 			decryptedFilesToClear = [pathToDecryptedJSONCredentialsFile, pathToDecryptedAuthorizedUserFile]
 
-		if not runningOnProductionServerBoolean:
+		if not runningOnProductionServer:
 
-			pathToRepos = _myPyFunc.getPathUpFolderTree(pathToThisPythonFile, 'repos')
-			pathToOAuthCredentialsFolder = Path(pathToRepos, 'privateData', 'python', 'googleCredentials', 'usingOAuthGspread')
-			pathToDecryptedJSONCredentialsFile = Path(pathToOAuthCredentialsFolder, 'jsonCredentialsFile.json')
-			pathToDecryptedAuthorizedUserFile = Path(pathToOAuthCredentialsFolder, 'authorizedUserFile.json')
-
+			pathToDecryptedJSONCredentialsFile = Path(pathToGoogleCredentials, 'usingOAuthGspread', 'jsonCredentialsFile.json')
+			pathToDecryptedAuthorizedUserFile = Path(pathToGoogleCredentials, 'usingOAuthGspread', 'authorizedUserFile.json')
 
 		credentialsObj = gspread.auth.load_credentials(filename=pathToDecryptedAuthorizedUserFile)
 
@@ -69,31 +65,19 @@ def reconcileArraysFunction(runningOnProductionServerBoolean, privateSpreadsheet
 		gspObj = gspread.client.Client(auth=credentialsObj)
 			
 
-	if not privateSpreadsheetBoolean:
+	if not oAuthMode:
 
-		if runningOnProductionServerBoolean:
+		if runningOnProductionServer:
 			
-			pathToEncryptedAPIKey = Path(pathToThisPythonFile.parents[2], 'configData', 'encryptedAPIKey.json')
-			pathToDecryptedAPIKey = Path(pathToEncryptedAPIKey.parents[0], 'decryptedAPIKey.json')
-			_myPyFunc.decryptFile(pathToEncryptedAPIKey, loadedEncryptionKey, pathToSaveDecryptedFile=pathToDecryptedAPIKey)
+			pathToDecryptedAPIKey = decryptConfigData(pathToConfigData, 'encryptedAPIKey.json', 'decryptedAPIKey.json', loadedEncryptionKey)
 			decryptedFilesToClear = [pathToDecryptedAPIKey]
 
-		if not runningOnProductionServerBoolean:
-			
-			pathToRepos = _myPyFunc.getPathUpFolderTree(pathToThisPythonFile, 'repos')
-			pathToDecryptedAPIKey = Path(pathToRepos, 'privateData', 'python', 'googleCredentials', 'usingServiceAccount', 'jsonWithAPIKey.json')
-
+		if not runningOnProductionServer: pathToDecryptedAPIKey = Path(pathToGoogleCredentials, 'usingServiceAccount', 'jsonWithAPIKey.json')
 
 		gspObj = gspread.service_account(filename=pathToDecryptedAPIKey)
 
 
-
-	if runningOnProductionServerBoolean:
-
-		for decryptedFileToClear in decryptedFilesToClear:
-			with open(decryptedFileToClear, "w") as fileObj:
-				fileObj.write('')
-
+	if runningOnProductionServer: clearDecryptedFiles(decryptedFilesToClear)
 
 	gspSpreadsheet = gspObj.open(googleSheetTitle)
 

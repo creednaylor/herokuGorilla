@@ -51,7 +51,7 @@ def setupFlaskServer(flaskApp):
 
 			if 'processToRun' in requestObj:
 				from backend.python.reconcileArrays import reconcileArrays as reconcileArrays
-				returnValue = reconcileArrays.reconcileArraysFunction(runningOnProductionServer(request.url_root), requestObj['privateSpreadsheetBoolean'], requestObj['googleSheetTitle'])
+				returnValue = reconcileArrays.reconcileArraysFunction(runningOnProductionServer(request.url_root), requestObj['oAuth'], requestObj['googleSheetTitle'])
 				return render_template(requestObj['htmlPathToLoad'], valueFromBackend=returnValue)
 			else:
 				return render_template(requestObj['htmlPathToLoad'], valueFromBackend=urlOfSheet)
