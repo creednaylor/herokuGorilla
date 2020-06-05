@@ -29,7 +29,7 @@ def reconcileArraysFunction(oAuthMode, googleSheetTitle):
 
 
 	pathToRepos = _myPyFunc.getPathUpFolderTree(pathToThisPythonFile, 'repos')
-	pathToThisProjectRoot = pathToThisPythonFile.parents[2]
+	pathToThisProjectRoot = pathToThisPythonFile.parents[3]
 
 	gspObj = _myGspreadFunc.authorizeGspread(oAuthMode, pathToThisProjectRoot)
 
