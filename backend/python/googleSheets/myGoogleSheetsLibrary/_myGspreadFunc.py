@@ -12,7 +12,7 @@ import gspread
 pathToThisPythonFile = Path(__file__).resolve()
 
 if os.environ.get('runningOnProductionServer') == 'true':
-	from ...myPythonLibrary import _myPyFunc
+	from ..myPythonLibrary import _myPyFunc
 	runningOnProductionServer = True
 else:
 	sys.path.append(str(pathToThisPythonFile.parents[2]))
