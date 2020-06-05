@@ -9,37 +9,32 @@ import gspread
 
 
 
-def reconcileArraysFunction(runningOnProductionServer, oAuthMode, googleSheetTitle):
+def decryptIntoSameFolder(pathToFolder, fileName, encryptionKey):
 
-	def decryptIntoSameFolder(pathToFolder, fileName, encryptionKey):
+	pathToDecryptedFile = Path(pathToFolder, 'decrypted' + fileName)
 
-		pathToDecryptedFile = Path(pathToFolder, 'decrypted' + fileName)
-
-		_myPyFunc.decryptFile(Path(pathToFolder, 'encrypted' + fileName), encryptionKey, pathToSaveDecryptedFile=pathToDecryptedFile)
-		return pathToDecryptedFile
+	_myPyFunc.decryptFile(Path(pathToFolder, 'encrypted' + fileName), encryptionKey, pathToSaveDecryptedFile=pathToDecryptedFile)
+	return pathToDecryptedFile
 
 
-	def clearDecryptedFiles(decryptedFilesToClear):
-		for decryptedFileToClear in decryptedFilesToClear:
-				with open(decryptedFileToClear, "w") as fileObj:
-					fileObj.write('')
+
+def clearDecryptedFiles(decryptedFilesToClear):
+	for decryptedFileToClear in decryptedFilesToClear:
+			with open(decryptedFileToClear, "w") as fileObj:
+				fileObj.write('')
 
 
-	pathToThisPythonFile = Path(__file__).resolve()
+
+def authorizeGspread(oAuthMode):
+
 	pathToConfigData = Path(pathToThisPythonFile.parents[2], 'configData')
 
 	if runningOnProductionServer:
-		from ..myPythonLibrary import _myPyFunc
-		from ..googleSheets.myGoogleSheetsLibrary import _myGspreadFunc
 		loadedEncryptionKey = os.environ.get('savedEncryptionKeyStr', None)
-
-	if not runningOnProductionServer:
-		sys.path.append(str(pathToThisPythonFile.parents[1]))
-		from myPythonLibrary import _myPyFunc
-		from googleSheets.myGoogleSheetsLibrary import _myGspreadFunc
-
+	else:
 		pathToRepos = _myPyFunc.getPathUpFolderTree(pathToThisPythonFile, 'repos')
 		pathToGoogleCredentials = Path(pathToRepos, 'privateData', 'python', 'googleCredentials')
+
 
 	if oAuthMode:
 
@@ -57,6 +52,7 @@ def reconcileArraysFunction(runningOnProductionServer, oAuthMode, googleSheetTit
 			pathToDecryptedAuthorizedUserFile = Path(pathToGoogleCredentials, 'usingOAuthGspread', 'authorizedUserFile.json')
 
 		credentialsObj = gspread.auth.load_credentials(filename=pathToDecryptedAuthorizedUserFile)
+
 
 		if not credentialsObj:
 
@@ -82,6 +78,29 @@ def reconcileArraysFunction(runningOnProductionServer, oAuthMode, googleSheetTit
 
 	if runningOnProductionServer: clearDecryptedFiles(decryptedFilesToClear)
 
+	return gspObj
+
+
+
+
+pathToThisPythonFile = Path(__file__).resolve()
+
+if os.environ.get('runningOnProductionServer') == 'true':
+	from ..myPythonLibrary import _myPyFunc
+	from ..googleSheets.myGoogleSheetsLibrary import _myGspreadFunc
+	runningOnProductionServer = True
+else:
+	sys.path.append(str(pathToThisPythonFile.parents[1]))
+	from myPythonLibrary import _myPyFunc
+	from googleSheets.myGoogleSheetsLibrary import _myGspreadFunc
+	runningOnProductionServer = False
+
+
+
+def reconcileArraysFunction(oAuthMode, googleSheetTitle):
+
+	gspObj = authorizeGspread(oAuthMode)
+
 	gspSpreadsheet = gspObj.open(googleSheetTitle)
 
 	gspFirstTableSheet = gspSpreadsheet.worksheet('firstTable')
@@ -93,7 +112,6 @@ def reconcileArraysFunction(runningOnProductionServer, oAuthMode, googleSheetTit
 	secondArray = gspSecondTableSheet.get_all_values()
 	firstArrayFirstRow = firstArray.pop(0)
 	secondArrayFirstRow = secondArray.pop(0)
-
 
 	matchingColumnTitle = ''
 
@@ -150,6 +168,7 @@ def reconcileArraysFunction(runningOnProductionServer, oAuthMode, googleSheetTit
 
 	if not strToReturn:
 
+		pathToRepos = _myPyFunc.getPathUpFolderTree(pathToThisPythonFile, 'repos')
 		pathToConfigDataJSON = Path(pathToRepos, 'privateData', 'herokuGorilla', 'configData.json')
 		jsonFileObj = open(pathToConfigDataJSON)
 		strToReturn = json.load(jsonFileObj)['urlOfKingGorillaGoogleSheetPublicStr']

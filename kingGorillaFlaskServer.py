@@ -6,14 +6,14 @@ from pprint import pprint as p
 import sys
 
 
-def runningOnProductionServer(urlStr):
+# def runningOnProductionServer(urlStr):
 
-	strToSearch = urlStr
+# 	strToSearch = urlStr
 
-	if any(strToFind in strToSearch for strToFind in ['127.0.0.1:5000', 'localhost:5000', '0.0.0.0:5000']):
-		return False
+# 	if any(strToFind in strToSearch for strToFind in ['127.0.0.1:5000', 'localhost:5000', '0.0.0.0:5000']):
+# 		return False
 	
-	return True
+# 	return True
 
 
 def setupFlaskServer(flaskApp):
@@ -23,6 +23,7 @@ def setupFlaskServer(flaskApp):
 
 	if not urlOfSheet:
 
+		runningOnProductionServer = False
 		pathToThisPythonFile = Path(__file__).resolve()
 		sys.path.append(str(pathToThisPythonFile.parents[0]))
 		from backend.python.myPythonLibrary import _myPyFunc	
@@ -51,7 +52,7 @@ def setupFlaskServer(flaskApp):
 
 			if 'processToRun' in requestObj:
 				from backend.python.reconcileArrays import reconcileArrays as reconcileArrays
-				returnValue = reconcileArrays.reconcileArraysFunction(runningOnProductionServer(request.url_root), requestObj['oAuth'], requestObj['googleSheetTitle'])
+				returnValue = reconcileArrays.reconcileArraysFunction(requestObj['oAuth'], requestObj['googleSheetTitle'])
 				return render_template(requestObj['htmlPathToLoad'], valueFromBackend=returnValue)
 			else:
 				return render_template(requestObj['htmlPathToLoad'], valueFromBackend=urlOfSheet)
