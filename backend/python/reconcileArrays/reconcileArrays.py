@@ -8,19 +8,24 @@ import sys
 import gspread
 
 
-def decryptIntoSameFolder(pathToFolder, fileName, encryptionKey):
-	_myPyFunc.decryptFile(Path(pathToFolder, 'encrypted' + fileName), encryptionKey, pathToSaveDecryptedFile=Path(pathToFolder, 'decrypted' + fileName))
-	return Path(pathToFolder, fileNameDecrypted)
 
-
-def clearDecryptedFiles(decryptedFilesToClear):
-	for decryptedFileToClear in decryptedFilesToClear:
-			with open(decryptedFileToClear, "w") as fileObj:
-				fileObj.write('')
 
 
 
 def reconcileArraysFunction(runningOnProductionServer, oAuthMode, googleSheetTitle):
+
+	def decryptIntoSameFolder(pathToFolder, fileName, encryptionKey):
+		_myPyFunc.decryptFile(Path(pathToFolder, 'encrypted' + fileName), encryptionKey, pathToSaveDecryptedFile=Path(pathToFolder, 'decrypted' + fileName))
+		return Path(pathToFolder, fileNameDecrypted)
+
+
+	def clearDecryptedFiles(decryptedFilesToClear):
+		for decryptedFileToClear in decryptedFilesToClear:
+				with open(decryptedFileToClear, "w") as fileObj:
+					fileObj.write('')
+
+
+
 
 	pathToThisPythonFile = Path(__file__).resolve()
 	pathToConfigData = Path(pathToThisPythonFile.parents[2], 'configData')
