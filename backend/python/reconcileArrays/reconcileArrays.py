@@ -8,9 +8,9 @@ import sys
 import gspread
 
 
-def decryptConfigData(pathToConfigData, fileNameEncrypted, fileNameDecrypted, encryptionKey):
-	_myPyFunc.decryptFile(Path(pathToConfigData, fileNameEncrypted), encryptionKey, pathToSaveDecryptedFile=Path(pathToConfigData, fileNameDecrypted))
-	return Path(pathToConfigData, fileNameDecrypted)
+def decryptIntoSameFolder(pathToFolder, fileName, encryptionKey):
+	_myPyFunc.decryptFile(Path(pathToFolder, 'encrypted' + fileName), encryptionKey, pathToSaveDecryptedFile=Path(pathToFolder, 'decrypted' + fileName))
+	return Path(pathToFolder, fileNameDecrypted)
 
 
 def clearDecryptedFiles(decryptedFilesToClear):
@@ -44,8 +44,8 @@ def reconcileArraysFunction(runningOnProductionServer, oAuthMode, googleSheetTit
 
 		if runningOnProductionServer:
 
-			pathToDecryptedJSONCredentialFile = decryptConfigData(pathToConfigData, 'encryptedJSONCredentialsFile.json', 'decryptedJSONCredentialsFile.json', loadedEncryptionKey)
-			pathToDecryptedAuthorizedUserFile = decryptConfigData(pathToConfigData, 'encryptedAuthorizedUserFile.json', 'decryptedAuthorizedUserFile.json', loadedEncryptionKey)
+			pathToDecryptedJSONCredentialFile = decryptIntoSameFolder(pathToConfigData, 'JSONCredentialsFile.json', loadedEncryptionKey)
+			pathToDecryptedAuthorizedUserFile = decryptIntoSameFolder(pathToConfigData, 'AuthorizedUserFile.json', loadedEncryptionKey)
 			decryptedFilesToClear = [pathToDecryptedJSONCredentialsFile, pathToDecryptedAuthorizedUserFile]
 
 		if not runningOnProductionServer:
@@ -69,7 +69,7 @@ def reconcileArraysFunction(runningOnProductionServer, oAuthMode, googleSheetTit
 
 		if runningOnProductionServer:
 			
-			pathToDecryptedAPIKey = decryptConfigData(pathToConfigData, 'encryptedAPIKey.json', 'decryptedAPIKey.json', loadedEncryptionKey)
+			pathToDecryptedAPIKey = decryptIntoSameFolder(pathToConfigData, 'APIKey.json', loadedEncryptionKey)
 			decryptedFilesToClear = [pathToDecryptedAPIKey]
 
 		if not runningOnProductionServer: pathToDecryptedAPIKey = Path(pathToGoogleCredentials, 'usingServiceAccount', 'jsonWithAPIKey.json')
