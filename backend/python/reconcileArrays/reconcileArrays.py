@@ -9,21 +9,35 @@ import sys
 
 import gspread
 
+
+
+def gspreadOAuth():
+	pass
+
+
+
+
 def reconcileArraysFunction(runningOnProductionServerBoolean, privateSpreadsheetBoolean, googleSheetTitle):
 
 	pathToThisPythonFile = Path(__file__).resolve()
+
+	if runningOnProductionServerBoolean:
+		from ..myPythonLibrary import _myPyFunc
+		from ..googleSheets.myGoogleSheetsLibrary import _myGspreadFunc
+		loadedEncryptionKey = os.environ.get('savedEncryptionKeyStr', None)
+
+	else:
+		sys.path.append(str(pathToThisPythonFile.parents[1]))
+		from myPythonLibrary import _myPyFunc
+		from googleSheets.myGoogleSheetsLibrary import _myGspreadFunc
+
+
 
 	if privateSpreadsheetBoolean:
 
 		scopesArray = ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive']
 
 		if runningOnProductionServerBoolean:
-			
-			from ..myPythonLibrary import _myPyFunc
-			# from ..googleSheets.myGoogleSheetsLibrary import _myGoogleSheetsFunc
-			from ..googleSheets.myGoogleSheetsLibrary import _myGspreadFunc
-
-			loadedEncryptionKey = os.environ.get('savedEncryptionKeyStr', None)
 
 			pathToEncryptedJSONCredentialsFile = Path(pathToThisPythonFile.parents[2], 'configData', 'encryptedJSONCredentialsFile.json')
 			pathToDecryptedJSONCredentialsFile = Path(pathToEncryptedJSONCredentialsFile.parents[0], 'decryptedJSONCredentialsFile.json')
@@ -36,11 +50,6 @@ def reconcileArraysFunction(runningOnProductionServerBoolean, privateSpreadsheet
 			decryptedFilesToClear = [pathToDecryptedJSONCredentialsFile, pathToDecryptedAuthorizedUserFile]
 
 		if not runningOnProductionServerBoolean:
-
-			sys.path.append(str(pathToThisPythonFile.parents[1]))
-			from myPythonLibrary import _myPyFunc
-			# from googleSheets.myGoogleSheetsLibrary import _myGoogleSheetsFunc
-			from googleSheets.myGoogleSheetsLibrary import _myGspreadFunc
 
 			pathToRepos = _myPyFunc.getPathUpFolderTree(pathToThisPythonFile, 'repos')
 			pathToOAuthCredentialsFolder = Path(pathToRepos, 'privateData', 'python', 'googleCredentials', 'usingOAuthGspread')
@@ -63,25 +72,14 @@ def reconcileArraysFunction(runningOnProductionServerBoolean, privateSpreadsheet
 	if not privateSpreadsheetBoolean:
 
 		if runningOnProductionServerBoolean:
-			from ..myPythonLibrary import _myPyFunc
-			# from ..googleSheets.myGoogleSheetsLibrary import _myGoogleSheetsFunc
-			from ..googleSheets.myGoogleSheetsLibrary import _myGspreadFunc
-
-			loadedEncryptionKey = os.environ.get('savedEncryptionKeyStr', None)
-
+			
 			pathToEncryptedAPIKey = Path(pathToThisPythonFile.parents[2], 'configData', 'encryptedAPIKey.json')
 			pathToDecryptedAPIKey = Path(pathToEncryptedAPIKey.parents[0], 'decryptedAPIKey.json')
 			_myPyFunc.decryptFile(pathToEncryptedAPIKey, loadedEncryptionKey, pathToSaveDecryptedFile=pathToDecryptedAPIKey)
 			decryptedFilesToClear = [pathToDecryptedAPIKey]
 
 		if not runningOnProductionServerBoolean:
-			p('********************Not running on production server****************')
-
-			sys.path.append(str(pathToThisPythonFile.parents[1]))
-			from myPythonLibrary import _myPyFunc
-			# from googleSheets.myGoogleSheetsLibrary import _myGoogleSheetsFunc
-			from googleSheets.myGoogleSheetsLibrary import _myGspreadFunc
-
+			
 			pathToRepos = _myPyFunc.getPathUpFolderTree(pathToThisPythonFile, 'repos')
 			pathToDecryptedAPIKey = Path(pathToRepos, 'privateData', 'python', 'googleCredentials', 'usingServiceAccount', 'jsonWithAPIKey.json')
 
@@ -95,6 +93,7 @@ def reconcileArraysFunction(runningOnProductionServerBoolean, privateSpreadsheet
 		for decryptedFileToClear in decryptedFilesToClear:
 			with open(decryptedFileToClear, "w") as fileObj:
 				fileObj.write('')
+
 
 	gspSpreadsheet = gspObj.open(googleSheetTitle)
 
@@ -155,22 +154,16 @@ def reconcileArraysFunction(runningOnProductionServerBoolean, privateSpreadsheet
 
 	
 	_myGspreadFunc.clearAndResizeSheets(clearAndResizeParameters)
-
-
 	_myGspreadFunc.updateCells(gspComparisonTableSheet, comparisonArray)
-
 
 	secondArray.insert(0, secondArrayFirstRow)
 	_myGspreadFunc.updateCells(gspEndingSecondTableSheet, secondArray)
 
-
-	strToReturn = 'helloresd'
 	strToReturn = os.environ.get('urlOfKingGorillaGoogleSheetPublicStr')
 
 	if not strToReturn:
 
 		pathToConfigDataJSON = Path(pathToRepos, 'privateData', 'herokuGorilla', 'configData.json')
-
 		jsonFileObj = open(pathToConfigDataJSON)
 		strToReturn = json.load(jsonFileObj)['urlOfKingGorillaGoogleSheetPublicStr']
 	
