@@ -47,7 +47,7 @@ def reconcileArraysFunction(runningOnProductionServer, oAuthMode, googleSheetTit
 
 		if runningOnProductionServer:
 
-			pathToDecryptedJSONCredentialFile = decryptIntoSameFolder(pathToConfigData, 'JSONCredentialsFile.json', loadedEncryptionKey)
+			pathToDecryptedJSONCredentialsFile = decryptIntoSameFolder(pathToConfigData, 'JSONCredentialsFile.json', loadedEncryptionKey)
 			pathToDecryptedAuthorizedUserFile = decryptIntoSameFolder(pathToConfigData, 'AuthorizedUserFile.json', loadedEncryptionKey)
 			decryptedFilesToClear = [pathToDecryptedJSONCredentialsFile, pathToDecryptedAuthorizedUserFile]
 
@@ -66,7 +66,7 @@ def reconcileArraysFunction(runningOnProductionServer, oAuthMode, googleSheetTit
 			gspread.auth.store_credentials(credentialsObj, filename=pathToDecryptedAuthorizedUserFile)
 
 		gspObj = gspread.client.Client(auth=credentialsObj)
-			
+
 
 	if not oAuthMode:
 
