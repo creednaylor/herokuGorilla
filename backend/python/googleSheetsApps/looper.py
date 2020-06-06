@@ -41,16 +41,15 @@ def reconcileArraysFunction(oAuthMode, googleSheetTitle):
 
 	for rowIndex, rowData in enumerate(loopTableArray):
 		if rowIndex > 0:
-			gspLoopTable.update_cell(rowIndex + 1, 2, random.randint(1,101))
+			gspLoopTable.update_cell(rowIndex + 1, 3, random.randint(1,101))
 
 
 	loopTableArray = gspLoopTable.get_all_values()
 
 
 	for rowIndex, rowData in enumerate(loopTableArray):
-		if rowIndex > 0:
-			gspResultTable.update_cell(rowIndex + 1, 1, rowIndex)
-			gspResultTable.update_cell(rowIndex + 1, 2, 1)
+			gspResultTable.update_cell(rowIndex + 1, 1, loopTableArray[rowIndex][0])
+			gspResultTable.update_cell(rowIndex + 1, 2, loopTableArray[rowIndex][3])
 
 
 
