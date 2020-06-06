@@ -14,12 +14,10 @@ pathToThisPythonFile = Path(__file__).resolve()
 if os.environ.get('runningOnProductionServer') == 'true':
 	from ..myPythonLibrary import _myPyFunc
 	from ..googleSheets.myGoogleSheetsLibrary import _myGspreadFunc
-	runningOnProductionServer = True
 else:
 	sys.path.append(str(pathToThisPythonFile.parents[1]))
 	from myPythonLibrary import _myPyFunc
 	from googleSheets.myGoogleSheetsLibrary import _myGspreadFunc
-	runningOnProductionServer = False
 
 
 
@@ -65,7 +63,6 @@ def reconcileArraysFunction(oAuthMode, googleSheetTitle):
 
 
 
-# 
 	strToReturn = os.environ.get('urlOfKingGorillaGoogleSheetPublicStr')
 
 	if not strToReturn:
