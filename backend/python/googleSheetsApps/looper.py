@@ -34,22 +34,17 @@ def reconcileArraysFunction(oAuthMode, googleSheetTitle):
 	gspResultTable = gspSpreadsheet.worksheet('resultTable')
 	
 	loopTableArray = gspLoopTable.get_all_values()
-	resultTableArray = gspResultTable.get_all_values()
 
 	# loopTableArrayFirstRow = loopTableArray.pop(0)
 	# resultTableArrayFirstRow = resultTableArray.pop(0)
 
-	for rowIndex, rowData in enumerate(loopTableArray[1:]):
-		p(rowData)
+	for rowIndex, rowData in enumerate(loopTableArray):
+		if rowIndex > 0:
+			gspLoopTable.update_cell(rowIndex + 1, 2, random.randint(1,101))
 
-
-	gspLoopTable.update_cell(0, 1, 4)
-
-		# row[1] = random.randint(1,101)
+	resultTableArray = gspResultTable.get_all_values()
 
 	# _myGspreadFunc.updateCells(gspLoopTable, loopTableArray)
-
-
 
 	# clearAndResizeParameters = [{
 	# 	'sheetObj': gspComparisonTableSheet,
