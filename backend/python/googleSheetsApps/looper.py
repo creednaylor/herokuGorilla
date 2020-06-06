@@ -7,7 +7,7 @@ import sys
 
 import gspread
 
-
+import random
 
 pathToThisPythonFile = Path(__file__).resolve()
 
@@ -25,75 +25,50 @@ else:
 
 def reconcileArraysFunction(oAuthMode, googleSheetTitle):
 
-
 	pathToRepos = _myPyFunc.getPathUpFolderTree(pathToThisPythonFile, 'repos')
 	pathToThisProjectRoot = pathToThisPythonFile.parents[3]
-
 	gspObj = _myGspreadFunc.authorizeGspread(oAuthMode, pathToThisProjectRoot)
 
 	gspSpreadsheet = gspObj.open(googleSheetTitle)
+	gspLoopTable = gspSpreadsheet.worksheet('loopTable')
+	gspResultTable = gspSpreadsheet.worksheet('resultTable')
+	
+	loopTableArray = gspLoopTable.get_all_values()
+	resultTableArray = gspResultTable.get_all_values()
 
-	gspFirstTableSheet = gspSpreadsheet.worksheet('firstTable')
-	gspSecondTableSheet = gspSpreadsheet.worksheet('secondTable')
-	gspComparisonTableSheet = gspSpreadsheet.worksheet('comparisonTable')
-	gspEndingSecondTableSheet = gspSpreadsheet.worksheet('endingSecondTable')
+	# loopTableArrayFirstRow = loopTableArray.pop(0)
+	# resultTableArrayFirstRow = resultTableArray.pop(0)
 
-	firstArray = gspFirstTableSheet.get_all_values()
-	secondArray = gspSecondTableSheet.get_all_values()
-	firstArrayFirstRow = firstArray.pop(0)
-	secondArrayFirstRow = secondArray.pop(0)
-
-	matchingColumnTitle = ''
-
-	for indexOfColumnIndexFirstArray, columnTitleFirstArray in enumerate(firstArrayFirstRow):
-		for indexOfColumnIndexSecondArray, columnTitleSecondArray in enumerate(secondArrayFirstRow):
-			if columnTitleFirstArray == columnTitleSecondArray:
-				firstArrayColumnIndexToCompare = indexOfColumnIndexFirstArray
-				secondArrayColumnIndexToCompare = indexOfColumnIndexSecondArray
-
-	comparisonArray = [['firstTable'] + [''] * (len(firstArray[0])) + ['secondTable'] + [''] * (len(secondArray[0]) - 1)]
-	comparisonArray.append(firstArrayFirstRow + [''] + secondArrayFirstRow)
-	# p(comparisonArray)
+	for rowIndex, rowData in enumerate(loopTableArray[1:]):
+		p(rowData)
 
 
-	while firstArray:
+	gspLoopTable.update_cell(0, 1, 4)
 
-		firstArrayCurrentRow = firstArray.pop(0)
-		# p(firstArrayCurrentRow)
-		rowToAppend = firstArrayCurrentRow + ['']
+		# row[1] = random.randint(1,101)
 
-		for secondArrayRowIndexCount, secondArrayCurrentRow in enumerate(secondArray):
-
-			# p(secondArrayCurrentRow)
-
-			if firstArrayCurrentRow[firstArrayColumnIndexToCompare] == secondArrayCurrentRow[secondArrayColumnIndexToCompare]:
-
-				secondArrayRowToAppend = secondArray.pop(secondArrayRowIndexCount)
-				rowToAppend = rowToAppend + secondArrayRowToAppend
-
-		comparisonArray.append(rowToAppend)
-		# p(comparisonArray)
+	# _myGspreadFunc.updateCells(gspLoopTable, loopTableArray)
 
 
-	clearAndResizeParameters = [{
-		'sheetObj': gspComparisonTableSheet,
-		'resizeRows': 3,
-		'startingRowIndexToClear': 0
-	},
-	{
-		'sheetObj': gspEndingSecondTableSheet,
-		'resizeRows': 2,
-		'startingRowIndexToClear': 0
-	}]
 
+	# clearAndResizeParameters = [{
+	# 	'sheetObj': gspComparisonTableSheet,
+	# 	'resizeRows': 3,
+	# 	'startingRowIndexToClear': 0
+	# },
+	# {
+	# 	'sheetObj': gspEndingSecondTableSheet,
+	# 	'resizeRows': 2,
+	# 	'startingRowIndexToClear': 0
+	# }]
 
 	
-	_myGspreadFunc.clearAndResizeSheets(clearAndResizeParameters)
-	_myGspreadFunc.updateCells(gspComparisonTableSheet, comparisonArray)
+	# _myGspreadFunc.clearAndResizeSheets(clearAndResizeParameters)
+	
 
-	secondArray.insert(0, secondArrayFirstRow)
-	_myGspreadFunc.updateCells(gspEndingSecondTableSheet, secondArray)
-
+	# secondArray.insert(0, secondArrayFirstRow)
+	# _myGspreadFunc.updateCells(gspEndingSecondTableSheet, secondArray)
+# 
 	strToReturn = os.environ.get('urlOfKingGorillaGoogleSheetPublicStr')
 
 	if not strToReturn:
