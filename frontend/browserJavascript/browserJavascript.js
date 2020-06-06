@@ -64,7 +64,7 @@ function sendRequest(requestType, dataWithRequest) {
 
 
 
-function reconcileClickFunction(publicOrPrivateStr) {
+function runProcessFunction(publicOrPrivateStr, processToRun) {
 	// sendRequest('get', {});
 
 	if (publicOrPrivateStr == 'Public') {
@@ -76,8 +76,8 @@ function reconcileClickFunction(publicOrPrivateStr) {
 
 
 	sendRequest('post', {
-		"htmlPathToLoad": "frontend/htmlTemplates/reconcileArraysHTML/publicOrPrivateHTML/doneHTML/doneReconcile" + publicOrPrivateStr + ".html",
-		"processToRun": ["reconcileArrays.py"],
+		"htmlPathToLoad": "frontend/htmlTemplates/" + processToRun + "HTML/publicOrPrivateHTML/doneHTML/" + processToRun + publicOrPrivateStr + "Done.html",
+		"processToRun": [processToRun + ".py"],
 		"oAuth": oAuth,
 		"googleSheetTitle": "King Gorilla - " + publicOrPrivateStr
 	})
