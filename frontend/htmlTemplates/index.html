@@ -2,29 +2,38 @@
 <html>
 
 <head>
-	<title>Gorilla</title>
-	<meta charset="utf-8" />
-	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans">
-	<!-- <link rel="stylesheet" type="text/css" href="https://github.com/creednaylor/publicProjects/blob/master/herokuGeneral/frontend/css/styles.css"> -->
-	<link rel="stylesheet" type="text/css" href="frontend/css/styles.css">
-	<link rel="shortcut icon" href="frontend/assets/favicon.ico">
+    <title>Gorilla</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans">
+    <!-- <link rel="stylesheet" type="text/css" href="https://github.com/creednaylor/publicProjects/blob/master/herokuGeneral/frontend/css/styles.css"> -->
+    <link rel="stylesheet" type="text/css" href="frontend/css/styles.css">
+    <link rel="shortcut icon" href="frontend/assets/favicon.ico">
 </head>
 
 <body>
-	<div>
-		<div id=divTitle>
-			<div style="font-size: 20px">Welcome to</div>
-			<div>King Gorilla</div>
-			<div><img src="frontend/assets/freeGorillaW.png" width="50"></div>
-	</div>
-	<div id=divBody>
-		<div>Select an app:</div>
-		<p></p>
-		<div class="divListItem"><span onclick="loadPath('post', 'frontend/htmlTemplates/reconcileArraysHTML/reconcileArrays.html')">Reconcile</span></div>
-		<div class="divListItem"><span onclick="loadPath('post', 'frontend/htmlTemplates/looperHTML/looper.html')")">Looper</span></div>
-	</div>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.js"></script>
-	<script src="frontend/browserJavascript/browserJavascript.js"></script>
+    <div>
+        <div id=divTitle>
+            <div style="font-size: 20px">Welcome to</div>
+            <div>King Gorilla</div>
+            <div><img src="frontend/assets/freeGorillaW.png" width="50"></div>
+    </div>
+    <div id=divBody>
+        <div>Select an app:</div>
+        <p></p>
+        <div class="divListItem"><span onclick="loadPath('post', 'frontend/htmlTemplates/reconcileArraysHTML/reconcileArrays.html')">Reconcile</span></div>
+        <div class="divListItem"><span onclick="loadPath('post', 'frontend/htmlTemplates/looperHTML/looper.html')")">Looper</span></div>
+        <div id="like_button_container"></div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.js"></script>
+    <script src="frontend/browserJavascript/browserJavascript.js"></script>
+    
+    <!-- Load React. -->
+    <!-- Note: when deploying, replace "development.js" with "production.min.js". -->
+    <script src="https://unpkg.com/react@16/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js" crossorigin></script>
+
+    <!-- Load our React component. -->
+    <script src="like_button.js"></script>
 </body>
 
 </html>
