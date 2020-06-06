@@ -35,45 +35,36 @@ def reconcileArraysFunction(oAuthMode, googleSheetTitle):
 	
 	loopTableArray = gspLoopTable.get_all_values()
 
-	# loopTableArrayFirstRow = loopTableArray.pop(0)
-	# resultTableArrayFirstRow = resultTableArray.pop(0)
-
 
 	for rowIndex, rowData in enumerate(loopTableArray):
 		if rowIndex > 0:
 			gspLoopTable.update_cell(rowIndex + 1, 3, random.randint(1,101))
 
-
 	loopTableArray = gspLoopTable.get_all_values()
 
+	clearAndResizeParameters = [{
+		'sheetObj': gspResultTable,
+		'resizeRows': 2,
+		'startingRowIndexToClear': 0
+	}]
+
+	_myGspreadFunc.clearAndResizeSheets(clearAndResizeParameters)
+
+
+
+	resultTableForUpdateArray = []
 
 	for rowIndex, rowData in enumerate(loopTableArray):
-			gspResultTable.update_cell(rowIndex + 1, 1, loopTableArray[rowIndex][0])
-			gspResultTable.update_cell(rowIndex + 1, 2, loopTableArray[rowIndex][3])
+		if rowIndex > 0:
+			resultTableForUpdateArray.append([int(loopTableArray[rowIndex][0]), int(loopTableArray[rowIndex][3])])
+		else:
+			resultTableForUpdateArray.append([loopTableArray[rowIndex][0], loopTableArray[rowIndex][3]])
+		
+
+	_myGspreadFunc.updateCells(gspResultTable, resultTableForUpdateArray)
 
 
 
-
-
-	# _myGspreadFunc.updateCells(gspLoopTable, loopTableArray)
-
-	# clearAndResizeParameters = [{
-	# 	'sheetObj': gspComparisonTableSheet,
-	# 	'resizeRows': 3,
-	# 	'startingRowIndexToClear': 0
-	# },
-	# {
-	# 	'sheetObj': gspEndingSecondTableSheet,
-	# 	'resizeRows': 2,
-	# 	'startingRowIndexToClear': 0
-	# }]
-
-	
-	# _myGspreadFunc.clearAndResizeSheets(clearAndResizeParameters)
-	
-
-	# secondArray.insert(0, secondArrayFirstRow)
-	# _myGspreadFunc.updateCells(gspEndingSecondTableSheet, secondArray)
 # 
 	strToReturn = os.environ.get('urlOfKingGorillaGoogleSheetPublicStr')
 
