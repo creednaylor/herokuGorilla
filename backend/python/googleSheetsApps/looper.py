@@ -38,11 +38,23 @@ def reconcileArraysFunction(oAuthMode, googleSheetTitle):
 	# loopTableArrayFirstRow = loopTableArray.pop(0)
 	# resultTableArrayFirstRow = resultTableArray.pop(0)
 
+
 	for rowIndex, rowData in enumerate(loopTableArray):
 		if rowIndex > 0:
 			gspLoopTable.update_cell(rowIndex + 1, 2, random.randint(1,101))
 
-	resultTableArray = gspResultTable.get_all_values()
+
+	loopTableArray = gspLoopTable.get_all_values()
+
+
+	for rowIndex, rowData in enumerate(loopTableArray):
+		if rowIndex > 0:
+			gspResultTable.update_cell(rowIndex + 1, 1, rowIndex)
+			gspResultTable.update_cell(rowIndex + 1, 2, 1)
+
+
+
+
 
 	# _myGspreadFunc.updateCells(gspLoopTable, loopTableArray)
 
