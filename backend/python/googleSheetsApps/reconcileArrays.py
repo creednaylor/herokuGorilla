@@ -1,3 +1,6 @@
+#rename to match
+
+
 from google_auth_oauthlib.flow import InstalledAppFlow
 import json
 import os
@@ -18,6 +21,16 @@ else:
 	sys.path.append(str(pathToThisPythonFile.parents[1]))
 	from myPythonLibrary import _myPyFunc
 	from googleSheets.myGoogleSheetsLibrary import _myGspreadFunc
+
+
+def columnsMatch(firstArrayCurrentRow, secondArrayCurrentRow, firstArrayColumnsToMatch, secondArrayColumnsToMatch):
+
+	for columnIndex in range(0, len(firstArrayColumnsToMatch) - 1):
+
+		if firstArrayCurrentRow[columnIndex] != secondArrayCurrentRow[columnIndex]:
+			return False
+		
+	return True
 
 
 
@@ -43,17 +56,23 @@ def reconcileArraysFunction(oAuthMode, googleSheetTitle):
 	firstArrayFirstRow = firstArray.pop(0)
 	secondArrayFirstRow = secondArray.pop(0)
 
-	matchingColumnTitle = ''
-
-	for indexOfColumnIndexFirstArray, columnTitleFirstArray in enumerate(firstArrayFirstRow):
-		for indexOfColumnIndexSecondArray, columnTitleSecondArray in enumerate(secondArrayFirstRow):
-			if columnTitleFirstArray == columnTitleSecondArray:
-				firstArrayColumnIndexToCompare = indexOfColumnIndexFirstArray
-				secondArrayColumnIndexToCompare = indexOfColumnIndexSecondArray
-
 	comparisonArray = [['firstTable'] + [''] * (len(firstArray[0])) + ['secondTable'] + [''] * (len(secondArray[0]) - 1)]
 	comparisonArray.append(firstArrayFirstRow + [''] + secondArrayFirstRow)
 	# p(comparisonArray)
+
+
+	if oAuthMode:
+		matchingColumnTitle = ''
+
+		for indexOfColumnIndexFirstArray, columnTitleFirstArray in enumerate(firstArrayFirstRow):
+			for indexOfColumnIndexSecondArray, columnTitleSecondArray in enumerate(secondArrayFirstRow):
+				if columnTitleFirstArray == columnTitleSecondArray:
+					firstArrayColumnsToMatch = [indexOfColumnIndexFirstArray]
+					secondArrayColumnsToMatch = [indexOfColumnIndexSecondArray]
+
+	else:
+		firstArrayColumnsToMatch = [0, 1, 2]
+		secondArrayColumnsToMatch = [0, 1, 2]
 
 
 	while firstArray:
@@ -64,12 +83,12 @@ def reconcileArraysFunction(oAuthMode, googleSheetTitle):
 
 		for secondArrayRowIndexCount, secondArrayCurrentRow in enumerate(secondArray):
 
-			# p(secondArrayCurrentRow)
-
-			if firstArrayCurrentRow[firstArrayColumnIndexToCompare] == secondArrayCurrentRow[secondArrayColumnIndexToCompare]:
+			if columnsMatch(firstArrayCurrentRow, secondArrayCurrentRow, firstArrayColumnsToMatch, secondArrayColumnsToMatch):
 
 				secondArrayRowToAppend = secondArray.pop(secondArrayRowIndexCount)
 				rowToAppend = rowToAppend + secondArrayRowToAppend
+				break
+
 
 		comparisonArray.append(rowToAppend)
 		# p(comparisonArray)
@@ -78,12 +97,14 @@ def reconcileArraysFunction(oAuthMode, googleSheetTitle):
 	clearAndResizeParameters = [{
 		'sheetObj': gspComparisonTableSheet,
 		'resizeRows': 3,
-		'startingRowIndexToClear': 0
+		'startingRowIndexToClear': 0,
+		'resizeColumns': 1
 	},
 	{
 		'sheetObj': gspEndingSecondTableSheet,
 		'resizeRows': 2,
-		'startingRowIndexToClear': 0
+		'startingRowIndexToClear': 0,
+		'resizeColumns': 1
 	}]
 
 
