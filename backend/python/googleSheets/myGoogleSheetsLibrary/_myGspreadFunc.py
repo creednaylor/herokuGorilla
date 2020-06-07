@@ -217,3 +217,11 @@ def authorizeGspread(oAuthMode, pathToThisProjectRoot):
 	if runningOnProductionServer: _myPyFunc.clearDecryptedFiles(decryptedFilesToClear)
 
 	return gspObj
+
+
+
+def updateCell(sheetToUpdate, rowIndex, columnIndex, valueToUpdate):
+
+    sheetToUpdate.update_cell(rowIndex + 1, columnIndex + 1, valueToUpdate)
+
+
