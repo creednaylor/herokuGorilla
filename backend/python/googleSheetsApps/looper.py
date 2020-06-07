@@ -34,7 +34,8 @@ def looperFunction(oAuthMode, googleSheetTitle):
 	
 	clearAndResizeParameters = [{
 		'sheetObj': gspResultTable,
-		'startingRowIndexToClear': 0
+		'startingRowIndexToClear': 0,
+		'resizeColumns': 1
 	}]
 
 	_myGspreadFunc.clearAndResizeSheets(clearAndResizeParameters)
@@ -42,29 +43,32 @@ def looperFunction(oAuthMode, googleSheetTitle):
 
 	loopTableArray = gspLoopTable.get_all_values()
 
-	for rowIndex, rowData in enumerate(loopTableArray):
-		if rowIndex > 0:
-			_myGspreadFunc.updateCell(gspLoopTable, rowIndex, 1, random.randint(1,101))
-			gspLoopTable.update_cell(rowIndex + 1, 3, random.randint(1,101))
 
-	loopTableArray = gspLoopTable.get_all_values()
+	if oAuthMode:
+		pass
+	else:
+		for rowIndex, rowData in enumerate(loopTableArray):
+			if rowIndex > 0:
+				_myGspreadFunc.updateCell(gspLoopTable, rowIndex, 1, random.randint(1,101))
+				_myGspreadFunc.updateCell(gspLoopTable, rowIndex, 2, random.randint(1,101))
 
-	for rowIndex, rowData in enumerate(loopTableArray):
+		loopTableArray = gspLoopTable.get_all_values()
 
-		if rowIndex == 0:
-			calculationTableArray = gspCalculationTable.get_all_values()
 
-			gspResultTable.update_cell(rowIndex + 1, 0 + 1, loopTableArray[rowIndex][0])
-			gspResultTable.update_cell(rowIndex + 1, 1 + 1, calculationTableArray[rowIndex][2])
-		
-		else:
-			gspCalculationTable.update_cell(1 + 1, 0 + 1, rowData[1])
-			gspCalculationTable.update_cell(1 + 1, 1 + 1, rowData[2])
-			calculationTableArray = gspCalculationTable.get_all_values()
+		calculationTableArray = gspCalculationTable.get_all_values()
+		resultTableArray = [[loopTableArray[0][0], calculationTableArray[0][2]]]
 
-			gspResultTable.update_cell(rowIndex + 1, 0 + 1, loopTableArray[rowIndex][0])
-			gspResultTable.update_cell(rowIndex + 1, 1 + 1, calculationTableArray[1][2])
+		for rowIndex, rowData in enumerate(loopTableArray):
 
+			if rowIndex > 0:
+				_myGspreadFunc.updateCell(gspCalculationTable, 1, 0, rowData[1])
+				_myGspreadFunc.updateCell(gspCalculationTable, 1, 1, rowData[2])
+				calculationTableArray = gspCalculationTable.get_all_values()
+
+				resultTableArray.append([loopTableArray[rowIndex][0], calculationTableArray[1][2]])
+
+
+	_myGspreadFunc.updateCells(gspResultTable, resultTableArray)
 
 
 	strToReturn = os.environ.get('urlOfKingGorillaGoogleSheetPublicStr')
