@@ -118,6 +118,11 @@ def reconcileArraysFunction(oAuthMode, googleSheetTitle):
 	secondArray.insert(0, secondArrayFirstRow)
 	_myGspreadFunc.updateCells(gspEndingSecondTableSheet, secondArray)
 
+
+	_myGspreadFunc.autoResizeColumnsOnSheet(gspSpreadsheet, 'comparisonTable')
+
+	
+
 	strToReturn = os.environ.get('urlOfKingGorillaGoogleSheetPublicStr')
 
 	if not strToReturn:

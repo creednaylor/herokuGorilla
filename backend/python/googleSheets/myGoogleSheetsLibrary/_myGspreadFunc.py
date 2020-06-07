@@ -106,6 +106,30 @@ def updateCells(gspSheetOfArray, arrayOfSheet):
 
 
 
+def autoResizeColumnsOnSheet(gspSpreadsheet, sheetName):
+
+    body = {
+        "requests": [
+            {
+                "autoResizeDimensions": {
+                    "dimensions": {
+                        "sheetId": gspSpreadsheet.worksheet(sheetName)._properties['sheetId'],
+                        "dimension": "COLUMNS",
+                        "startIndex": 0,  # Please set the column index.
+                        # "endIndex": 2  # Please set the column index.
+                    }
+                }
+            }
+        ]
+    }
+
+    gspSpreadsheet.batch_update(body)
+
+
+
+
+
+
 def getGspSpreadsheetObj(spreadsheetName):
     #return gspread spreadsheet object
 
