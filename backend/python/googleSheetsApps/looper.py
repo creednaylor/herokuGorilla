@@ -21,7 +21,7 @@ else:
 
 
 
-def reconcileArraysFunction(oAuthMode, googleSheetTitle):
+def looperFunction(oAuthMode, googleSheetTitle):
 
 	pathToRepos = _myPyFunc.getPathUpFolderTree(pathToThisPythonFile, 'repos')
 	pathToThisProjectRoot = pathToThisPythonFile.parents[3]
@@ -29,37 +29,41 @@ def reconcileArraysFunction(oAuthMode, googleSheetTitle):
 
 	gspSpreadsheet = gspObj.open(googleSheetTitle)
 	gspLoopTable = gspSpreadsheet.worksheet('loopTable')
+	gspCalculationTable = gspSpreadsheet.worksheet('calculationTable')
 	gspResultTable = gspSpreadsheet.worksheet('resultTable')
 	
-	loopTableArray = gspLoopTable.get_all_values()
-
-
-	for rowIndex, rowData in enumerate(loopTableArray):
-		if rowIndex > 0:
-			gspLoopTable.update_cell(rowIndex + 1, 3, random.randint(1,101))
-
-	loopTableArray = gspLoopTable.get_all_values()
-
 	clearAndResizeParameters = [{
 		'sheetObj': gspResultTable,
-		'resizeRows': 2,
 		'startingRowIndexToClear': 0
 	}]
 
 	_myGspreadFunc.clearAndResizeSheets(clearAndResizeParameters)
 
 
-
-	resultTableForUpdateArray = []
+	loopTableArray = gspLoopTable.get_all_values()
 
 	for rowIndex, rowData in enumerate(loopTableArray):
 		if rowIndex > 0:
-			resultTableForUpdateArray.append([int(loopTableArray[rowIndex][0]), int(loopTableArray[rowIndex][3])])
-		else:
-			resultTableForUpdateArray.append([loopTableArray[rowIndex][0], loopTableArray[rowIndex][3]])
-		
+			gspLoopTable.update_cell(rowIndex + 1, 2, random.randint(1,101))
+			gspLoopTable.update_cell(rowIndex + 1, 3, random.randint(1,101))
 
-	_myGspreadFunc.updateCells(gspResultTable, resultTableForUpdateArray)
+	loopTableArray = gspLoopTable.get_all_values()
+
+	for rowIndex, rowData in enumerate(loopTableArray):
+
+		if rowIndex == 0:
+			calculationTableArray = gspCalculationTable.get_all_values()
+
+			gspResultTable.update_cell(rowIndex + 1, 0 + 1, loopTableArray[rowIndex][0])
+			gspResultTable.update_cell(rowIndex + 1, 1 + 1, calculationTableArray[rowIndex][2])
+		
+		else:
+			gspCalculationTable.update_cell(1 + 1, 0 + 1, rowData[1])
+			gspCalculationTable.update_cell(1 + 1, 1 + 1, rowData[2])
+			calculationTableArray = gspCalculationTable.get_all_values()
+
+			gspResultTable.update_cell(rowIndex + 1, 0 + 1, loopTableArray[rowIndex][0])
+			gspResultTable.update_cell(rowIndex + 1, 1 + 1, calculationTableArray[1][2])
 
 
 

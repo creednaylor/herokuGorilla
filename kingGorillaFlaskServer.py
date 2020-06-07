@@ -59,7 +59,7 @@ def setupFlaskServer(flaskApp):
 				
 				if requestObj['processToRun'] == ['looper.py']:
 					from backend.python.googleSheetsApps import looper
-					returnValue = looper.reconcileArraysFunction(requestObj['oAuth'], requestObj['googleSheetTitle'])
+					returnValue = looper.looperFunction(requestObj['oAuth'], requestObj['googleSheetTitle'])
 					return render_template(requestObj['htmlPathToLoad'], valueFromBackend=returnValue)
 
 			else:
