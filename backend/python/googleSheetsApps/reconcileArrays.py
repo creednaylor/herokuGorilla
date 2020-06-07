@@ -81,13 +81,14 @@ def reconcileArraysFunction(oAuthMode, googleSheetTitle):
 		# p(firstArrayCurrentRow)
 		rowToAppend = firstArrayCurrentRow + ['']
 
-		for secondArrayRowIndexCount, secondArrayCurrentRow in enumerate(secondArray):
+		while secondArrayRowIndexCount in range(0, len(secondArray) - 1) and len(rowToAppend) == len(firstArrayCurrentRow) + 1:
 
 			if columnsMatch(firstArrayCurrentRow, secondArrayCurrentRow, firstArrayColumnsToMatch, secondArrayColumnsToMatch):
 
 				secondArrayRowToAppend = secondArray.pop(secondArrayRowIndexCount)
 				rowToAppend = rowToAppend + secondArrayRowToAppend
-				break
+				
+			secondArrayRowIndexCount = secondArrayRowIndexCount + 1
 
 
 		comparisonArray.append(rowToAppend)
