@@ -29,8 +29,8 @@ def bankRecPrimaryFunction(oAuthMode, googleSheetTitle):
 	gspSpreadsheet = gspObj.open(googleSheetTitle)
 	gspBankData = gspSpreadsheet.worksheet('bankData')
 	gspGPData = gspSpreadsheet.worksheet('gpData')
-	gspComparisonSheet = gspSpreadsheet.worksheet('bankGPComparisonData')
-	gspEndingGPSheet = gspSpreadsheet.worksheet('endingGPData')
+	gspComparison = gspSpreadsheet.worksheet('bankGPComparisonData')
+	gspEndingGP = gspSpreadsheet.worksheet('endingGPData')
 
 	bankDataArray = gspBankData.get_all_values()
 	gpDataArray = gspGPData.get_all_values()
@@ -178,25 +178,32 @@ def bankRecPrimaryFunction(oAuthMode, googleSheetTitle):
 
 	
 	clearAndResizeParameters = [{
-		'sheetObj': gspComparisonSheet,
+		'sheetObj': gspComparison,
 		'resizeRows': 3,
 		'startingRowIndexToClear': 0,
 		'resizeColumns': 3
 	},
 	{
-		'sheetObj': gspEndingGPSheet,
+		'sheetObj': gspEndingGP,
 		'resizeRows': 2,
-		'startingRowIndexToClear': 0,
+		'startingRowIndexToClear': 5,
 		'resizeColumns': 1
 	}]
 
 
-	
+	gspComparison.clear_basic_filter()
+	gspEndingGP.clear_basic_filter()
 	_myGspreadFunc.clearAndResizeSheets(clearAndResizeParameters)
-	_myGspreadFunc.updateCells(gspComparisonSheet, comparisonArray)
+
+	_myGspreadFunc.updateCells(gspComparison, comparisonArray)
+
 
 	gpDataArray.insert(0, gpDataFirstRow)
-	_myGspreadFunc.updateCells(gspEndingGPSheet, gpDataArray)
+	_myGspreadFunc.updateCells(gspEndingGP, gpDataArray)
+
+
+	gspComparison.set_basic_filter(2, 1, len(comparisonArray), len(comparisonArray[0]))
+	gspEndingGP.set_basic_filter(1, 1, len(gpDataArray), len(gpDataArray[0]))
 
 	_myGspreadFunc.autoResizeColumnsOnSheet(gspSpreadsheet, 'bankData')
 	_myGspreadFunc.autoResizeColumnsOnSheet(gspSpreadsheet, 'gpData')
