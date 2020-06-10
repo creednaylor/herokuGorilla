@@ -20,42 +20,51 @@ else:
 
 
 
-def bankRecPrimaryFunction(oAuthMode, googleSheetTitle):
+def bankRecPrimaryFunction(oAuthMode, googleSheetTitle, midMonth=False):
 
 	pathToRepos = _myPyFunc.getPathUpFolderTree(pathToThisPythonFile, 'repos')
 	pathToThisProjectRoot = pathToThisPythonFile.parents[3]
 	gspObj = _myGspreadFunc.authorizeGspread(oAuthMode, pathToThisProjectRoot)
 
+
+	if midMonth:
+		additionalSheetNameStr = 'Mid'
+
+		bankDateCol = 5
+		bankTypeCol = 6
+		bankDebitCreditCol = 4
+		bankAmountCol = 0
+		bankDescTwoCol = 7
+
+	else:
+		additionalSheetNameStr = ''
+
+		bankStatusCol = 0
+		bankDateCol = 1
+		bankTypeCol = 7
+		bankDebitCreditCol = 8
+		bankAmountCol = 9
+		bankDescTwoCol = 11
+
+
 	gspSpreadsheet = gspObj.open(googleSheetTitle)
-	gspBankData = gspSpreadsheet.worksheet('bankData')
-	gspGPData = gspSpreadsheet.worksheet('gpData')
-	gspComparison = gspSpreadsheet.worksheet('bankGPComparisonData')
-	gspEndingGP = gspSpreadsheet.worksheet('endingGPData')
+	gspBankData = gspSpreadsheet.worksheet('bankData' + additionalSheetNameStr)
+	gspGPData = gspSpreadsheet.worksheet('gpData' + additionalSheetNameStr)
+	gspComparison = gspSpreadsheet.worksheet('bankGPComparisonData' + additionalSheetNameStr)
+	gspEndingGP = gspSpreadsheet.worksheet('endingGPData' + additionalSheetNameStr)
 
 	bankDataArray = gspBankData.get_all_values()
+	if not midMonth: bankDataArray = [currentRow for currentRow in bankDataArray if currentRow[bankStatusCol] not in ['H', 'B', 'T'] and currentRow[bankTypeCol] not in ['Data', 'Ledger Balance', 'Collected + 1 Day', 'Opening Collected', 'One Day Float', '2 Day Float', '3 Day + Float', 'MTD Avg Collected', 'MTD Avg Neg Collected', 'Total Credits', 'Number of Credits', 'Total Debits', 'Number of Debits', 'Float Adjustment(s)']]
+	
 	gpDataArray = gspGPData.get_all_values()
 
-	bankStatusCol = 0
-	bankDateCol = 1
-	bankTypeCol = 7
-	bankDebitCreditCol = 8
-	bankAmountCol = 9
-	bankDescTwoCol = 11
-
-	# bankDateCol = 13
-	# bankOrigDateCol = 1
-	# bankDescCol = 12
-	# bankColumns = 12
-	
 	gpTrxDateCol = 1
 	gpAmountCol = 5
 	gpTrxTypeCol = 11
 	gpTrxNumCol = 12
 	gpNameCol = 14
 	gpTransferCol = 16
-	
 
-	bankDataArray = [currentRow for currentRow in bankDataArray if currentRow[bankStatusCol] not in ['H', 'B', 'T'] and currentRow[bankTypeCol] not in ['Data', 'Ledger Balance', 'Collected + 1 Day', 'Opening Collected', 'One Day Float', '2 Day Float', '3 Day + Float', 'MTD Avg Collected', 'MTD Avg Neg Collected', 'Total Credits', 'Number of Credits', 'Total Debits', 'Number of Debits', 'Float Adjustment(s)']]
 
 	for currentRowIndex, currentRow in enumerate(bankDataArray):
 		if currentRowIndex > 0:
@@ -120,6 +129,14 @@ def bankRecPrimaryFunction(oAuthMode, googleSheetTitle):
 
 				if bankDataCurrentRow[bankTypeCol] == 'Check(s) Paid' and gpDataCurrentRow[gpTrxTypeCol] == 'Check':
 
+					# if str(bankDataCurrentRow[bankDescTwoCol]) == '86632':
+					# 	p(bankDataCurrentRow[bankDescTwoCol] + ' a')
+
+					# if gpDataCurrentRow[gpTrxNumCol] == '86632':
+					# 	p(bankDataCurrentRow[bankDescTwoCol] + ' a')
+						# p(gpDataCurrentRow[gpTrxNumCol])
+
+
 					if bankDataCurrentRow[bankDescTwoCol] == gpDataCurrentRow[gpTrxNumCol]:
 
 						gpDataRowToAppend = gpDataArray.pop(gpDataCurrentRowIndex)
@@ -130,7 +147,6 @@ def bankRecPrimaryFunction(oAuthMode, googleSheetTitle):
 		comparisonArray.append(rowToAppend)
 
 
-
 	for comparisonCurrentRowIndex, comparisonCurrentRow in enumerate(comparisonArray):
 
 		if len(comparisonCurrentRow) == len(bankDataFirstRow) + 1 and comparisonCurrentRow[bankTypeCol] != 'Check(s) Paid':
@@ -139,7 +155,7 @@ def bankRecPrimaryFunction(oAuthMode, googleSheetTitle):
 			
 			for gpDataCurrentRowIndex, gpDataCurrentRow in enumerate(gpDataArray):
 
-				if comparisonCurrentRow[bankAmountCol] == gpDataCurrentRow[gpAmountCol]: # and gpDataCurrentRow[gpTrxTypeCol] != 'Check':
+				if comparisonCurrentRow[bankAmountCol] == gpDataCurrentRow[gpAmountCol]: 
 
 					if gpDataCurrentRow[gpTrxTypeCol] != 'Check' or (gpDataCurrentRow[gpTrxTypeCol] == 'Check' and len(gpDataCurrentRow[gpTrxNumCol])!= 5):
 						gpRowsThatMatchComparisonCurrentRow.append({
@@ -160,7 +176,7 @@ def bankRecPrimaryFunction(oAuthMode, googleSheetTitle):
 			
 			for gpDataCurrentRowIndex, gpDataCurrentRow in enumerate(gpDataArray):
 
-				if comparisonCurrentRow[bankAmountCol] == gpDataCurrentRow[gpAmountCol]: # and gpDataCurrentRow[gpTrxTypeCol] != 'Check':
+				if comparisonCurrentRow[bankAmountCol] == gpDataCurrentRow[gpAmountCol]:
 
 					if gpDataCurrentRow[gpTrxTypeCol] != 'Check' or (gpDataCurrentRow[gpTrxTypeCol] == 'Check' and len(gpDataCurrentRow[gpTrxNumCol])!= 5):
 
@@ -171,10 +187,6 @@ def bankRecPrimaryFunction(oAuthMode, googleSheetTitle):
 			if len(gpRowsThatMatchComparisonCurrentRow) == 1:
 
 				comparisonArray[comparisonCurrentRowIndex] = comparisonArray[comparisonCurrentRowIndex] + gpDataArray.pop(gpRowsThatMatchComparisonCurrentRow[0]['gpDataRowIndex'])
-
-
-
-
 
 	
 	clearAndResizeParameters = [{
@@ -205,10 +217,10 @@ def bankRecPrimaryFunction(oAuthMode, googleSheetTitle):
 	gspComparison.set_basic_filter(2, 1, len(comparisonArray), len(comparisonArray[0]))
 	gspEndingGP.set_basic_filter(1, 1, len(gpDataArray), len(gpDataArray[0]))
 
-	_myGspreadFunc.autoResizeColumnsOnSheet(gspSpreadsheet, 'bankData')
-	_myGspreadFunc.autoResizeColumnsOnSheet(gspSpreadsheet, 'gpData')
-	_myGspreadFunc.autoResizeColumnsOnSheet(gspSpreadsheet, 'bankGPComparisonData')
-	_myGspreadFunc.autoResizeColumnsOnSheet(gspSpreadsheet, 'endingGPData')
+	_myGspreadFunc.autoResizeColumnsOnSheet(gspSpreadsheet, 'bankData' + additionalSheetNameStr)
+	_myGspreadFunc.autoResizeColumnsOnSheet(gspSpreadsheet, 'gpData' + additionalSheetNameStr)
+	_myGspreadFunc.autoResizeColumnsOnSheet(gspSpreadsheet, 'bankGPComparisonData' + additionalSheetNameStr)
+	_myGspreadFunc.autoResizeColumnsOnSheet(gspSpreadsheet, 'endingGPData' + additionalSheetNameStr)
 
 
 
