@@ -53,8 +53,8 @@ def bankRecPrimaryFunction(oAuthMode, googleSheetTitle, midMonth=False):
 	gspComparison = gspSpreadsheet.worksheet('bankGPComparisonData' + additionalSheetNameStr)
 	gspEndingGP = gspSpreadsheet.worksheet('endingGPData' + additionalSheetNameStr)
 
-	bankDataArray = gspBankData.get_all_values()
 
+	bankDataArray = gspBankData.get_all_values()
 
 	if midMonth:
 		bankDataArray = [currentRow for currentRow in bankDataArray if currentRow[bankAmountColumnIndex] not in ['0.00']]
@@ -62,16 +62,16 @@ def bankRecPrimaryFunction(oAuthMode, googleSheetTitle, midMonth=False):
 		bankDataArray = [currentRow for currentRow in bankDataArray if currentRow[bankStatusCol] not in ['H', 'B', 'T'] and currentRow[bankTransactionTypeColumnIndex] not in ['Data', 'Ledger Balance', 'Collected + 1 Day', 'Opening Collected', 'One Day Float', '2 Day Float', '3 Day + Float', 'MTD Avg Collected', 'MTD Avg Neg Collected', 'Total Credits', 'Number of Credits', 'Total Debits', 'Number of Debits', 'Float Adjustment(s)']]
 	
 
-	
-
-	gpDataArray = gspGPData.get_all_values()
-
 	gpTrxDateColumnIndex = 1
 	gpAmountColumnIndex = 5
 	gpTrxTypeColumnIndex = 11
 	gpTrxNumberColumnIndex = 12
 	gpPaidToReceivedFromColumnIndex = 14
 	gpTransferColumnIndex = 16
+	
+	gpDataArray = gspGPData.get_all_values()
+
+	gpDataArray = [currentRow for currentRow in gpDataArray if currentRow[gpTrxDateColumnIndex] not in ['']]
 
 
 	for currentRowIndex, currentRow in enumerate(bankDataArray):
@@ -207,7 +207,7 @@ def bankRecPrimaryFunction(oAuthMode, googleSheetTitle, midMonth=False):
 		'sheetObj': gspEndingGP,
 		'resizeRows': 2,
 		'startingRowIndexToClear': 5,
-		'resizeColumns': 1
+		'resizeColumns': 3
 	}]
 
 
