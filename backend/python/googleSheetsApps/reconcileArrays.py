@@ -48,20 +48,21 @@ def reconcileArraysFunction(oAuthMode, googleSheetTitle, firstArrayColumnsToMatc
 
 	firstTableName = 'First Table'
 	secondTableName = 'Second Table'
+	matchedTableName = 'Matched'
 
-	gspFirstTableSheet = gspSpreadsheet.worksheet(firstTableName)
-	gspSecondTableSheet = gspSpreadsheet.worksheet(secondTableName)
-	gspComparisonTableSheet = gspSpreadsheet.worksheet('Matched')
-	gspEndingSecondTableSheet = gspSpreadsheet.worksheet('Did Not Match')
+	gspFirstTable = gspSpreadsheet.worksheet(firstTableName)
+	gspSecondTable = gspSpreadsheet.worksheet(secondTableName)
+	gspMatchedTable = gspSpreadsheet.worksheet(matchedTableName)
+	gspDidNotMatchTable = gspSpreadsheet.worksheet('Did Not Match')
 
-	firstArray = gspFirstTableSheet.get_all_values()
-	secondArray = gspSecondTableSheet.get_all_values()
+	firstArray = gspFirstTable.get_all_values()
+	secondArray = gspSecondTable.get_all_values()
 	firstArrayFirstRow = firstArray.pop(0)
 	secondArrayFirstRow = secondArray.pop(0)
 
-	comparisonArray = [[firstTableName] + [''] * (len(firstArray[0])) + [secondTableName] + [''] * (len(secondArray[0]) - 1)]
-	comparisonArray.append(firstArrayFirstRow + [''] + secondArrayFirstRow)
-	# p(comparisonArray)
+	matchedArray = [[firstTableName] + [''] * (len(firstArray[0])) + [secondTableName] + [''] * (len(secondArray[0]) - 1)]
+	matchedArray.append(firstArrayFirstRow + [''] + secondArrayFirstRow)
+	# p(matchedArray)
 
 
 	if not firstArrayColumnsToMatch and not secondArrayColumnsToMatch:
@@ -97,18 +98,18 @@ def reconcileArraysFunction(oAuthMode, googleSheetTitle, firstArrayColumnsToMatc
 			secondArrayRowIndexCount = secondArrayRowIndexCount + 1
 
 
-		comparisonArray.append(rowToAppend)
-		# p(comparisonArray)
+		matchedArray.append(rowToAppend)
+		# p(matchedArray)
 
 
 	clearAndResizeParameters = [{
-		'sheetObj': gspComparisonTableSheet,
+		'sheetObj': gspMatchedTable,
 		'resizeRows': 3,
 		'startingRowIndexToClear': 0,
 		'resizeColumns': 1
 	},
 	{
-		'sheetObj': gspEndingSecondTableSheet,
+		'sheetObj': gspDidNotMatchTable,
 		'resizeRows': 2,
 		'startingRowIndexToClear': 0,
 		'resizeColumns': 1
@@ -117,13 +118,13 @@ def reconcileArraysFunction(oAuthMode, googleSheetTitle, firstArrayColumnsToMatc
 
 	
 	_myGspreadFunc.clearAndResizeSheets(clearAndResizeParameters)
-	_myGspreadFunc.updateCells(gspComparisonTableSheet, comparisonArray)
+	_myGspreadFunc.updateCells(gspMatchedTable, matchedArray)
 
 	secondArray.insert(0, secondArrayFirstRow)
-	_myGspreadFunc.updateCells(gspEndingSecondTableSheet, secondArray)
+	_myGspreadFunc.updateCells(gspDidNotMatchTable, secondArray)
 
 
-	_myGspreadFunc.autoResizeColumnsOnSheet(gspSpreadsheet, 'comparisonTable')
+	_myGspreadFunc.autoResizeColumnsOnSheet(gspSpreadsheet, matchedTableName)
 
 	
 
