@@ -36,7 +36,7 @@ def columnsMatch(firstArrayCurrentRow, secondArrayCurrentRow, firstArrayColumnsT
 
 
 
-def reconcileArraysFunction(oAuthMode, googleSheetTitle):
+def reconcileArraysFunction(oAuthMode, googleSheetTitle, firstArrayColumnsToMatch=None, secondArrayColumnsToMatch=None):
 
 
 	pathToRepos = _myPyFunc.getPathUpFolderTree(pathToThisPythonFile, 'repos')
@@ -61,18 +61,19 @@ def reconcileArraysFunction(oAuthMode, googleSheetTitle):
 	# p(comparisonArray)
 
 
-	if oAuthMode:
-		matchingColumnTitle = ''
+	if not firstArrayColumnsToMatch and not secondArrayColumnsToMatch:
+		if oAuthMode:
+			matchingColumnTitle = ''
 
-		for indexOfColumnIndexFirstArray, columnTitleFirstArray in enumerate(firstArrayFirstRow):
-			for indexOfColumnIndexSecondArray, columnTitleSecondArray in enumerate(secondArrayFirstRow):
-				if columnTitleFirstArray == columnTitleSecondArray:
-					firstArrayColumnsToMatch = [indexOfColumnIndexFirstArray]
-					secondArrayColumnsToMatch = [indexOfColumnIndexSecondArray]
+			for indexOfColumnIndexFirstArray, columnTitleFirstArray in enumerate(firstArrayFirstRow):
+				for indexOfColumnIndexSecondArray, columnTitleSecondArray in enumerate(secondArrayFirstRow):
+					if columnTitleFirstArray == columnTitleSecondArray:
+						firstArrayColumnsToMatch = [indexOfColumnIndexFirstArray]
+						secondArrayColumnsToMatch = [indexOfColumnIndexSecondArray]
 
-	else:
-		firstArrayColumnsToMatch = [0, 1, 2]
-		secondArrayColumnsToMatch = [0, 1, 2]
+		else:
+			firstArrayColumnsToMatch = [0, 1, 2]
+			secondArrayColumnsToMatch = [0, 1, 2]
 
 
 	while firstArray:
