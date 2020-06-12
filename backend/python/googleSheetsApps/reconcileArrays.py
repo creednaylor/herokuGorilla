@@ -91,7 +91,8 @@ def reconcileArraysFunction(oAuthMode, googleSheetTitle, firstArrayColumnsToMatc
 				secondArrayCurrentRow = secondArray.pop(secondArrayRowIndexCurrent)
 
 				if tempMatchedData:
-					tempMatchedData.append([''] * (len(firstArrayCurrentRow) + 1) + secondArrayCurrentRow)
+					tempMatchedDataCurrentLength = len(tempMatchedData)
+					tempMatchedData.append([str(tempMatchedData[0][firstArrayColumnsToMatch[0]]) + ': matched ' + str(tempMatchedDataCurrentLength) + ' additional row(s)'] + [''] * (len(firstArrayCurrentRow)) + secondArrayCurrentRow)
 				else:
 					tempMatchedData.append(firstArrayCurrentRow + [''] + secondArrayCurrentRow)
 
