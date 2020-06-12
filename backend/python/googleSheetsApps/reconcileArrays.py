@@ -46,17 +46,20 @@ def reconcileArraysFunction(oAuthMode, googleSheetTitle, firstArrayColumnsToMatc
 
 	gspSpreadsheet = gspObj.open(googleSheetTitle)
 
-	gspFirstTableSheet = gspSpreadsheet.worksheet('firstTable')
-	gspSecondTableSheet = gspSpreadsheet.worksheet('secondTable')
-	gspComparisonTableSheet = gspSpreadsheet.worksheet('comparisonTable')
-	gspEndingSecondTableSheet = gspSpreadsheet.worksheet('endingSecondTable')
+	firstTableName = 'First Table'
+	secondTableName = 'Second Table'
+
+	gspFirstTableSheet = gspSpreadsheet.worksheet(firstTableName)
+	gspSecondTableSheet = gspSpreadsheet.worksheet(secondTableName)
+	gspComparisonTableSheet = gspSpreadsheet.worksheet('Matched')
+	gspEndingSecondTableSheet = gspSpreadsheet.worksheet('Did Not Match')
 
 	firstArray = gspFirstTableSheet.get_all_values()
 	secondArray = gspSecondTableSheet.get_all_values()
 	firstArrayFirstRow = firstArray.pop(0)
 	secondArrayFirstRow = secondArray.pop(0)
 
-	comparisonArray = [['firstTable'] + [''] * (len(firstArray[0])) + ['secondTable'] + [''] * (len(secondArray[0]) - 1)]
+	comparisonArray = [[firstTableName] + [''] * (len(firstArray[0])) + [secondTableName] + [''] * (len(secondArray[0]) - 1)]
 	comparisonArray.append(firstArrayFirstRow + [''] + secondArrayFirstRow)
 	# p(comparisonArray)
 
