@@ -84,11 +84,11 @@ def reconcileArraysFunction(oAuthMode, googleSheetTitle, firstArrayColumnsToMatc
 		firstArrayCurrentRow = firstArray.pop(0)
 		tempMatchedData = []
 
-		for secondArrayRowIndexCurrent in reversed(range(len(secondArray))):
+		for secondArrayCurrentRowIndex in reversed(range(len(secondArray))):
 			
-			if columnsMatch(firstArrayCurrentRow, secondArray[secondArrayRowIndexCurrent], firstArrayColumnsToMatch, secondArrayColumnsToMatch):
+			if columnsMatch(firstArrayCurrentRow, secondArray[secondArrayCurrentRowIndex], firstArrayColumnsToMatch, secondArrayColumnsToMatch):
 				
-				secondArrayCurrentRow = secondArray.pop(secondArrayRowIndexCurrent)
+				secondArrayCurrentRow = secondArray.pop(secondArrayCurrentRowIndex)
 
 				if tempMatchedData:
 					tempMatchedDataCurrentLength = len(tempMatchedData)

@@ -182,19 +182,35 @@ def bankRecPrimaryFunction(oAuthMode, googleSheetTitle, midMonth=False):
 
 			gpRowsThatMatchComparisonCurrentRow = []
 			
-			for gpDataCurrentRowIndex, gpDataCurrentRow in enumerate(gpDataArray):
+			for gpDataCurrentRowIndex in reversed(range(0, len(gpDataArray))):
 
-				if comparisonCurrentRow[bankAmountColumnIndex] == gpDataCurrentRow[gpAmountColumnIndex]:
+				if comparisonCurrentRow[bankAmountColumnIndex] == gpDataArray[gpDataCurrentRowIndex][gpAmountColumnIndex]:
 
-					if gpDataCurrentRow[gpTrxTypeColumnIndex] != 'Check' or (gpDataCurrentRow[gpTrxTypeColumnIndex] == 'Check' and len(gpDataCurrentRow[gpTrxNumberColumnIndex])!= 5):
+					if gpDataArray[gpDataCurrentRowIndex][gpTrxTypeColumnIndex] != 'Check' or (gpDataArray[gpDataCurrentRowIndex][gpTrxTypeColumnIndex] == 'Check' and len(gpDataArray[gpDataCurrentRowIndex][gpTrxNumberColumnIndex])!= 5):
 
 						gpRowsThatMatchComparisonCurrentRow.append({
 							'gpDataRowIndex': gpDataCurrentRowIndex,
-							'gpDataRow': gpDataCurrentRow})
+							'gpDataRow': gpDataArray[gpDataCurrentRowIndex]})
 
 			if len(gpRowsThatMatchComparisonCurrentRow) == 1:
-
 				comparisonArray[comparisonCurrentRowIndex] = comparisonArray[comparisonCurrentRowIndex] + gpDataArray.pop(gpRowsThatMatchComparisonCurrentRow[0]['gpDataRowIndex'])
+			
+			if len(gpRowsThatMatchComparisonCurrentRow) > 1:
+
+				reversedListOfMatchedRowIndex = list(range(len(gpRowsThatMatchComparisonCurrentRow) - 1, 0, -1))  #[3, 2, 1]
+				comparisonArrayAtCurrentRow = comparisonArray[comparisonCurrentRowIndex]
+				gpMatchedLastRowIndex = len(gpRowsThatMatchComparisonCurrentRow) - 1
+
+				for gpMatchedCurrentRowIndex, gpMatchedRow in enumerate(gpRowsThatMatchComparisonCurrentRow):
+
+					if gpMatchedCurrentRowIndex == 0:
+						comparisonArray[comparisonCurrentRowIndex] = [str(comparisonArrayAtCurrentRow[0]) + ' matched ' + str(reversedListOfMatchedRowIndex[gpMatchedCurrentRowIndex]) + ' additional row(s)'] + len(bankDataFirstRow) * [''] + gpDataArray.pop(gpMatchedRow['gpDataRowIndex'])
+					elif gpMatchedCurrentRowIndex == gpMatchedLastRowIndex:
+						comparisonArray.insert(comparisonCurrentRowIndex, comparisonArrayAtCurrentRow + gpDataArray.pop(gpMatchedRow['gpDataRowIndex']))
+					else:
+						comparisonArray.insert(comparisonCurrentRowIndex, [str(comparisonArrayAtCurrentRow[0]) + ' matched ' + str(reversedListOfMatchedRowIndex[gpMatchedCurrentRowIndex]) + ' additional row(s)'] + len(bankDataFirstRow) * [''] + gpDataArray.pop(gpMatchedRow['gpDataRowIndex']))
+
+
 
 	
 	clearAndResizeParameters = [{
