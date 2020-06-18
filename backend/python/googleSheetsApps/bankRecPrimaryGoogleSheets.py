@@ -46,10 +46,12 @@ def bankRecPrimaryFunction(oAuthMode, googleSheetTitle, midMonth=False):
 		bankAmountColumnIndex = 9
 		bankDescriptionTwoColumnIndex = 11
 
+	spacingColumnIndex = 10
 
 	gspSpreadsheet = gspObj.open(googleSheetTitle)
 	gspBankData = gspSpreadsheet.worksheet('bankData' + additionalSheetNameStr)
 	gspGPData = gspSpreadsheet.worksheet('gpData' + additionalSheetNameStr)
+	gspDailyDeposits = gspSpreadsheet.worksheet('dailyDeposits' + additionalSheetNameStr)
 	gspComparison = gspSpreadsheet.worksheet('bankGPComparisonData' + additionalSheetNameStr)
 	gspEndingGP = gspSpreadsheet.worksheet('endingGPData' + additionalSheetNameStr)
 
@@ -70,8 +72,14 @@ def bankRecPrimaryFunction(oAuthMode, googleSheetTitle, midMonth=False):
 	gpTransferColumnIndex = 16
 	
 	gpDataArray = gspGPData.get_all_values()
-
 	gpDataArray = [currentRow for currentRow in gpDataArray if currentRow[gpTrxDateColumnIndex] not in ['']]
+	
+	dailyDepositsAmountColumnIndex = 5
+	dailyDepositsTransactionIDColumnIndex = 7
+	dailyDepositsArray = gspDailyDeposits.get_all_values()
+
+	for dailyDepositsCurrentRow in dailyDepositsArray[1:]:
+		dailyDepositsCurrentRow[dailyDepositsAmountColumnIndex] = float(dailyDepositsCurrentRow[dailyDepositsAmountColumnIndex].lstrip('$').replace(',', ''))
 
 
 	for currentRowIndex, currentRow in enumerate(bankDataArray):
@@ -137,18 +145,11 @@ def bankRecPrimaryFunction(oAuthMode, googleSheetTitle, midMonth=False):
 
 				if bankDataCurrentRow[bankTransactionTypeColumnIndex] == 'Check(s) Paid' and gpDataCurrentRow[gpTrxTypeColumnIndex] == 'Check':
 
-					# if str(bankDataCurrentRow[bankDescriptionTwoColumnIndex]) == '86632':
-					# 	p(bankDataCurrentRow[bankDescriptionTwoColumnIndex] + ' a')
-
-					# if gpDataCurrentRow[gpTrxNumberColumnIndex] == '86632':
-					# 	p(bankDataCurrentRow[bankDescriptionTwoColumnIndex] + ' a')
-						# p(gpDataCurrentRow[gpTrxNumberColumnIndex])
-
-
 					if bankDataCurrentRow[bankDescriptionTwoColumnIndex] == gpDataCurrentRow[gpTrxNumberColumnIndex]:
 
 						gpDataRowToAppend = gpDataArray.pop(gpDataCurrentRowIndex)
 						rowToAppend = rowToAppend + gpDataRowToAppend
+						rowToAppend[spacingColumnIndex] = 'Matched on check number'
 
 			gpDataCurrentRowIndex = gpDataCurrentRowIndex + 1
 
@@ -173,7 +174,7 @@ def bankRecPrimaryFunction(oAuthMode, googleSheetTitle, midMonth=False):
 			if len(gpRowsThatMatchComparisonCurrentRow) == 1 and comparisonCurrentRow[bankDateColumnIndex] == gpRowsThatMatchComparisonCurrentRow[0]['gpDataRow'][gpTrxDateColumnIndex]:
 
 				comparisonArray[comparisonCurrentRowIndex] = comparisonArray[comparisonCurrentRowIndex] + gpDataArray.pop(gpRowsThatMatchComparisonCurrentRow[0]['gpDataRowIndex'])
-
+				comparisonArray[comparisonCurrentRowIndex][spacingColumnIndex] = 'Matched on amount and date'
 
 
 	for comparisonCurrentRowIndex, comparisonCurrentRow in enumerate(comparisonArray):
@@ -194,7 +195,8 @@ def bankRecPrimaryFunction(oAuthMode, googleSheetTitle, midMonth=False):
 
 			if len(gpRowsThatMatchComparisonCurrentRow) == 1:
 				comparisonArray[comparisonCurrentRowIndex] = comparisonArray[comparisonCurrentRowIndex] + gpDataArray.pop(gpRowsThatMatchComparisonCurrentRow[0]['gpDataRowIndex'])
-			
+				comparisonArray[comparisonCurrentRowIndex][spacingColumnIndex] = 'Matched on amount'
+
 			if len(gpRowsThatMatchComparisonCurrentRow) > 1:
 
 				reversedListOfMatchedRowIndex = list(range(len(gpRowsThatMatchComparisonCurrentRow) - 1, 0, -1))  #[3, 2, 1]
@@ -204,12 +206,30 @@ def bankRecPrimaryFunction(oAuthMode, googleSheetTitle, midMonth=False):
 				for gpMatchedCurrentRowIndex, gpMatchedRow in enumerate(gpRowsThatMatchComparisonCurrentRow):
 
 					if gpMatchedCurrentRowIndex == 0:
-						comparisonArray[comparisonCurrentRowIndex] = [str(comparisonArrayAtCurrentRow[0]) + ' matched ' + str(reversedListOfMatchedRowIndex[gpMatchedCurrentRowIndex]) + ' additional row(s)'] + len(bankDataFirstRow) * [''] + gpDataArray.pop(gpMatchedRow['gpDataRowIndex'])
+						comparisonArray[comparisonCurrentRowIndex] = [str(comparisonArrayAtCurrentRow[0]) + ' matched ' + str(reversedListOfMatchedRowIndex[gpMatchedCurrentRowIndex]) + ' additional row(s)'] + (len(bankDataFirstRow) - 1) * [''] + ['Matched on amount'] + gpDataArray.pop(gpMatchedRow['gpDataRowIndex'])
 					elif gpMatchedCurrentRowIndex == gpMatchedLastRowIndex:
+						comparisonArrayAtCurrentRow[spacingColumnIndex] = 'Matched on amount'
 						comparisonArray.insert(comparisonCurrentRowIndex, comparisonArrayAtCurrentRow + gpDataArray.pop(gpMatchedRow['gpDataRowIndex']))
 					else:
-						comparisonArray.insert(comparisonCurrentRowIndex, [str(comparisonArrayAtCurrentRow[0]) + ' matched ' + str(reversedListOfMatchedRowIndex[gpMatchedCurrentRowIndex]) + ' additional row(s)'] + len(bankDataFirstRow) * [''] + gpDataArray.pop(gpMatchedRow['gpDataRowIndex']))
+						comparisonArray.insert(comparisonCurrentRowIndex, [str(comparisonArrayAtCurrentRow[0]) + ' matched ' + str(reversedListOfMatchedRowIndex[gpMatchedCurrentRowIndex]) + ' additional row(s)'] + (len(bankDataFirstRow) - 1) * [''] + ['Matched on amount'] + gpDataArray.pop(gpMatchedRow['gpDataRowIndex']))
 
+
+	for comparisonCurrentRowIndex, comparisonCurrentRow in enumerate(comparisonArray):
+
+		if len(comparisonCurrentRow) == len(bankDataFirstRow) + 1 and comparisonCurrentRow[bankTransactionTypeColumnIndex] != 'Check(s) Paid':
+			# p(comparisonCurrentRow)
+
+			for dailyDepositsCurrentRow in dailyDepositsArray:
+				
+				if comparisonCurrentRow[bankAmountColumnIndex] == dailyDepositsCurrentRow[dailyDepositsAmountColumnIndex]:
+					
+					gpRowsThatMatchComparisonCurrentRow = []
+
+					for gpDataCurrentRowIndex in reversed(range(0, len(gpDataArray))):
+
+						if gpDataArray[gpDataCurrentRowIndex][gpTrxNumberColumnIndex][2:7] == dailyDepositsCurrentRow[dailyDepositsTransactionIDColumnIndex]:
+							comparisonArray[comparisonCurrentRowIndex] = comparisonArray[comparisonCurrentRowIndex] + gpDataArray[gpDataCurrentRowIndex]
+							comparisonArray[comparisonCurrentRowIndex][spacingColumnIndex] = 'Matched from Daily Deposits file'
 
 
 	
