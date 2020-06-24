@@ -24,106 +24,106 @@ else:
 
 def clearArray(startingRowIndex, endingRowIndex, startingColumnIndex, endingColumnIndex, arrayOfSheet):
 
-    if endingRowIndex == -1:
-        endingRowIndex = len(arrayOfSheet) - 1
-    if endingColumnIndex == -1:
-        endingColumnIndex = len(arrayOfSheet[len(arrayOfSheet) - 1]) - 1
+	if endingRowIndex == -1:
+		endingRowIndex = len(arrayOfSheet) - 1
+	if endingColumnIndex == -1:
+		endingColumnIndex = len(arrayOfSheet[len(arrayOfSheet) - 1]) - 1
 
-    for row in range(startingRowIndex, endingRowIndex + 1):
-        for column in range(startingColumnIndex, endingColumnIndex + 1):
-            arrayOfSheet[row][column] = ''
+	for row in range(startingRowIndex, endingRowIndex + 1):
+		for column in range(startingColumnIndex, endingColumnIndex + 1):
+			arrayOfSheet[row][column] = ''
 
-    return arrayOfSheet
+	return arrayOfSheet
 
 
 
 def clearSheet(startingRowIndex, endingRowIndex, startingColumnIndex, endingColumnIndex, gspSheetOfArray):
 
-    arrayOfSheet = gspSheetOfArray.get_all_values()
+	arrayOfSheet = gspSheetOfArray.get_all_values()
 
-    if len(arrayOfSheet) > 0:
+	if len(arrayOfSheet) > 0:
 
-        arrayOfSheet = clearArray(startingRowIndex, endingRowIndex, startingColumnIndex, endingColumnIndex, arrayOfSheet)
-        updateCells(gspSheetOfArray, arrayOfSheet)
+		arrayOfSheet = clearArray(startingRowIndex, endingRowIndex, startingColumnIndex, endingColumnIndex, arrayOfSheet)
+		updateCells(gspSheetOfArray, arrayOfSheet)
 
-        
+		
 
 
 def clearSheets(startingRowIndex, endingRowIndex, startingColumnIndex, endingColumnIndex, arrayOfSheetObjects):
-    
-    for sheetObj in arrayOfSheetObjects:
-        clearSheet(startingRowIndex, endingRowIndex, startingColumnIndex, endingColumnIndex, sheetObj)
+	
+	for sheetObj in arrayOfSheetObjects:
+		clearSheet(startingRowIndex, endingRowIndex, startingColumnIndex, endingColumnIndex, sheetObj)
 
 
 
 def clearAndResizeSheets(arrayOfSheetObj):
 
-    if isinstance(arrayOfSheetObj[0], dict):
-        for sheetObj in arrayOfSheetObj:
+	if isinstance(arrayOfSheetObj[0], dict):
+		for sheetObj in arrayOfSheetObj:
 
-            resizeParameter = 'resizeRows'
-            if resizeParameter in sheetObj:
-                sheetObj['sheetObj'].resize(rows=sheetObj[resizeParameter])
+			resizeParameter = 'resizeRows'
+			if resizeParameter in sheetObj:
+				sheetObj['sheetObj'].resize(rows=sheetObj[resizeParameter])
 
-            resizeParameter = 'resizeColumns'
-            if resizeParameter in sheetObj:
-                sheetObj['sheetObj'].resize(cols=sheetObj[resizeParameter])
-            
-            for propertyToCheck in ['startingRowIndexToClear', 'startingColumnIndexToClear']:
-                if propertyToCheck not in sheetObj: sheetObj[propertyToCheck] = 0
+			resizeParameter = 'resizeColumns'
+			if resizeParameter in sheetObj:
+				sheetObj['sheetObj'].resize(cols=sheetObj[resizeParameter])
+			
+			for propertyToCheck in ['startingRowIndexToClear', 'startingColumnIndexToClear']:
+				if propertyToCheck not in sheetObj: sheetObj[propertyToCheck] = 0
 
-            for propertyToCheck in ['endingRowIndexToClear', 'endingColumnIndexToClear']:
-                if propertyToCheck not in sheetObj: sheetObj[propertyToCheck] = -1
-                
-            clearSheet(sheetObj['startingRowIndexToClear'], sheetObj['endingRowIndexToClear'], sheetObj['startingColumnIndexToClear'], sheetObj['endingColumnIndexToClear'], sheetObj['sheetObj'])
-    
-    else:
-        for sheetObj in arrayOfSheetObjects:
-            sheetObj.resize(rows=1, cols=1)
-            clearSheet(0, -1, 0, -1, sheetObj)
+			for propertyToCheck in ['endingRowIndexToClear', 'endingColumnIndexToClear']:
+				if propertyToCheck not in sheetObj: sheetObj[propertyToCheck] = -1
+				
+			clearSheet(sheetObj['startingRowIndexToClear'], sheetObj['endingRowIndexToClear'], sheetObj['startingColumnIndexToClear'], sheetObj['endingColumnIndexToClear'], sheetObj['sheetObj'])
+	
+	else:
+		for sheetObj in arrayOfSheetObjects:
+			sheetObj.resize(rows=1, cols=1)
+			clearSheet(0, -1, 0, -1, sheetObj)
 
 
 
 def updateCells(gspSheetOfArray, arrayOfSheet):
 
-    if len(arrayOfSheet) > 0:
+	if len(arrayOfSheet) > 0:
 
-        numberOfRowsInArrayOfSheet = len(arrayOfSheet)
-        
-        arrayOfArrayLengths = [len(i) for i in arrayOfSheet]
-        numberOfColumnsInArrayOfSheet = max(arrayOfArrayLengths)
+		numberOfRowsInArrayOfSheet = len(arrayOfSheet)
+		
+		arrayOfArrayLengths = [len(i) for i in arrayOfSheet]
+		numberOfColumnsInArrayOfSheet = max(arrayOfArrayLengths)
 
-        for row in arrayOfSheet:
-            if len(row) > numberOfColumnsInArrayOfSheet:
-                numberOfColumnsInArrayOfSheet = len(row)
-        
-        startingCell = 'R1C1'
-        endingCell = 'R' + str(numberOfRowsInArrayOfSheet) + 'C' + str(numberOfColumnsInArrayOfSheet)
-        addressOfSheet = startingCell + ':' + endingCell
+		for row in arrayOfSheet:
+			if len(row) > numberOfColumnsInArrayOfSheet:
+				numberOfColumnsInArrayOfSheet = len(row)
+		
+		startingCell = 'R1C1'
+		endingCell = 'R' + str(numberOfRowsInArrayOfSheet) + 'C' + str(numberOfColumnsInArrayOfSheet)
+		addressOfSheet = startingCell + ':' + endingCell
 
-        # print(addressOfSheet)
-        gspSheetOfArray.update(addressOfSheet, arrayOfSheet)
+		# print(addressOfSheet)
+		gspSheetOfArray.update(addressOfSheet, arrayOfSheet)
 
 
 
 def autoResizeColumnsOnSheet(gspSpreadsheet, sheetName):
 
-    body = {
-        "requests": [
-            {
-                "autoResizeDimensions": {
-                    "dimensions": {
-                        "sheetId": gspSpreadsheet.worksheet(sheetName)._properties['sheetId'],
-                        "dimension": "COLUMNS",
-                        "startIndex": 0,  # Please set the column index.
-                        # "endIndex": 2  # Please set the column index.
-                    }
-                }
-            }
-        ]
-    }
+	body = {
+		"requests": [
+			{
+				"autoResizeDimensions": {
+					"dimensions": {
+						"sheetId": gspSpreadsheet.worksheet(sheetName)._properties['sheetId'],
+						"dimension": "COLUMNS",
+						"startIndex": 0,  # Please set the column index.
+						# "endIndex": 2  # Please set the column index.
+					}
+				}
+			}
+		]
+	}
 
-    gspSpreadsheet.batch_update(body)
+	gspSpreadsheet.batch_update(body)
 
 
 
@@ -131,32 +131,32 @@ def autoResizeColumnsOnSheet(gspSpreadsheet, sheetName):
 
 
 def getGspSpreadsheetObj(spreadsheetName):
-    #return gspread spreadsheet object
+	#return gspread spreadsheet object
 
-    pathToRepos = _myPyFunc.getPathUpFolderTree(pathToThisPythonFile, 'repos')
-    arrayOfPartsToAddToPath = ['privateData', 'python', 'googleCredentials', 'usingServiceAccount', 'jsonWithAPIKey.json']
+	pathToRepos = _myPyFunc.getPathUpFolderTree(pathToThisPythonFile, 'repos')
+	arrayOfPartsToAddToPath = ['privateData', 'python', 'googleCredentials', 'usingServiceAccount', 'jsonWithAPIKey.json']
 
-    pathToCredentialsFileServiceAccount = _myPyFunc.addToPath(pathToRepos, arrayOfPartsToAddToPath)
+	pathToCredentialsFileServiceAccount = _myPyFunc.addToPath(pathToRepos, arrayOfPartsToAddToPath)
 
-    gspObj = gspread.service_account(filename=pathToCredentialsFileServiceAccount)
+	gspObj = gspread.service_account(filename=pathToCredentialsFileServiceAccount)
 
-    return gspObj.open(spreadsheetName)
+	return gspObj.open(spreadsheetName)
 
 
 def getObjOfSheets(spreadsheetName):
-    #return dictionary of sheets
+	#return dictionary of sheets
 
-    gspSpreadsheet = getGspSpreadsheetObj(spreadsheetName)
+	gspSpreadsheet = getGspSpreadsheetObj(spreadsheetName)
 
-    objOfSheets = {}
+	objOfSheets = {}
 
-    for sheet in gspSpreadsheet.worksheets():
-        objOfSheets[sheet.title] = {
-            'sheetObj': sheet,
-            'array': sheet.get_all_values()
-        }
+	for sheet in gspSpreadsheet.worksheets():
+		objOfSheets[sheet.title] = {
+			'sheetObj': sheet,
+			'array': sheet.get_all_values()
+		}
 
-    return objOfSheets
+	return objOfSheets
 
 
 
@@ -165,7 +165,15 @@ def getObjOfSheets(spreadsheetName):
 
 def authorizeGspread(oAuthMode, pathToThisProjectRoot):
 
+	from google_auth_oauthlib.flow import InstalledAppFlow
+	from pprint import pprint as p
+
 	pathToConfigData = Path(pathToThisProjectRoot, 'backend', 'configData')
+
+	# p('pathToConfigData {}'.format(pathToConfigData))
+	# p('oAuthMode {}'.format(oAuthMode))
+	# p('runningOnProductionServer {}'.format(runningOnProductionServer))
+
 
 	if runningOnProductionServer:
 		loadedEncryptionKey = os.environ.get('savedEncryptionKeyStr', None)
@@ -190,7 +198,7 @@ def authorizeGspread(oAuthMode, pathToThisProjectRoot):
 			pathToDecryptedAuthorizedUserFile = Path(pathToGoogleCredentials, 'usingOAuthGspread', 'authorizedUserFile.json')
 
 		credentialsObj = gspread.auth.load_credentials(filename=pathToDecryptedAuthorizedUserFile)
-
+		# credentialsObj = None
 
 		if not credentialsObj:
 
@@ -222,6 +230,6 @@ def authorizeGspread(oAuthMode, pathToThisProjectRoot):
 
 def updateCell(sheetToUpdate, rowIndex, columnIndex, valueToUpdate):
 
-    sheetToUpdate.update_cell(rowIndex + 1, columnIndex + 1, valueToUpdate)
+	sheetToUpdate.update_cell(rowIndex + 1, columnIndex + 1, valueToUpdate)
 
 
