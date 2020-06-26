@@ -55,7 +55,7 @@ def createIIFFilesFunction(oAuthMode, googleSheetTitle):
 
 			for columnFromInputIndex, columnFromInput in enumerate(rowFromInput):
 				rowToWrite.append(dataToWrite[rowFromInputIndex][columnFromInputIndex])
-			
+
 			outputArray.append(rowToWrite)
 
 
