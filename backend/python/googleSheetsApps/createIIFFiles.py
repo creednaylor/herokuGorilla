@@ -41,16 +41,16 @@ def createIIFFilesFunction(oAuthMode, googleSheetTitle, loadSavedCredentials=Tru
 
 		if listingService == 'Airbnb':
 
-			transactionDate = inputRow[2]
-			transactionAmount = float(inputRow[9].replace(',', ''))
+			transactionDate = inputRow[0]
+			transactionAmount = float(inputRow[10].replace(',', ''))
 			transactionDebitAmount = transactionAmount
 			transactionCreditAmount = -transactionAmount
 			transactionDebitAccount = '"Checking"'
-			transactionDescription = 'Confirmation Code: ' + inputRow[1]
-			transactionMemo = inputRow[6]
+			transactionDescription = 'Confirmation Code: ' + inputRow[2]
+			transactionMemo = inputRow[7]
 
 			for mapArrayRow in mapArray[1:]:
-				if mapArrayRow[0] == inputRow[5]:
+				if mapArrayRow[0] == inputRow[6]:
 					transactionCreditAccount = '"' + mapArrayRow[1] + '"'
 
 
