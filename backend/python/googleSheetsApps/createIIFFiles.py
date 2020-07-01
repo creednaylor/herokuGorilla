@@ -36,37 +36,69 @@ def createIIFFilesFunction(oAuthMode, googleSheetTitle, loadSavedCredentials=Tru
 	del outputArray[3:]
 	outputArray.append([''])
 
+	dataToWrite = []
 
 	for inputRow in inputArray[1:]:
 
 		if listingService == 'Airbnb':
+			
+			if inputRow[1] == 'Payout':
 
-			transactionDate = inputRow[0]
-			transactionAmount = float(inputRow[10].replace(',', ''))
-			transactionDebitAmount = transactionAmount
-			transactionCreditAmount = -transactionAmount
-			transactionDebitAccount = '"Checking"'
-			transactionDescription = 'Confirmation Code: ' + inputRow[2]
-			transactionMemo = inputRow[7]
+				if dataToWrite:
 
-			for mapArrayRow in mapArray[1:]:
-				if mapArrayRow[0] == inputRow[6]:
-					transactionCreditAccount = '"' + mapArrayRow[1] + '"'
+					for dataToWriteRow in dataToWrite:
+						dataToWriteRow[3] = inputRow[0]
 
 
-			dataToWrite = 	[
-								['TRNS', '', 'General Journal', transactionDate, transactionDebitAccount, '', transactionDescription, transactionDebitAmount, '', transactionMemo],
-								['SPL', '', 'General Journal', transactionDate, transactionCreditAccount, '', transactionDescription, transactionCreditAmount, '', transactionMemo],
-								['ENDTRNS']
-							]
 
-			for rowFromInputIndex, rowFromInput in enumerate(dataToWrite):
-				rowToWrite = []
+					dataToWrite[len(dataToWrite) - 1][0] = 'SPL'
+					dataToWrite.append(['ENDTRNS'])
 
-				for columnFromInputIndex, columnFromInput in enumerate(rowFromInput):
-					rowToWrite.append(dataToWrite[rowFromInputIndex][columnFromInputIndex])
+					for dataToWriteRowIndex, dataToWriteRow in enumerate(dataToWrite):
 
-				outputArray.append(rowToWrite)
+						rowToWrite = []
+
+						for columnFromInputIndex, columnFromInput in enumerate(dataToWriteRow):
+							rowToWrite.append(dataToWrite[dataToWriteRowIndex][columnFromInputIndex])
+
+						outputArray.append(rowToWrite)
+
+					dataToWrite = []
+
+
+			dataToWrite.append(['TRNS', '', 'General Journal', 'Empty Date', "'Checking'", '', 'Desc...', inputRow[11], '', 'Memo...'])
+			
+			
+
+				# dataToWrite.append(['SPL', '', 'General Journal', '1/1/2020', 'Rent Revenue', '', 'Desc...', -100, '', 'Memo...'])
+
+
+				# for dataToWriteRow in dataToWrite[:-1]:
+				# 	dataToWriteRow[3] = inputRow[0]
+
+				# transactionDate = inputRow[0]
+				# transactionAmount = float(inputRow[10].replace(',', ''))
+				# transactionDebitAmount = transactionAmount
+				# transactionCreditAmount = -transactionAmount
+				# transactionDebitAccount = '"Checking"'
+				# transactionDescription = 'Airbnb Transaction Type: ' + inputRow[1]
+				# transactionMemo = inputRow[7]
+
+				
+
+
+				
+
+
+
+			# for mapArrayRow in mapArray[1:]:
+			# 	if mapArrayRow[0] == inputRow[6]:
+			# 		transactionCreditAccount = '"' + mapArrayRow[1] + '"'
+
+
+
+
+			
 
 
 
@@ -85,11 +117,11 @@ def createIIFFilesFunction(oAuthMode, googleSheetTitle, loadSavedCredentials=Tru
 								['ENDTRNS']
 							]
 
-			for rowFromInputIndex, rowFromInput in enumerate(dataToWrite):
+			for dataToWriteRowIndex, dataToWriteRow in enumerate(dataToWrite):
 				rowToWrite = []
 
-				for columnFromInputIndex, columnFromInput in enumerate(rowFromInput):
-					rowToWrite.append(dataToWrite[rowFromInputIndex][columnFromInputIndex])
+				for columnFromInputIndex, columnFromInput in enumerate(dataToWriteRow):
+					rowToWrite.append(dataToWrite[dataToWriteRowIndex][columnFromInputIndex])
 
 				outputArray.append(rowToWrite)
 
