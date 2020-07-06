@@ -61,7 +61,7 @@ def reconcileArraysFunction(oAuthMode, googleSheetTitle, loadSavedCredentials=Tr
 	for firstArrayRowIndex in range(1, len(firstArray)):
 		amount = float(firstArray[firstArrayRowIndex][5].replace(',', ''))
 
-		if firstArray[firstArrayRowIndex][11] == 'Decrease Adjustment':
+		if firstArray[firstArrayRowIndex][11] == 'Decrease Adjustment' or 'Transfer To' in firstArray[firstArrayRowIndex][14]:
 			amount = -amount
 
 		firstArray[firstArrayRowIndex].append(amount)
