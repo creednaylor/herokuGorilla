@@ -39,7 +39,7 @@ def createIIFFilesFunction(oAuthMode, googleSheetTitle, loadSavedCredentials=Tru
 	del outputArray[3:]
 	outputArray.append([''])
 
-	def writeData(dataToWrite, payoutDate):
+	def writeData(dataToWrite, payoutDate, memoForQuickBooks):
 
 		for dataToWriteRowIndex in range(0, len(dataToWrite)):
 
@@ -52,6 +52,8 @@ def createIIFFilesFunction(oAuthMode, googleSheetTitle, loadSavedCredentials=Tru
 					rowToWrite.append('SPL')
 				elif dataToWriteColumnIndex == 3:
 					rowToWrite.append(payoutDate)
+				elif dataToWriteColumnIndex == 9:
+					rowToWrite.append(memoForQuickBooks)
 				else:
 					rowToWrite.append(currentDataToWriteRow[dataToWriteColumnIndex])
 
@@ -74,7 +76,7 @@ def createIIFFilesFunction(oAuthMode, googleSheetTitle, loadSavedCredentials=Tru
 			if inputRow[1] == 'Payout':
 
 				if dataToWrite:
-					dataToWrite = writeData(dataToWrite, payoutDate)
+					dataToWrite = writeData(dataToWrite, payoutDate, memoForQuickBooks)
 
 				payoutDate = inputRow[0]
 
@@ -95,17 +97,17 @@ def createIIFFilesFunction(oAuthMode, googleSheetTitle, loadSavedCredentials=Tru
 					if hostFeesMapArrayRow[0] == inputRow[6]:
 						hostFeesAccount = '"' + hostFeesMapArrayRow[1] + '"'
 	
-			confirmationCode = 'Confirmation Code: ' + inputRow[2] + '; Airbnb Transaction Type: ' + inputRow[1] + '; Guest: ' + inputRow[5] + '; Nights: ' + inputRow[4]	
+			memoForQuickBooks = 'Imported From IIF File; Confirmation Code: ' + inputRow[2] + '; Guest Name: ' + inputRow[5] + ';'
 
 			if inputRow[2] == '':
-				confirmationCode = 'Airbnb Transaction Type: ' + inputRow[1] + '; ' + inputRow[7]
+				memoForQuickBooks = 'Imported From IIF File;'
 
 
 			if inputRow[12] == '':
 				hostFeeAmount = float('0'.replace(',', ''))
 			else:
 				hostFeeAmount = float(inputRow[12].replace(',', ''))
-				dataToWrite.append(['TRNS', '', 'General Journal', '', hostFeesAccount, 'AirBNB', '', hostFeeAmount, '', confirmationCode])
+				dataToWrite.append(['TRNS', '', 'General Journal', '', hostFeesAccount, 'AirBNB', '', hostFeeAmount, '', ''])
 
 			if inputRow[10] == '':
 				inputRow[10] = '0'
@@ -115,10 +117,10 @@ def createIIFFilesFunction(oAuthMode, googleSheetTitle, loadSavedCredentials=Tru
 				inputRow[11] = '0'
 			paidOutAmount = float(inputRow[11].replace(',', ''))
 
-			dataToWrite.append(['TRNS', '', 'General Journal', '', transactionAccount, 'AirBNB', '', paidOutAmount - transactionAmount - hostFeeAmount, '', confirmationCode])
+			dataToWrite.append(['TRNS', '', 'General Journal', '', transactionAccount, 'AirBNB', '', paidOutAmount - transactionAmount - hostFeeAmount, '', ''])
 			
 			if inputRowIndex == len(inputArray) - 1:
-				writeData(dataToWrite, payoutDate)
+				writeData(dataToWrite, payoutDate, memoForQuickBooks)
 
 
 
