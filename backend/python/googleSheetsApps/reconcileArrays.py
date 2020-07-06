@@ -1,6 +1,5 @@
 #rename to match
 
-
 from google_auth_oauthlib.flow import InstalledAppFlow
 import json
 import os
@@ -132,7 +131,6 @@ def reconcileArraysFunction(oAuthMode, googleSheetTitle, firstArrayColumnsToMatc
 	}]
 
 
-	
 	_myGspreadFunc.clearAndResizeSheets(clearAndResizeParameters)
 	_myGspreadFunc.updateCells(gspMatchedTable, matchedArray)
 
@@ -143,7 +141,6 @@ def reconcileArraysFunction(oAuthMode, googleSheetTitle, firstArrayColumnsToMatc
 	_myGspreadFunc.autoResizeColumnsOnSheet(gspSpreadsheet, matchedTableName)
 	_myGspreadFunc.autoResizeColumnsOnSheet(gspSpreadsheet, didNotMatchTableName)
 
-	
 
 	strToReturn = os.environ.get('urlOfKingGorillaGoogleSheetPublicStr')
 
@@ -152,7 +149,7 @@ def reconcileArraysFunction(oAuthMode, googleSheetTitle, firstArrayColumnsToMatc
 		pathToConfigDataJSON = Path(pathToRepos, 'privateData', 'herokuGorilla', 'configData.json')
 		jsonFileObj = open(pathToConfigDataJSON)
 		strToReturn = json.load(jsonFileObj)['urlOfKingGorillaGoogleSheetPublicStr']
-	
+
 	strToReturn = strToReturn[:-1] + '871892682'
 
 	return strToReturn
