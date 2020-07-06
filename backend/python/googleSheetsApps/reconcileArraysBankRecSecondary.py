@@ -41,116 +41,144 @@ def reconcileArraysFunction(oAuthMode, googleSheetTitle, loadSavedCredentials=Tr
 
 	gspObj = _myGspreadFunc.authorizeGspread(oAuthMode, pathToThisProjectRoot, loadSavedCredentials)
 
-	# gspSpreadsheet = gspObj.open(googleSheetTitle)
+	gspSpreadsheet = gspObj.open(googleSheetTitle)
 
-	# firstTableName = 'First Table'
-	# secondTableName = 'Second Table'
-	# matchedTableName = 'Matched'
-	# didNotMatchTableName = 'Did Not Match'
+	firstTableName = 'First Table'
+	secondTableName = 'Second Table'
+	matchedTableName = 'Matched'
+	didNotMatchTableName = 'Did Not Match'
 
-	# gspFirstTable = gspSpreadsheet.worksheet(firstTableName)
-	# gspSecondTable = gspSpreadsheet.worksheet(secondTableName)
-	# gspMatchedTable = gspSpreadsheet.worksheet(matchedTableName)
-	# gspDidNotMatchTable = gspSpreadsheet.worksheet(didNotMatchTableName)
+	gspFirstTable = gspSpreadsheet.worksheet(firstTableName)
+	gspSecondTable = gspSpreadsheet.worksheet(secondTableName)
+	gspMatchedTable = gspSpreadsheet.worksheet(matchedTableName)
+	gspDidNotMatchTable = gspSpreadsheet.worksheet(didNotMatchTableName)
 
-	# firstArray = gspFirstTable.get_all_values()
-	# secondArray = gspSecondTable.get_all_values()
+	firstArray = gspFirstTable.get_all_values()
+	secondArray = gspSecondTable.get_all_values()
+	firstArray[0].append('Amount+-')
+	secondArray[0].append('Amount+-')
 
-	# firstArrayFirstRow = firstArray.pop(0)
-	# secondArrayFirstRow = secondArray.pop(0)
+	for firstArrayRowIndex in range(1, len(firstArray)):
+		amount = float(firstArray[firstArrayRowIndex][5].replace(',', ''))
 
-	# matchedArray = [[firstTableName] + [''] * (len(firstArray[0])) + [secondTableName] + [''] * (len(secondArray[0]) - 1)]
-	# matchedArray.append(firstArrayFirstRow + [''] + secondArrayFirstRow)
-	# # p(matchedArray)
+		if firstArray[firstArrayRowIndex][11] == 'Decrease Adjustment':
+			amount = -amount
 
-
-	# if not firstArrayColumnsToMatch and not secondArrayColumnsToMatch:
-	# 	if oAuthMode:
-
-	# 		for indexOfColumnIndexFirstArray, columnTitleFirstArray in enumerate(firstArrayFirstRow):
-	# 			for indexOfColumnIndexSecondArray, columnTitleSecondArray in enumerate(secondArrayFirstRow):
-	# 				if columnTitleFirstArray == columnTitleSecondArray:
-	# 					firstArrayColumnsToMatch = [indexOfColumnIndexFirstArray]
-	# 					secondArrayColumnsToMatch = [indexOfColumnIndexSecondArray]
-
-	# 	else:
-	# 		firstArrayColumnsToMatch = [0]  # [0, 1, 2]
-	# 		secondArrayColumnsToMatch = [1]  # [0, 1, 2]
+		firstArray[firstArrayRowIndex].append(amount)
 
 
-	# while firstArray:
+	for secondArrayRowIndex in range(1, len(secondArray)):
+		if secondArray[secondArrayRowIndex][5] == '':
+			secondArray[secondArrayRowIndex][5] = 0
+		else:
+			secondArray[secondArrayRowIndex][5] = float(secondArray[secondArrayRowIndex][5].replace('$', '').replace(',', ''))
 
-	# 	firstArrayCurrentRow = firstArray.pop(0)
-	# 	tempMatchedData = []
-
-	# 	for secondArrayCurrentRowIndex in reversed(range(len(secondArray))):
+		if secondArray[secondArrayRowIndex][6] == '':
+			secondArray[secondArrayRowIndex][6] = 0
+		else:
+			secondArray[secondArrayRowIndex][6] = float(secondArray[secondArrayRowIndex][6].replace('$', '').replace(',', ''))
 			
-	# 		if columnsMatch(firstArrayCurrentRow, secondArray[secondArrayCurrentRowIndex], firstArrayColumnsToMatch, secondArrayColumnsToMatch):
+		debitAmount = secondArray[secondArrayRowIndex][5]
+		creditAmount = secondArray[secondArrayRowIndex][6]
+		secondArray[secondArrayRowIndex].append(creditAmount - debitAmount)
+
+
+
+	firstArrayFirstRow = firstArray.pop(0)
+	secondArrayFirstRow = secondArray.pop(0)
+
+	matchedArray = [[firstTableName] + [''] * (len(firstArray[0])) + [secondTableName] + [''] * (len(secondArray[0]) - 1)]
+	matchedArray.append(firstArrayFirstRow + [''] + secondArrayFirstRow)
+	# p(matchedArray)
+
+
+	if not firstArrayColumnsToMatch and not secondArrayColumnsToMatch:
+		if oAuthMode:
+
+			for indexOfColumnIndexFirstArray, columnTitleFirstArray in enumerate(firstArrayFirstRow):
+				for indexOfColumnIndexSecondArray, columnTitleSecondArray in enumerate(secondArrayFirstRow):
+					if columnTitleFirstArray == columnTitleSecondArray:
+						firstArrayColumnsToMatch = [indexOfColumnIndexFirstArray]
+						secondArrayColumnsToMatch = [indexOfColumnIndexSecondArray]
+
+		else:
+			firstArrayColumnsToMatch = [0]  # [0, 1, 2]
+			secondArrayColumnsToMatch = [1]  # [0, 1, 2]
+
+
+	while firstArray:
+
+		firstArrayCurrentRow = firstArray.pop(0)
+		tempMatchedData = []
+
+		for secondArrayCurrentRowIndex in reversed(range(len(secondArray))):
+			
+			if columnsMatch(firstArrayCurrentRow, secondArray[secondArrayCurrentRowIndex], firstArrayColumnsToMatch, secondArrayColumnsToMatch):
 				
-	# 			secondArrayCurrentRow = secondArray.pop(secondArrayCurrentRowIndex)
+				secondArrayCurrentRow = secondArray.pop(secondArrayCurrentRowIndex)
 
-	# 			if tempMatchedData:
-	# 				tempMatchedDataCurrentLength = len(tempMatchedData)
-	# 				tempMatchedData.append([str(tempMatchedData[0][firstArrayColumnsToMatch[0]]) + ': matched ' + str(tempMatchedDataCurrentLength) + ' additional row(s)'] + [''] * (len(firstArrayCurrentRow)) + secondArrayCurrentRow)
-	# 			else:
-	# 				tempMatchedData.append(firstArrayCurrentRow + [''] + secondArrayCurrentRow)
+				if tempMatchedData:
+					tempMatchedDataCurrentLength = len(tempMatchedData)
+					tempMatchedData.append([str(tempMatchedData[0][firstArrayColumnsToMatch[0]]) + ': matched ' + str(tempMatchedDataCurrentLength) + ' additional row(s)'] + [''] * (len(firstArrayCurrentRow)) + secondArrayCurrentRow)
+				else:
+					tempMatchedData.append(firstArrayCurrentRow + [''] + secondArrayCurrentRow)
 
 
 
-	# 	# while secondArrayRowIndexCount in range(0, len(secondArray)):
+		# while secondArrayRowIndexCount in range(0, len(secondArray)):
 
-	# 	# 	if columnsMatch(firstArrayCurrentRow, secondArray[secondArrayRowIndexCount], firstArrayColumnsToMatch, secondArrayColumnsToMatch):
+		# 	if columnsMatch(firstArrayCurrentRow, secondArray[secondArrayRowIndexCount], firstArrayColumnsToMatch, secondArrayColumnsToMatch):
 				
-	# 	# 		secondArrayCurrentRow = secondArray.pop(0)
+		# 		secondArrayCurrentRow = secondArray.pop(0)
 
-	# 	# 		if tempMatchedData:
-	# 	# 			tempMatchedData.append([''] * (len(firstArrayCurrentRow) + 1) + secondArrayCurrentRow)
-	# 	# 		else:
-	# 	# 			tempMatchedData.append(firstArrayCurrentRow + [''] + secondArrayCurrentRow)
+		# 		if tempMatchedData:
+		# 			tempMatchedData.append([''] * (len(firstArrayCurrentRow) + 1) + secondArrayCurrentRow)
+		# 		else:
+		# 			tempMatchedData.append(firstArrayCurrentRow + [''] + secondArrayCurrentRow)
 
-	# 	# 	secondArrayRowIndexCount = secondArrayRowIndexCount + 1
-
-
-	# 	if tempMatchedData:
-	# 		matchedArray.extend(tempMatchedData)
-	# 	else:
-	# 		matchedArray.append(firstArrayCurrentRow + [''])
+		# 	secondArrayRowIndexCount = secondArrayRowIndexCount + 1
 
 
-	# clearAndResizeParameters = [{
-	# 	'sheetObj': gspMatchedTable,
-	# 	'resizeRows': 3,
-	# 	'startingRowIndexToClear': 0,
-	# 	'resizeColumns': 1
-	# },
-	# {
-	# 	'sheetObj': gspDidNotMatchTable,
-	# 	'resizeRows': 2,
-	# 	'startingRowIndexToClear': 0,
-	# 	'resizeColumns': 1
-	# }]
+		if tempMatchedData:
+			matchedArray.extend(tempMatchedData)
+		else:
+			matchedArray.append(firstArrayCurrentRow + [''])
 
 
-	# _myGspreadFunc.clearAndResizeSheets(clearAndResizeParameters)
-	# _myGspreadFunc.updateCells(gspMatchedTable, matchedArray)
+	clearAndResizeParameters = [{
+		'sheetObj': gspMatchedTable,
+		'resizeRows': 3,
+		'startingRowIndexToClear': 0,
+		'resizeColumns': 1
+	},
+	{
+		'sheetObj': gspDidNotMatchTable,
+		'resizeRows': 2,
+		'startingRowIndexToClear': 0,
+		'resizeColumns': 1
+	}]
 
-	# secondArray.insert(0, secondArrayFirstRow)
-	# _myGspreadFunc.updateCells(gspDidNotMatchTable, secondArray)
+
+	_myGspreadFunc.clearAndResizeSheets(clearAndResizeParameters)
+	_myGspreadFunc.updateCells(gspMatchedTable, matchedArray)
+
+	secondArray.insert(0, secondArrayFirstRow)
+	_myGspreadFunc.updateCells(gspDidNotMatchTable, secondArray)
 
 
-	# _myGspreadFunc.autoResizeColumnsOnSheet(gspSpreadsheet, matchedTableName)
-	# _myGspreadFunc.autoResizeColumnsOnSheet(gspSpreadsheet, didNotMatchTableName)
+	_myGspreadFunc.autoResizeColumnsOnSheet(gspSpreadsheet, matchedTableName)
+	_myGspreadFunc.autoResizeColumnsOnSheet(gspSpreadsheet, didNotMatchTableName)
 
 
-	# strToReturn = os.environ.get('urlOfKingGorillaGoogleSheetPublicStr')
+	strToReturn = os.environ.get('urlOfKingGorillaGoogleSheetPublicStr')
 
-	# if not strToReturn:
+	if not strToReturn:
 
-	# 	pathToConfigDataJSON = Path(pathToRepos, 'privateData', 'herokuGorilla', 'configData.json')
-	# 	jsonFileObj = open(pathToConfigDataJSON)
-	# 	strToReturn = json.load(jsonFileObj)['urlOfKingGorillaGoogleSheetPublicStr']
+		pathToConfigDataJSON = Path(pathToRepos, 'privateData', 'herokuGorilla', 'configData.json')
+		jsonFileObj = open(pathToConfigDataJSON)
+		strToReturn = json.load(jsonFileObj)['urlOfKingGorillaGoogleSheetPublicStr']
 
-	# strToReturn = strToReturn[:-1] + '871892682'
+	strToReturn = strToReturn[:-1] + '871892682'
 
-	# return strToReturn
+	return strToReturn
 
