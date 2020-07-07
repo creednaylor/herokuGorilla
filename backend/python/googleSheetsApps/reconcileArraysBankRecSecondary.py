@@ -32,6 +32,24 @@ def columnsMatch(firstArrayCurrentRow, secondArrayCurrentRow, firstArrayColumnsT
 	return True
 
 
+def getMatchedRow(secondArray, firstArrayCurrentRow, firstArrayColumnsToMatch, secondArrayColumnsToMatch):
+
+	tempMatchedData = []
+
+	for secondArrayRowIndex in reversed(range(len(secondArray))):
+			
+			if columnsMatch(firstArrayCurrentRow, secondArray[secondArrayRowIndex], firstArrayColumnsToMatch, secondArrayColumnsToMatch):
+				
+				secondArrayCurrentRow = secondArray.pop(secondArrayRowIndex)
+
+				if tempMatchedData:
+					tempMatchedDataCurrentLength = len(tempMatchedData)
+					tempMatchedData.append([str(tempMatchedData[0][firstArrayColumnsToMatch[0]]) + ': matched ' + str(tempMatchedDataCurrentLength) + ' additional row(s)'] + [''] * (len(firstArrayCurrentRow)) + secondArrayCurrentRow)
+				else:
+					tempMatchedData.append(firstArrayCurrentRow + [''] + secondArrayCurrentRow)
+
+	return tempMatchedData
+
 
 def reconcileArraysFunction(oAuthMode, googleSheetTitle, loadSavedCredentials=True, firstArrayColumnsToMatch=None, secondArrayColumnsToMatch=None):
 
@@ -59,6 +77,7 @@ def reconcileArraysFunction(oAuthMode, googleSheetTitle, loadSavedCredentials=Tr
 	dailyDepositsArray = gspDailyDepositsTable.get_all_values()
 
 	firstArray[0].append('Amount+-')
+	firstArray[0].append('Bank Amount')
 
 	for firstArrayRowIndex in range(1, len(firstArray)):
 		amount = float(firstArray[firstArrayRowIndex][5].replace(',', ''))
@@ -67,7 +86,7 @@ def reconcileArraysFunction(oAuthMode, googleSheetTitle, loadSavedCredentials=Tr
 			amount = -amount
 
 		firstArray[firstArrayRowIndex].append(amount)
-
+		firstArray[firstArrayRowIndex].append(amount)
 
 
 	secondArray[0].append('Amount+-')
@@ -85,9 +104,9 @@ def reconcileArraysFunction(oAuthMode, googleSheetTitle, loadSavedCredentials=Tr
 			
 		secondArray[secondArrayRowIndex].append(creditAmount - debitAmount)
 
-
 	dailyDepositsArray[0].append('Date')
 	dailyDepositsArray[0].append('BisTrack Amount')
+	dailyDepositsArray[0].append('Bank Amount')
 
 	for dailyDepositsRowIndex in range(1, len(dailyDepositsArray)):
 
@@ -100,12 +119,15 @@ def reconcileArraysFunction(oAuthMode, googleSheetTitle, loadSavedCredentials=Tr
 		if dailyDepositsCurrentRow[6] == '':
 			dailyDepositsCurrentRow.append(0)
 		else:
-			dailyDepositsCurrentRow.append(float(dailyDepositsCurrentRow[6]))
+			if dailyDepositsCurrentRow[2] == 'Debit':
+				dailyDepositsCurrentRow.append(-float(dailyDepositsCurrentRow[6]))
+			else:
+				dailyDepositsCurrentRow.append(float(dailyDepositsCurrentRow[6]))
 
-
-	# for dailyDepositsRow in dailyDepositsArray:
-	# 	if len(dailyDepositsRow) != 12:
-	# 		p(dailyDepositsRow)
+		if dailyDepositsCurrentRow[2] == 'Debit':
+			dailyDepositsCurrentRow.append(-float(dailyDepositsCurrentRow[4].replace(',', '')))
+		else:
+			dailyDepositsCurrentRow.append(float(dailyDepositsCurrentRow[4].replace(',', '')))
 
 
 	firstArrayFirstRow = firstArray.pop(0)
@@ -113,7 +135,6 @@ def reconcileArraysFunction(oAuthMode, googleSheetTitle, loadSavedCredentials=Tr
 
 	matchedArray = [[firstTableName] + [''] * (len(firstArray[0])) + [secondTableName] + [''] * (len(secondArray[0]) - 1)]
 	matchedArray.append(firstArrayFirstRow + [''] + secondArrayFirstRow)
-	# p(matchedArray)
 
 
 	if not firstArrayColumnsToMatch and not secondArrayColumnsToMatch:
@@ -133,28 +154,13 @@ def reconcileArraysFunction(oAuthMode, googleSheetTitle, loadSavedCredentials=Tr
 	while firstArray:
 
 		firstArrayCurrentRow = firstArray.pop(0)
-		tempMatchedData = []
-
-		for secondArrayRowIndex in reversed(range(len(secondArray))):
-			
-			if columnsMatch(firstArrayCurrentRow, secondArray[secondArrayRowIndex], firstArrayColumnsToMatch, secondArrayColumnsToMatch):
-				
-				secondArrayCurrentRow = secondArray.pop(secondArrayRowIndex)
-
-				if tempMatchedData:
-					tempMatchedDataCurrentLength = len(tempMatchedData)
-					tempMatchedData.append([str(tempMatchedData[0][firstArrayColumnsToMatch[0]]) + ': matched ' + str(tempMatchedDataCurrentLength) + ' additional row(s)'] + [''] * (len(firstArrayCurrentRow)) + secondArrayCurrentRow)
-				else:
-					tempMatchedData.append(firstArrayCurrentRow + [''] + secondArrayCurrentRow)
-
+		tempMatchedData = getMatchedRow(secondArray, firstArrayCurrentRow, firstArrayColumnsToMatch, secondArrayColumnsToMatch)
 
 		if tempMatchedData:
-
 			matchedArray.extend(tempMatchedData)
-
 		else:
 
-			tempMatchedDailyDeposits = []
+			matchedDailyDepositsAmount = None
 
 			for dailyDepositsArrayRowIndex in reversed(range(len(dailyDepositsArray))):
 
@@ -162,15 +168,29 @@ def reconcileArraysFunction(oAuthMode, googleSheetTitle, loadSavedCredentials=Tr
 
 					dailyDepositsCurrentRow = dailyDepositsArray.pop(dailyDepositsArrayRowIndex)
 
-					# p(dailyDepositsCurrentRow)
-
-					if not tempMatchedDailyDeposits:
-						tempMatchedDailyDeposits.append(firstArrayCurrentRow + ['Match found'])
+					if not matchedDailyDepositsAmount:
+						# p(dailyDepositsCurrentRow[12])
+						matchedDailyDepositsAmount = dailyDepositsCurrentRow[12]
 			
-			if tempMatchedDailyDeposits:
-				matchedArray.extend(tempMatchedData)
+			if matchedDailyDepositsAmount:
+				
+				updatedFirstArrayCurrentRow = firstArrayCurrentRow[0:len(firstArrayCurrentRow) - 1] + [matchedDailyDepositsAmount]
+
+				tempMatchedDailyDeposits = getMatchedRow(secondArray, updatedFirstArrayCurrentRow, [17], secondArrayColumnsToMatch)
+				# p(tempMatchedDailyDeposits)
+
+				if tempMatchedDailyDeposits:
+					matchedArray.extend(tempMatchedDailyDeposits)
+				else:
+					matchedArray.append(updatedFirstArrayCurrentRow + ['Match found on Daily Deposits but not on bank transactions'])
+			
 			else:
 				matchedArray.append(firstArrayCurrentRow + ['No match found'])
+
+
+	for matchedArrayRowIndex in range(2, len(matchedArray)):
+		if matchedArray[matchedArrayRowIndex][18] != 'No match found':
+			matchedArray[matchedArrayRowIndex][18] = matchedArray[matchedArrayRowIndex][16] - matchedArray[matchedArrayRowIndex][17]
 
 
 	clearAndResizeParameters = [{
