@@ -52,11 +52,13 @@ def reconcileArraysFunction(oAuthMode, googleSheetTitle, loadSavedCredentials=Tr
 	gspSecondTable = gspSpreadsheet.worksheet(secondTableName)
 	gspMatchedTable = gspSpreadsheet.worksheet(matchedTableName)
 	gspDidNotMatchTable = gspSpreadsheet.worksheet(didNotMatchTableName)
+	gspDailyDepositsTable = gspSpreadsheet.worksheet('Daily Deposits')
 
 	firstArray = gspFirstTable.get_all_values()
 	secondArray = gspSecondTable.get_all_values()
+	dailyDepositsArray = gspDailyDepositsTable.get_all_values()
+
 	firstArray[0].append('Amount+-')
-	secondArray[0].append('Amount+-')
 
 	for firstArrayRowIndex in range(1, len(firstArray)):
 		amount = float(firstArray[firstArrayRowIndex][5].replace(',', ''))
@@ -67,21 +69,43 @@ def reconcileArraysFunction(oAuthMode, googleSheetTitle, loadSavedCredentials=Tr
 		firstArray[firstArrayRowIndex].append(amount)
 
 
+
+	secondArray[0].append('Amount+-')
+
 	for secondArrayRowIndex in range(1, len(secondArray)):
 		if secondArray[secondArrayRowIndex][5] == '':
-			secondArray[secondArrayRowIndex][5] = 0
+			debitAmount = 0
 		else:
-			secondArray[secondArrayRowIndex][5] = float(secondArray[secondArrayRowIndex][5].replace('$', '').replace(',', ''))
+			debitAmount = float(secondArray[secondArrayRowIndex][5].replace('$', '').replace(',', ''))
 
 		if secondArray[secondArrayRowIndex][6] == '':
-			secondArray[secondArrayRowIndex][6] = 0
+			creditAmount = 0
 		else:
-			secondArray[secondArrayRowIndex][6] = float(secondArray[secondArrayRowIndex][6].replace('$', '').replace(',', ''))
+			creditAmount = float(secondArray[secondArrayRowIndex][6].replace('$', '').replace(',', ''))
 			
-		debitAmount = secondArray[secondArrayRowIndex][5]
-		creditAmount = secondArray[secondArrayRowIndex][6]
 		secondArray[secondArrayRowIndex].append(creditAmount - debitAmount)
 
+
+	dailyDepositsArray[0].append('Date')
+	dailyDepositsArray[0].append('BisTrack Amount')
+
+	for dailyDepositsRowIndex in range(1, len(dailyDepositsArray)):
+
+		dailyDepositsCurrentRow = dailyDepositsArray[dailyDepositsRowIndex]
+
+		if dailyDepositsCurrentRow[0] != '':
+			currentDate = dailyDepositsCurrentRow[0]
+		dailyDepositsCurrentRow.append(currentDate)
+
+		if dailyDepositsCurrentRow[6] == '':
+			dailyDepositsCurrentRow.append(0)
+		else:
+			dailyDepositsCurrentRow.append(float(dailyDepositsCurrentRow[6]))
+
+
+	# for dailyDepositsRow in dailyDepositsArray:
+	# 	if len(dailyDepositsRow) != 12:
+	# 		p(dailyDepositsRow)
 
 
 	firstArrayFirstRow = firstArray.pop(0)
@@ -111,11 +135,11 @@ def reconcileArraysFunction(oAuthMode, googleSheetTitle, loadSavedCredentials=Tr
 		firstArrayCurrentRow = firstArray.pop(0)
 		tempMatchedData = []
 
-		for secondArrayCurrentRowIndex in reversed(range(len(secondArray))):
+		for secondArrayRowIndex in reversed(range(len(secondArray))):
 			
-			if columnsMatch(firstArrayCurrentRow, secondArray[secondArrayCurrentRowIndex], firstArrayColumnsToMatch, secondArrayColumnsToMatch):
+			if columnsMatch(firstArrayCurrentRow, secondArray[secondArrayRowIndex], firstArrayColumnsToMatch, secondArrayColumnsToMatch):
 				
-				secondArrayCurrentRow = secondArray.pop(secondArrayCurrentRowIndex)
+				secondArrayCurrentRow = secondArray.pop(secondArrayRowIndex)
 
 				if tempMatchedData:
 					tempMatchedDataCurrentLength = len(tempMatchedData)
@@ -124,25 +148,21 @@ def reconcileArraysFunction(oAuthMode, googleSheetTitle, loadSavedCredentials=Tr
 					tempMatchedData.append(firstArrayCurrentRow + [''] + secondArrayCurrentRow)
 
 
-
-		# while secondArrayRowIndexCount in range(0, len(secondArray)):
-
-		# 	if columnsMatch(firstArrayCurrentRow, secondArray[secondArrayRowIndexCount], firstArrayColumnsToMatch, secondArrayColumnsToMatch):
-				
-		# 		secondArrayCurrentRow = secondArray.pop(0)
-
-		# 		if tempMatchedData:
-		# 			tempMatchedData.append([''] * (len(firstArrayCurrentRow) + 1) + secondArrayCurrentRow)
-		# 		else:
-		# 			tempMatchedData.append(firstArrayCurrentRow + [''] + secondArrayCurrentRow)
-
-		# 	secondArrayRowIndexCount = secondArrayRowIndexCount + 1
-
-
 		if tempMatchedData:
+
 			matchedArray.extend(tempMatchedData)
+
 		else:
-			matchedArray.append(firstArrayCurrentRow + [''])
+
+			for dailyDepositsArrayRowIndex in reversed(range(len(dailyDepositsArray))):
+
+				if columnsMatch(firstArrayCurrentRow, dailyDepositsArray[dailyDepositsArrayRowIndex], firstArrayColumnsToMatch, [11]):
+
+					dailyDepositsCurrentRow = dailyDepositsArray.pop(dailyDepositsArrayRowIndex)
+
+					p(dailyDepositsCurrentRow)
+
+			matchedArray.append(firstArrayCurrentRow + ['No match found'])
 
 
 	clearAndResizeParameters = [{
