@@ -154,15 +154,23 @@ def reconcileArraysFunction(oAuthMode, googleSheetTitle, loadSavedCredentials=Tr
 
 		else:
 
+			tempMatchedDailyDeposits = []
+
 			for dailyDepositsArrayRowIndex in reversed(range(len(dailyDepositsArray))):
 
 				if columnsMatch(firstArrayCurrentRow, dailyDepositsArray[dailyDepositsArrayRowIndex], firstArrayColumnsToMatch, [11]):
 
 					dailyDepositsCurrentRow = dailyDepositsArray.pop(dailyDepositsArrayRowIndex)
 
-					p(dailyDepositsCurrentRow)
+					# p(dailyDepositsCurrentRow)
 
-			matchedArray.append(firstArrayCurrentRow + ['No match found'])
+					if not tempMatchedDailyDeposits:
+						tempMatchedDailyDeposits.append(firstArrayCurrentRow + ['Match found'])
+			
+			if tempMatchedDailyDeposits:
+				matchedArray.extend(tempMatchedData)
+			else:
+				matchedArray.append(firstArrayCurrentRow + ['No match found'])
 
 
 	clearAndResizeParameters = [{
