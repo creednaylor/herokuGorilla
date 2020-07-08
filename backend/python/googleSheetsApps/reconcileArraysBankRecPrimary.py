@@ -20,7 +20,7 @@ else:
 
 
 
-def bankRecPrimaryFunction(oAuthMode, googleSheetTitle, midMonth=False):
+def reconcileArraysFunction(oAuthMode, googleSheetTitle, midMonth=False):
 
 	pathToRepos = _myPyFunc.getPathUpFolderTree(pathToThisPythonFile, 'repos')
 	pathToThisProjectRoot = pathToThisPythonFile.parents[3]
@@ -149,7 +149,7 @@ def bankRecPrimaryFunction(oAuthMode, googleSheetTitle, midMonth=False):
 
 						gpDataRowToAppend = gpDataArray.pop(gpDataCurrentRowIndex)
 						rowToAppend = rowToAppend + gpDataRowToAppend
-						rowToAppend[spacingColumnIndex] = 'Matched on check number'
+						rowToAppend[spacingColumnIndex] = 'Matched on amount and check number'
 
 			gpDataCurrentRowIndex = gpDataCurrentRowIndex + 1
 
