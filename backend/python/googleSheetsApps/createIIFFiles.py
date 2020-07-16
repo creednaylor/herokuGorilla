@@ -26,26 +26,28 @@ def createIIFFilesFunction(oAuthMode, googleSheetTitle, loadSavedCredentials=Tru
 
 	gspSpreadsheet = gspObj.open(googleSheetTitle)
 	gspInput = gspSpreadsheet.worksheet('Input')
-	gspOutputHFLP = gspSpreadsheet.worksheet('Output - HFLP')
+	gspOutput = gspSpreadsheet.worksheet('Output')
 	gspOutputOther = gspSpreadsheet.worksheet('Output - Other')
 	gspHostFeesMap = gspSpreadsheet.worksheet('Map - Host Fees')
 	gspRentRevenueMap = gspSpreadsheet.worksheet('Map - Listing')
 	gspPayoutMap = gspSpreadsheet.worksheet('Map - Details')
 
 	inputArray = gspInput.get_all_values()
-	outputArrayHFLP = gspOutputHFLP.get_all_values()
+	outputArray = gspOutput.get_all_values()
 	outputArrayOther = gspOutputOther.get_all_values()
 	rentRevenueMapArray = gspRentRevenueMap.get_all_values()
 	hostFeesMapArray = gspHostFeesMap.get_all_values()
 	payoutMapArray = gspPayoutMap.get_all_values()
 
-	for outputArray in [outputArrayHFLP, outputArrayOther]:
-		del outputArray[3:]
-		outputArray.append([''])
+	for outputArrayToTrim in [outputArray, outputArrayOther]:
+		del outputArrayToTrim[3:]
+		outputArrayToTrim.append([''])
 
 
-	def writeData(dataToWrite, payoutDate, memoForQuickBooks, outputArray):
+	def getAdditionalArray(dataToWrite, payoutDate, memoForQuickBooks):
 
+		additionalArray = []
+		
 		for dataToWriteRowIndex in range(0, len(dataToWrite)):
 
 			rowToWrite = []
@@ -62,16 +64,15 @@ def createIIFFilesFunction(oAuthMode, googleSheetTitle, loadSavedCredentials=Tru
 				else:
 					rowToWrite.append(currentDataToWriteRow[dataToWriteColumnIndex])
 
-			outputArray.append(rowToWrite)
+			additionalArray.append(rowToWrite)
 
-		outputArray.append(['ENDTRNS'])
+		additionalArray.append(['ENDTRNS'])
 
-		return outputArray
+		return additionalArray
 
 
 	def findTextInArrayOfArrays(textToFind, arrayOfArrays):
 
-		# p(arrayOfArrays)
 		for array in arrayOfArrays:
 			for item in array:
 				if isinstance(item, str) and textToFind in item:
@@ -82,6 +83,10 @@ def createIIFFilesFunction(oAuthMode, googleSheetTitle, loadSavedCredentials=Tru
 
 
 	dataToWrite = []
+
+	# p('inputRowIndex: ' + str(inputRowIndex))
+	# p('outputArrayOther: ' + str(outputArrayOther))
+	# p('outputArray: ' + str(outputArray))
 
 
 	for inputRowIndex in range(1, len(inputArray)):
@@ -94,17 +99,34 @@ def createIIFFilesFunction(oAuthMode, googleSheetTitle, loadSavedCredentials=Tru
 
 				if dataToWrite:
 					
-					if findTextInArrayOfArrays('PayPal:PayPal - San Diego', dataToWrite):
-					# if findTextInArrayOfArrays('Rental Income:Hawaii Property', dataToWrite):
+					# textToFind = 'PayPal:PayPal - San Diego'
+					# textToFind = 'PayPal:PayPal - Kuanalu Poipu'
+					textToFind = 'St. George'
 
-						# for row in outputArrayWAFO:
-						# 	if 'Hawaii Nalo Road:Rental Income - Goes To WAFCO' == row[4]:
-						# 		row[4] = 'Hawaii Nalo Road:Rental Income'
-
-						outputArrayOther = writeData(dataToWrite, payoutDate, memoForQuickBooks, outputArrayOther)
+					if findTextInArrayOfArrays(textToFind, dataToWrite):
+						
+						outputArrayOther.extend(getAdditionalArray(dataToWrite, payoutDate, memoForQuickBooks))
+						
+						# if inputRowIndex in [3, 5]:
+							# pass
+							# p('inputRowIndex: ' + str(inputRowIndex))
+							# p(' dataToWriteOther: ' + str(dataToWrite))
+							# p('outputArrayOther: ' + str(outputArrayOther))
 
 					else:
-						outputArrayHFLP = writeData(dataToWrite, payoutDate, memoForQuickBooks, outputArrayHFLP)
+
+						outputArray.extend(getAdditionalArray(dataToWrite, payoutDate, memoForQuickBooks))
+
+						# if inputRowIndex in [3, 5]:
+							# pass
+							# p('inputRowIndex: ' + str(inputRowIndex))
+							# p(' dataToWrite: ' + str(dataToWrite))
+							# p('outputArray: ' + str(outputArray))
+
+					# if inputRowIndex in [3, 5]:
+					# 	p('inputRowIndex: ' + str(inputRowIndex))
+					# 	p('outputArrayOther: ' + str(outputArrayOther))
+					# 	p('outputArray: ' + str(outputArray))
 
 
 					dataToWrite = []
@@ -152,10 +174,10 @@ def createIIFFilesFunction(oAuthMode, googleSheetTitle, loadSavedCredentials=Tru
 			
 			if inputRowIndex == len(inputArray) - 1:
 
-				if 1 == 1:
-					outputArrayHFLP = writeData(dataToWrite, payoutDate, memoForQuickBooks, outputArrayHFLP)
+				if findTextInArrayOfArrays(textToFind, dataToWrite):
+					outputArrayOther.extend(getAdditionalArray(dataToWrite, payoutDate, memoForQuickBooks))
 				else:
-					outputArrayOther = writeData(dataToWrite, payoutDate, memoForQuickBooks, outputArrayOther)
+					outputArray.extend(getAdditionalArray(dataToWrite, payoutDate, memoForQuickBooks))
 
 
 
@@ -180,13 +202,13 @@ def createIIFFilesFunction(oAuthMode, googleSheetTitle, loadSavedCredentials=Tru
 				for dataToWriteColumnIndex in range(0, len(currentDataToWriteRow)):
 					rowToWrite.append(currentDataToWriteRow[dataToWriteColumnIndex])
 
-				outputArrayHFLP.append(rowToWrite)
+				outputArray.append(rowToWrite)
 
 
 
 
 	clearAndResizeParameters = [{
-		'sheetObj': gspOutputHFLP,
+		'sheetObj': gspOutput,
 		'resizeRows': 3,
 		'startingRowIndexToClear': 3,
 	},
@@ -197,9 +219,9 @@ def createIIFFilesFunction(oAuthMode, googleSheetTitle, loadSavedCredentials=Tru
 	}]
 
 	_myGspreadFunc.clearAndResizeSheets(clearAndResizeParameters)
-	_myGspreadFunc.updateCells(gspOutputHFLP, outputArrayHFLP)
+	_myGspreadFunc.updateCells(gspOutput, outputArray)
 	_myGspreadFunc.updateCells(gspOutputOther, outputArrayOther)
-	_myGspreadFunc.autoResizeColumnsOnSheet(gspSpreadsheet, 'Output - HFLP')
+	_myGspreadFunc.autoResizeColumnsOnSheet(gspSpreadsheet, 'Output')
 	_myGspreadFunc.autoResizeColumnsOnSheet(gspSpreadsheet, 'Output - Other')
 
 
