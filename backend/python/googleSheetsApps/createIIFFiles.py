@@ -1,3 +1,6 @@
+#output data to new format
+
+
 from datetime import date, datetime
 # import json
 import os
