@@ -26,11 +26,13 @@ def createIIFFilesFunction(oAuthMode, googleSheetTitle, loadSavedCredentials=Tru
 
 	pathToThisProjectRoot = pathToThisPythonFile.parents[3]
 	gspObj = _myGspreadFunc.authorizeGspread(oAuthMode, pathToThisProjectRoot, loadSavedCredentials)
+	outputSheetName = 'Output'
+	outputOtherSheetName = 'Output - Other'
 
 	gspSpreadsheet = gspObj.open(googleSheetTitle)
 	gspInput = gspSpreadsheet.worksheet('Input')
-	gspOutput = gspSpreadsheet.worksheet('Output')
-	gspOutputOther = gspSpreadsheet.worksheet('Output - Other')
+	gspOutput = gspSpreadsheet.worksheet(outputSheetName)
+	gspOutputOther = gspSpreadsheet.worksheet(outputOtherSheetName)
 	gspHostFeesMap = gspSpreadsheet.worksheet('Map - Host Fees')
 	gspRentRevenueMap = gspSpreadsheet.worksheet('Map - Listing')
 	gspPayoutMap = gspSpreadsheet.worksheet('Map - Details')
@@ -42,9 +44,10 @@ def createIIFFilesFunction(oAuthMode, googleSheetTitle, loadSavedCredentials=Tru
 	hostFeesMapArray = gspHostFeesMap.get_all_values()
 	payoutMapArray = gspPayoutMap.get_all_values()
 
+	outputSheetFirstRowIndexOfData = 4
+
 	for outputArrayToTrim in [outputArray, outputArrayOther]:
-		del outputArrayToTrim[3:]
-		outputArrayToTrim.append([''])
+		del outputArrayToTrim[outputSheetFirstRowIndexOfData:]
 
 
 	def getAdditionalArray(dataToWrite, payoutDate, memoForQuickBooks):
@@ -84,96 +87,88 @@ def createIIFFilesFunction(oAuthMode, googleSheetTitle, loadSavedCredentials=Tru
 		return False
 
 
-
 	dataToWrite = []
-
-	# p('inputRowIndex: ' + str(inputRowIndex))
-	# p('outputArrayOther: ' + str(outputArrayOther))
-	# p('outputArray: ' + str(outputArray))
 
 
 	for inputRowIndex in range(1, len(inputArray)):
 
-		inputRow = inputArray[inputRowIndex] 
+		inputRow = inputArray[inputRowIndex]
 
 		if listingService == 'Airbnb':
+
+			inputConfirmationColumnIndex = 2
+			inputListingColumnIndex = 6
+			inputDetailsColumnIndex = 7
+			inputAmountColumnIndex = 10
+			inputPaidOutColumnIndex = 11
+			inputHostFeeColumnIndex = 12
+
+			currentInputConfirmation = inputRow[inputConfirmationColumnIndex]
+			currentInputListing = inputRow[inputListingColumnIndex]
+			currentInputDetails = inputRow[inputDetailsColumnIndex]
+			currentInputAmount = inputRow[inputAmountColumnIndex]
+			currentInputPaidOut = inputRow[inputPaidOutColumnIndex]
+			currentInputHostFee = inputRow[inputHostFeeColumnIndex]
 
 			if inputRow[1] == 'Payout':
 
 				if dataToWrite:
 					
 					# textToFind = 'PayPal:PayPal - San Diego'
-					# textToFind = 'PayPal:PayPal - Kuanalu Poipu'
-					textToFind = 'St. George'
+					textToFind = 'PayPal - PoipuVilla'  #the only rental income that goes to WAFCO is for Poipu Villa
+					# textToFind = 'St. George'
 
 					if findTextInArrayOfArrays(textToFind, dataToWrite):
 						
 						outputArrayOther.extend(getAdditionalArray(dataToWrite, payoutDate, memoForQuickBooks))
 						
-						# if inputRowIndex in [3, 5]:
-							# pass
-							# p('inputRowIndex: ' + str(inputRowIndex))
-							# p(' dataToWriteOther: ' + str(dataToWrite))
-							# p('outputArrayOther: ' + str(outputArrayOther))
-
 					else:
 
 						outputArray.extend(getAdditionalArray(dataToWrite, payoutDate, memoForQuickBooks))
-
-						# if inputRowIndex in [3, 5]:
-							# pass
-							# p('inputRowIndex: ' + str(inputRowIndex))
-							# p(' dataToWrite: ' + str(dataToWrite))
-							# p('outputArray: ' + str(outputArray))
-
-					# if inputRowIndex in [3, 5]:
-					# 	p('inputRowIndex: ' + str(inputRowIndex))
-					# 	p('outputArrayOther: ' + str(outputArrayOther))
-					# 	p('outputArray: ' + str(outputArray))
-
 
 					dataToWrite = []
 
 				payoutDate = inputRow[0]
 
 				for payoutMapArrayRow in payoutMapArray[1:]:
-					if payoutMapArrayRow[0] == inputRow[7]:
+					if payoutMapArrayRow[0] == currentInputDetails:
 						transactionAccount = '"' + payoutMapArrayRow[1] + '"'
 			
 			else:
 
-				if inputRow[6] == '':
+				if currentInputListing == '':
 					transactionAccount = 'Need to input manually'
 
 				for rentRevenueMapArrayRow in rentRevenueMapArray[1:]:
-					if rentRevenueMapArrayRow[0] == inputRow[6]:
+					if rentRevenueMapArrayRow[0] == currentInputListing:
 						transactionAccount = '"' + rentRevenueMapArrayRow[1] + '"'
 
 				for hostFeesMapArrayRow in hostFeesMapArray[1:]:
-					if hostFeesMapArrayRow[0] == inputRow[6]:
+					if hostFeesMapArrayRow[0] == currentInputListing:
 						hostFeesAccount = '"' + hostFeesMapArrayRow[1] + '"'
 	
-			memoForQuickBooks = 'Imported From IIF File; Confirmation Code: ' + inputRow[2] + '; Guest Name: ' + inputRow[5] + ';'
+			memoForQuickBooks = 'Imported From IIF File; Confirmation Code: ' + currentInputConfirmation + '; Guest Name: ' + inputRow[5] + ';'
 
-			if inputRow[2] == '':
+			if currentInputConfirmation == '':
 				memoForQuickBooks = 'Imported From IIF File;'
 
-
-			if inputRow[12] == '':
-				hostFeeAmount = float('0'.replace(',', ''))
+			if currentInputHostFee == '':
+				currentInputHostFee = 0
 			else:
-				hostFeeAmount = float(inputRow[12].replace(',', ''))
-				dataToWrite.append(['TRNS', '', 'General Journal', '', hostFeesAccount, 'AirBNB', '', hostFeeAmount, '', ''])
+				currentInputHostFee = float(currentInputHostFee.replace(',', ''))
+				dataToWrite.append(['TRNS', '', 'General Journal', '', hostFeesAccount, 'AirBNB', '', currentInputHostFee, '', ''])
 
-			if inputRow[10] == '':
-				inputRow[10] = '0'
-			transactionAmount = float(inputRow[10].replace(',', ''))
+			if currentInputAmount == '':
+				currentInputAmount = 0
+			else:
+				currentInputAmount = float(currentInputAmount.replace(',', ''))
 
-			if inputRow[11] == '':
-				inputRow[11] = '0'
-			paidOutAmount = float(inputRow[11].replace(',', ''))
+			if currentInputPaidOut == '':
+				currentInputPaidOut = 0
+			else:
+				currentInputPaidOut = float(currentInputPaidOut.replace(',', ''))
 
-			dataToWrite.append(['TRNS', '', 'General Journal', '', transactionAccount, 'AirBNB', '', paidOutAmount - transactionAmount - hostFeeAmount, '', ''])
+			dataToWrite.append(['TRNS', '', 'General Journal', '', transactionAccount, 'AirBNB', '', currentInputPaidOut - currentInputAmount - currentInputHostFee, '', ''])
 			
 			if inputRowIndex == len(inputArray) - 1:
 
@@ -184,48 +179,46 @@ def createIIFFilesFunction(oAuthMode, googleSheetTitle, loadSavedCredentials=Tru
 
 
 
-		if listingService == 'VRBO':
+		# if listingService == 'VRBO':
 
-			transactionDate = datetime.strptime('21-Jun-20', '%d-%b-%y').strftime('%#m/%#d/%Y')
-			transactionDebitAmount = float(inputRow[13])
-			transactionCreditAmount = -float(inputRow[13])
-			transactionDebitAccount = '"Checking"'
-			transactionCreditAccount = '"' + 'Income:Rental Income/San  Diego Apts.:San Diego 4' + '"'
+		# 	transactionDate = datetime.strptime('21-Jun-20', '%d-%b-%y').strftime('%#m/%#d/%Y')
+		# 	transactionDebitAmount = float(inputRow[13])
+		# 	transactionCreditAmount = -float(inputRow[13])
+		# 	transactionDebitAccount = '"Checking"'
+		# 	transactionCreditAccount = '"' + 'Income:Rental Income/San  Diego Apts.:San Diego 4' + '"'
 
-			dataToWrite = 	[
-								['TRNS', '', 'General Journal', transactionDate, transactionDebitAccount, '', 'Custom description...', transactionDebitAmount, '', 'Custom memo...'],
-								['SPL', '', 'General Journal', transactionDate, transactionCreditAccount, '', 'Custom description...', transactionCreditAmount, '', 'Custom memo...'],
-								['ENDTRNS']
-							]
+		# 	dataToWrite = 	[
+		# 						['TRNS', '', 'General Journal', transactionDate, transactionDebitAccount, '', 'Custom description...', transactionDebitAmount, '', 'Custom memo...'],
+		# 						['SPL', '', 'General Journal', transactionDate, transactionCreditAccount, '', 'Custom description...', transactionCreditAmount, '', 'Custom memo...'],
+		# 						['ENDTRNS']
+		# 					]
 
-			for dataToWriteRowIndex in range(0, len(dataToWrite)):
-				rowToWrite = []
-				currentDataToWriteRow = dataToWrite[dataToWriteRowIndex]
+		# 	for dataToWriteRowIndex in range(0, len(dataToWrite)):
+		# 		rowToWrite = []
+		# 		currentDataToWriteRow = dataToWrite[dataToWriteRowIndex]
 
-				for dataToWriteColumnIndex in range(0, len(currentDataToWriteRow)):
-					rowToWrite.append(currentDataToWriteRow[dataToWriteColumnIndex])
+		# 		for dataToWriteColumnIndex in range(0, len(currentDataToWriteRow)):
+		# 			rowToWrite.append(currentDataToWriteRow[dataToWriteColumnIndex])
 
-				outputArray.append(rowToWrite)
-
-
+		# 		outputArray.append(rowToWrite)
 
 
 	clearAndResizeParameters = [{
 		'sheetObj': gspOutput,
-		'resizeRows': 3,
-		'startingRowIndexToClear': 3,
+		'resizeRows': outputSheetFirstRowIndexOfData,
+		'startingRowIndexToClear': outputSheetFirstRowIndexOfData,
 	},
 	{
 		'sheetObj': gspOutputOther,
-		'resizeRows': 3,
-		'startingRowIndexToClear': 3,
+		'resizeRows': outputSheetFirstRowIndexOfData,
+		'startingRowIndexToClear': outputSheetFirstRowIndexOfData,
 	}]
 
 	_myGspreadFunc.clearAndResizeSheets(clearAndResizeParameters)
 	_myGspreadFunc.updateCells(gspOutput, outputArray)
 	_myGspreadFunc.updateCells(gspOutputOther, outputArrayOther)
-	_myGspreadFunc.autoResizeColumnsOnSheet(gspSpreadsheet, 'Output')
-	_myGspreadFunc.autoResizeColumnsOnSheet(gspSpreadsheet, 'Output - Other')
+	_myGspreadFunc.autoResizeColumnsOnSheet(gspSpreadsheet, outputSheetName)
+	_myGspreadFunc.autoResizeColumnsOnSheet(gspSpreadsheet, outputOtherSheetName)
 
 
 
