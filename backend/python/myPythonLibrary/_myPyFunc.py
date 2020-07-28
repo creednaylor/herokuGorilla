@@ -11,6 +11,9 @@ import time
 
 
 
+
+
+
 def printElapsedTime(priorTime, message):
 
     
@@ -840,8 +843,6 @@ def clearDecryptedFiles(decryptedFilesToClear):
 	for decryptedFileToClear in decryptedFilesToClear:
 			with open(decryptedFileToClear, "w") as fileObj:
 				fileObj.write('')
-
-
 
 
 
