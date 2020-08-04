@@ -120,9 +120,9 @@ def reconcileArraysFunction(oAuthMode, googleSheetTitle, loadSavedCredentials=Tr
 			dailyDepositsCurrentRow.append(0)
 		else:
 			if dailyDepositsCurrentRow[2] == 'Debit':
-				dailyDepositsCurrentRow.append(-float(dailyDepositsCurrentRow[6]))
+				dailyDepositsCurrentRow.append(-float(dailyDepositsCurrentRow[6].replace(',', '')))
 			else:
-				dailyDepositsCurrentRow.append(float(dailyDepositsCurrentRow[6]))
+				dailyDepositsCurrentRow.append(float(dailyDepositsCurrentRow[6].replace(',', '')))
 
 		if dailyDepositsCurrentRow[2] == 'Debit':
 			dailyDepositsCurrentRow.append(-float(dailyDepositsCurrentRow[4].replace(',', '')))
@@ -187,10 +187,11 @@ def reconcileArraysFunction(oAuthMode, googleSheetTitle, loadSavedCredentials=Tr
 			else:
 				matchedArray.append(firstArrayCurrentRow + ['No match found'])
 
-
+	# p(matchedArray[0:4])
 	for matchedArrayRowIndex in range(2, len(matchedArray)):
 		if matchedArray[matchedArrayRowIndex][18] != 'No match found':
-			matchedArray[matchedArrayRowIndex][18] = matchedArray[matchedArrayRowIndex][16] - matchedArray[matchedArrayRowIndex][17]
+			# p(matchedArray[matchedArrayRowIndex][18]
+			matchedArray[matchedArrayRowIndex][18] = float(matchedArray[matchedArrayRowIndex][16] or 0) - float(matchedArray[matchedArrayRowIndex][17] or 0)
 
 
 	clearAndResizeParameters = [{
