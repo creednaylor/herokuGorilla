@@ -34,35 +34,104 @@ def moveColumns(googleSheetTitle, googleAccountUsername=None):
 	gspObj = _myGspreadFunc.authorizeGspread(oAuthMode, pathToThisProjectRoot, googleAccountUsername=googleAccountUsername)
 	gspSpreadsheet = gspObj.open(googleSheetTitle)
 
-	gspScenarios = gspSpreadsheet.worksheet('Scenarios')
+	sheetName = 'Scenarios'
+	gspScenarios = gspSpreadsheet.worksheet(sheetName)
 	scenarioArray = gspScenarios.get_all_values()
 
-	requestObj = {
-		"requests": [
-		{
-			"moveDimension": {
-				"source": {
-				"sheetId": sheetId,
-				"dimension": "COLUMNS",
-				"startIndex": 0,
-				"endIndex": 1
-			},
-		"destinationIndex": 3
+	p(scenarioArray[1][1:])
+
+
+	def moveColumn(columnIndexToMove, destinationColumnIndex):
+
+		if columnIndexToMove > destinationColumnIndex:
+			destinationIndex = destinationColumnIndex
+		else:
+			destinationIndex = destinationColumnIndex + 1	
+
+		requestObj = {
+			"requests": [
+				{
+					"moveDimension": {
+						"source": {
+							"sheetId": gspSpreadsheet.worksheet(sheetName)._properties['sheetId'],
+							"dimension": "COLUMNS",
+							"startIndex": columnIndexToMove,
+							"endIndex": columnIndexToMove + 1
+						},
+					"destinationIndex": destinationIndex
+					}
+				},
+	#	 {
+	#	   "moveDimension": {
+	#		 "source": {
+	#		   "sheetId": sheetId,
+	#		   "dimension": "ROWS",
+	#		   "startIndex": 4,
+	#		   "endIndex": 10
+	#		 },
+	#		 "destinationIndex": 19
+	#	   }
+	#	 },
+			],
 		}
-	},
-#	 {
-#	   "moveDimension": {
-#		 "source": {
-#		   "sheetId": sheetId,
-#		   "dimension": "ROWS",
-#		   "startIndex": 4,
-#		   "endIndex": 10
-#		 },
-#		 "destinationIndex": 19
-#	   }
-#	 },
-#   ],
-	}
+
+		gspSpreadsheet.batch_update(requestObj)
 
 
-	p(scenarioArray[1])
+
+	def bubbleSort(arr):
+
+		indexingLength = len(arr) - 1
+		arrayIsSorted = False
+
+		while not arrayIsSorted:
+
+			arrayIsSorted = True
+			
+			for currentIndex in range(0, indexingLength):
+
+				if arr[currentIndex] > arr[currentIndex + 1]:
+
+					arrayIsSorted = False
+					arr[currentIndex], arr[currentIndex + 1] = arr[currentIndex + 1], arr[currentIndex]
+
+					moveColumn(currentIndex + 1, currentIndex + 2)
+
+		return arr
+
+	p(bubbleSort(scenarioArray[1][1:]))
+
+
+
+	# def insertionSort(arr):
+
+	# 	for currentIndex in range(len(arr)):
+
+	# 		cursor = arr[currentIndex]
+	# 		pos = currentIndex
+			
+	# 		while pos > 0 and arr[pos - 1] > cursor:
+	# 			# Swap the number down the list
+
+	# 			arr[pos] = arr[pos - 1]
+	# 			moveColumn(pos + 1, )
+				
+	# 			pos = pos - 1
+	# 		# Break and do the final swap
+
+
+	# 		arr[pos] = cursor
+
+	# 	return arr
+
+	# p(insertionSort(scenarioArray[1][1:]))
+
+
+
+	# moveColumn(0 + 1, 0 + 1)
+	# moveColumn(1 + 1, 0 + 1)
+
+
+
+
+	# p(scenarioArray[1])
