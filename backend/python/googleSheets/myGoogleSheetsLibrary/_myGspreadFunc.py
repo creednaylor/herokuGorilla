@@ -163,7 +163,7 @@ def getObjOfSheets(spreadsheetName):
 
 
 
-def authorizeGspread(oAuthMode, pathToThisProjectRoot, loadSavedCredentials=True):
+def authorizeGspread(oAuthMode, pathToThisProjectRoot, loadSavedCredentials=True, googleAccountUsername=None):
 
 	from google_auth_oauthlib.flow import InstalledAppFlow
 	from pprint import pprint as p
@@ -207,7 +207,8 @@ def authorizeGspread(oAuthMode, pathToThisProjectRoot, loadSavedCredentials=True
 			flowObj = InstalledAppFlow.from_client_secrets_file(pathToDecryptedJSONCredentialsFile, scopesArray)
 			credentialsObj = flowObj.run_local_server(port=0)
 
-			gspread.auth.store_credentials(credentialsObj, filename=pathToDecryptedAuthorizedUserFile)
+			if not runningOnProductionServer:
+				gspread.auth.store_credentials(credentialsObj, filename=pathToDecryptedAuthorizedUserFile)
 
 		gspObj = gspread.client.Client(auth=credentialsObj)
 
