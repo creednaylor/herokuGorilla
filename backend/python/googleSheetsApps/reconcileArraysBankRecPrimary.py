@@ -20,49 +20,40 @@ else:
 
 
 
-def reconcileArraysFunction(oAuthMode, googleSheetTitle, midMonth=False):
+def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 
 	pathToRepos = _myPyFunc.getPathUpFolderTree(pathToThisPythonFile, 'repos')
 	pathToThisProjectRoot = pathToThisPythonFile.parents[3]
-	gspObj = _myGspreadFunc.authorizeGspread(oAuthMode, pathToThisProjectRoot)
+	gspObj = _myGspreadFunc.authorizeGspread(oAuthMode, pathToThisProjectRoot, googleAccountUsername=googleAccountUsername)
 
+	bankStatusCol = 0
+	bankDateColumnIndex = 1
+	bankTransactionTypeColumnIndex = 7
+	bankDebitCreditColumnIndex = 8
+	bankAmountColumnIndex = 9
+	bankDescriptionTwoColumnIndex = 11
 
-	if midMonth:
-		additionalSheetNameStr = 'Mid'
-
-		bankDateColumnIndex = 5
-		bankTransactionTypeColumnIndex = 6
-		bankDebitCreditColumnIndex = 4
-		bankAmountColumnIndex = 0
-		bankDescriptionTwoColumnIndex = 7
-
-	else:
-		additionalSheetNameStr = ''
-
-		bankStatusCol = 0
-		bankDateColumnIndex = 1
-		bankTransactionTypeColumnIndex = 7
-		bankDebitCreditColumnIndex = 8
-		bankAmountColumnIndex = 9
-		bankDescriptionTwoColumnIndex = 11
-
-	spacingColumnIndex = 10
+	spacingColumnIndex = 13
 
 	gspSpreadsheet = gspObj.open(googleSheetTitle)
-	gspBankData = gspSpreadsheet.worksheet('bankData' + additionalSheetNameStr)
-	gspGPData = gspSpreadsheet.worksheet('gpData' + additionalSheetNameStr)
-	gspDailyDeposits = gspSpreadsheet.worksheet('dailyDeposits' + additionalSheetNameStr)
-	gspComparison = gspSpreadsheet.worksheet('bankGPComparisonData' + additionalSheetNameStr)
-	gspEndingGP = gspSpreadsheet.worksheet('endingGPData' + additionalSheetNameStr)
+	gspBankData = gspSpreadsheet.worksheet('bankData')
+	gspGPData = gspSpreadsheet.worksheet('gpData')
+	gspDailyDeposits = gspSpreadsheet.worksheet('dailyDeposits')
+	gspComparison = gspSpreadsheet.worksheet('bankGPComparisonData')
+	gspEndingGP = gspSpreadsheet.worksheet('endingGPData')
 
 
 	bankDataArray = gspBankData.get_all_values()
 
-	if midMonth:
-		bankDataArray = [currentRow for currentRow in bankDataArray if currentRow[bankAmountColumnIndex] not in ['0.00']]
-	else:
-		bankDataArray = [currentRow for currentRow in bankDataArray if currentRow[bankStatusCol] not in ['H', 'B', 'T'] and currentRow[bankTransactionTypeColumnIndex] not in ['Data', 'Ledger Balance', 'Collected + 1 Day', 'Opening Collected', 'One Day Float', '2 Day Float', '3 Day + Float', 'MTD Avg Collected', 'MTD Avg Neg Collected', 'Total Credits', 'Number of Credits', 'Total Debits', 'Number of Debits', 'Float Adjustment(s)']]
-	
+
+	def filterBankData(currentRow):
+
+		if currentRow[bankStatusCol] not in ['H', 'B', 'T'] and currentRow[bankTransactionTypeColumnIndex] not in ['Data', 'Ledger Balance', 'Collected + 1 Day', 'Opening Collected', 'One Day Float', '2 Day Float', '3 Day + Float', 'MTD Avg Collected', 'MTD Avg Neg Collected', 'Total Credits', 'Number of Credits', 'Total Debits', 'Number of Debits', 'Float Adjustment(s)']:
+			return True
+		else:
+			return False
+
+	bankDataArray = list(filter(filterBankData, bankDataArray))
 
 	gpTrxDateColumnIndex = 1
 	gpAmountColumnIndex = 5
@@ -72,14 +63,25 @@ def reconcileArraysFunction(oAuthMode, googleSheetTitle, midMonth=False):
 	gpTransferColumnIndex = 16
 	
 	gpDataArray = gspGPData.get_all_values()
+
 	gpDataArray = [currentRow for currentRow in gpDataArray if currentRow[gpTrxDateColumnIndex] not in ['']]
 	
 	dailyDepositsAmountColumnIndex = 5
 	dailyDepositsTransactionIDColumnIndex = 7
 	dailyDepositsArray = gspDailyDeposits.get_all_values()
 
-	for dailyDepositsCurrentRow in dailyDepositsArray[1:]:
-		dailyDepositsCurrentRow[dailyDepositsAmountColumnIndex] = float(dailyDepositsCurrentRow[dailyDepositsAmountColumnIndex].lstrip('$').replace(',', ''))
+
+	def dailyDepositsTransform(indexAndElementData):
+		currentRowIndex, currentRow = indexAndElementData
+
+		if currentRowIndex > 0:
+			currentRow[dailyDepositsAmountColumnIndex] = float(currentRow[dailyDepositsAmountColumnIndex].lstrip('$').replace(',', ''))
+
+		return currentRow
+
+
+	dailyDepositsArray = list(map(dailyDepositsTransform, enumerate(dailyDepositsArray)))
+
 
 
 	for currentRowIndex, currentRow in enumerate(bankDataArray):
@@ -261,10 +263,10 @@ def reconcileArraysFunction(oAuthMode, googleSheetTitle, midMonth=False):
 	gspComparison.set_basic_filter(2, 1, len(comparisonArray), len(comparisonArray[0]))
 	gspEndingGP.set_basic_filter(1, 1, len(gpDataArray), len(gpDataArray[0]))
 
-	_myGspreadFunc.autoResizeColumnsOnSheet(gspSpreadsheet, 'bankData' + additionalSheetNameStr)
-	_myGspreadFunc.autoResizeColumnsOnSheet(gspSpreadsheet, 'gpData' + additionalSheetNameStr)
-	_myGspreadFunc.autoResizeColumnsOnSheet(gspSpreadsheet, 'bankGPComparisonData' + additionalSheetNameStr)
-	_myGspreadFunc.autoResizeColumnsOnSheet(gspSpreadsheet, 'endingGPData' + additionalSheetNameStr)
+	_myGspreadFunc.autoResizeColumnsOnSheet(gspSpreadsheet, 'bankData')
+	_myGspreadFunc.autoResizeColumnsOnSheet(gspSpreadsheet, 'gpData')
+	_myGspreadFunc.autoResizeColumnsOnSheet(gspSpreadsheet, 'bankGPComparisonData')
+	_myGspreadFunc.autoResizeColumnsOnSheet(gspSpreadsheet, 'endingGPData')
 
 
 
