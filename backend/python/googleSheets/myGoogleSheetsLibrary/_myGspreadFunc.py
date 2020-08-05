@@ -185,6 +185,7 @@ def authorizeGspread(oAuthMode, pathToThisProjectRoot, loadSavedCredentials=True
 	if oAuthMode:
 
 		scopesArray = ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive']
+		credentialsObj = None
 
 		if runningOnProductionServer:
 
@@ -195,12 +196,11 @@ def authorizeGspread(oAuthMode, pathToThisProjectRoot, loadSavedCredentials=True
 		if not runningOnProductionServer:
 
 			pathToDecryptedJSONCredentialsFile = Path(pathToGoogleCredentials, 'usingOAuthGspread', 'jsonCredentialsFile.json')
-			pathToDecryptedAuthorizedUserFile = Path(pathToGoogleCredentials, 'usingOAuthGspread', 'authorizedUserFile.json')
+			
+			pathToCheckForDecryptedAuthorizedUserFile = Path(pathToGoogleCredentials, 'usingOAuthGspread', googleAccountUsername, 'authorizedUserFile.json')
 
-		credentialsObj = None
-		
-		if loadSavedCredentials:
-			credentialsObj = gspread.auth.load_credentials(filename=pathToDecryptedAuthorizedUserFile)
+			if googleAccountUsername and pathToCheckForDecryptedAuthorizedUserFile.exists():
+				credentialsObj = gspread.auth.load_credentials(filename=pathToCheckForDecryptedAuthorizedUserFile)
 
 		if not credentialsObj:
 
@@ -208,7 +208,7 @@ def authorizeGspread(oAuthMode, pathToThisProjectRoot, loadSavedCredentials=True
 			credentialsObj = flowObj.run_local_server(port=0)
 
 			if not runningOnProductionServer:
-				gspread.auth.store_credentials(credentialsObj, filename=pathToDecryptedAuthorizedUserFile)
+				gspread.auth.store_credentials(credentialsObj, filename=pathToCheckForDecryptedAuthorizedUserFile)
 
 		gspObj = gspread.client.Client(auth=credentialsObj)
 
