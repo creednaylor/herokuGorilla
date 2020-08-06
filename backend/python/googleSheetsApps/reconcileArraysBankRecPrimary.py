@@ -166,14 +166,14 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 			
 			for gpDataCurrentRowIndex, gpDataCurrentRow in enumerate(gpDataArray):
 
-				if comparisonCurrentRow[bankAmountColumnIndex] == gpDataCurrentRow[gpAmountColumnIndex]: 
+				if comparisonCurrentRow[bankAmountColumnIndex] == gpDataCurrentRow[gpAmountColumnIndex] and comparisonCurrentRow[bankDateColumnIndex] == gpDataCurrentRow[gpTrxDateColumnIndex]: 
 
 					if gpDataCurrentRow[gpTrxTypeColumnIndex] != 'Check' or (gpDataCurrentRow[gpTrxTypeColumnIndex] == 'Check' and len(gpDataCurrentRow[gpTrxNumberColumnIndex])!= 5):
 						gpRowsThatMatchComparisonCurrentRow.append({
 							'gpDataRowIndex': gpDataCurrentRowIndex,
 							'gpDataRow': gpDataCurrentRow})
 
-			if len(gpRowsThatMatchComparisonCurrentRow) == 1 and comparisonCurrentRow[bankDateColumnIndex] == gpRowsThatMatchComparisonCurrentRow[0]['gpDataRow'][gpTrxDateColumnIndex]:
+			if len(gpRowsThatMatchComparisonCurrentRow) == 1:
 
 				comparisonArray[comparisonCurrentRowIndex] = comparisonArray[comparisonCurrentRowIndex] + gpDataArray.pop(gpRowsThatMatchComparisonCurrentRow[0]['gpDataRowIndex'])
 				comparisonArray[comparisonCurrentRowIndex][spacingColumnIndex] = 'Matched on amount and date'
