@@ -123,7 +123,7 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 
 		if currentRow[gpTransferColumnIndex] == 'Out':
 			currentRow[gpAmountColumnIndex] = -currentRow[gpAmountColumnIndex]
-	
+
 
 
 	bankDataFirstRow = bankDataArray.pop(0)
@@ -234,7 +234,7 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 							comparisonArray[comparisonCurrentRowIndex][spacingColumnIndex] = 'Matched from Daily Deposits file'
 
 
-	
+
 	clearAndResizeParameters = [{
 		'sheetObj': gspComparison,
 		'resizeRows': 3,
