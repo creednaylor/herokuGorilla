@@ -51,13 +51,13 @@ def getMatchedRow(secondArray, firstArrayCurrentRow, firstArrayColumnsToMatch, s
 	return tempMatchedData
 
 
-def reconcileArraysFunction(oAuthMode, googleSheetTitle, loadSavedCredentials=True, firstArrayColumnsToMatch=None, secondArrayColumnsToMatch=None):
+def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 
 
 	pathToRepos = _myPyFunc.getPathUpFolderTree(pathToThisPythonFile, 'repos')
 	pathToThisProjectRoot = pathToThisPythonFile.parents[3]
 
-	gspObj = _myGspreadFunc.authorizeGspread(oAuthMode, pathToThisProjectRoot, loadSavedCredentials)
+	gspObj = _myGspreadFunc.authorizeGspread(oAuthMode, pathToThisProjectRoot, googleAccountUsername=googleAccountUsername)
 
 	gspSpreadsheet = gspObj.open(googleSheetTitle)
 
@@ -137,18 +137,18 @@ def reconcileArraysFunction(oAuthMode, googleSheetTitle, loadSavedCredentials=Tr
 	matchedArray.append(firstArrayFirstRow + [''] + secondArrayFirstRow)
 
 
-	if not firstArrayColumnsToMatch and not secondArrayColumnsToMatch:
-		if oAuthMode:
 
-			for indexOfColumnIndexFirstArray, columnTitleFirstArray in enumerate(firstArrayFirstRow):
-				for indexOfColumnIndexSecondArray, columnTitleSecondArray in enumerate(secondArrayFirstRow):
-					if columnTitleFirstArray == columnTitleSecondArray:
-						firstArrayColumnsToMatch = [indexOfColumnIndexFirstArray]
-						secondArrayColumnsToMatch = [indexOfColumnIndexSecondArray]
+	if oAuthMode:
 
-		else:
-			firstArrayColumnsToMatch = [0]  # [0, 1, 2]
-			secondArrayColumnsToMatch = [1]  # [0, 1, 2]
+		for indexOfColumnIndexFirstArray, columnTitleFirstArray in enumerate(firstArrayFirstRow):
+			for indexOfColumnIndexSecondArray, columnTitleSecondArray in enumerate(secondArrayFirstRow):
+				if columnTitleFirstArray == columnTitleSecondArray:
+					firstArrayColumnsToMatch = [indexOfColumnIndexFirstArray]
+					secondArrayColumnsToMatch = [indexOfColumnIndexSecondArray]
+
+	else:
+		firstArrayColumnsToMatch = [0]  # [0, 1, 2]
+		secondArrayColumnsToMatch = [1]  # [0, 1, 2]
 
 
 	while firstArray:
