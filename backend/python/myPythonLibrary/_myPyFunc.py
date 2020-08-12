@@ -22,7 +22,10 @@ def printElapsedTime(priorTime, message):
     if not priorTime:
         priorTime = currentTime
 
-    pp("Split time: " + str(round(currentTime - priorTime, 1)) + " seconds. " + message + ".")
+    elapsedMinutes = (currentTime - priorTime) // 60
+    elapsedSeconds = round((currentTime - priorTime) % 60, 1)
+
+    pp("Split time: " + str(elapsedMinutes) + ' minutes and ' + str(elapsedSeconds) + " seconds. (" + str(round((currentTime - priorTime), 1)) + 'seconds). ' + message + ".")
 
     return currentTime
 
