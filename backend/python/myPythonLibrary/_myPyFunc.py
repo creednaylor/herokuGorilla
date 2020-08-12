@@ -914,4 +914,45 @@ def clearDecryptedFiles(decryptedFilesToClear):
 #     return value
 
 
+def typeCharactersOnRemoteDesktop(charactersToType, priorPyAutoGuiPause, pause=None):
 
+    import pyautogui
+    charactersNeedingShift = (list(range(123, 127)) + list(range(94, 96)) + list(range(62, 91)) + [60, 58] + list(range(40, 44)) + list(range(33, 39)))
+    
+
+    for characterToType in charactersToType:
+
+        if ord(characterToType) in charactersNeedingShift:
+
+            if pause == None:
+                pyautogui.PAUSE = .0001
+            else:
+                pyautogui.PAUSE = pause
+
+            # pyautogui.hotkey('shift', characterToType)
+            pyautogui.keyDown('shift')
+            pyautogui.press(characterToType)
+            pyautogui.keyUp('shift')
+            pyautogui.PAUSE = priorPyAutoGuiPause
+
+        else:
+            pyautogui.press(characterToType)
+
+
+
+def getKeyState(keyCode):
+
+    import ctypes
+    obj = ctypes.WinDLL("User32.dll")
+
+    if (obj.GetKeyState(keyCode) & 0xffff) != 0:
+        return True
+    return False
+
+
+def numLockIsOff():
+
+    VK_NUMLOCK = 0x90
+    VK_CAPITAL = 0x14
+
+    return getKeyState(VK_NUMLOCK)
