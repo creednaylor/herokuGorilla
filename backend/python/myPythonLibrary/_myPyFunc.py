@@ -4,11 +4,11 @@ from cryptography.fernet import Fernet
 from datetime import datetime, date
 import json
 from pathlib import Path
-from pprint import pprint as pp
+from pprint import pprint as p
 # import re
 import sqlite3
 import time
-
+import pyautogui as g
 
 
 
@@ -25,7 +25,7 @@ def printElapsedTime(priorTime, message):
     elapsedMinutes = (currentTime - priorTime) // 60
     elapsedSeconds = round((currentTime - priorTime) % 60, 1)
 
-    pp("Split time: " + str(elapsedMinutes) + ' minutes and ' + str(elapsedSeconds) + " seconds. (" + str(round((currentTime - priorTime), 1)) + ' seconds). ' + message + ".")
+    p("Split time: " + str(elapsedMinutes) + ' minutes and ' + str(elapsedSeconds) + " seconds. (" + str(round((currentTime - priorTime), 1)) + ' seconds). ' + message + ".")
 
     return currentTime
 
@@ -110,48 +110,48 @@ def functionOnClick(x, y, button, pressed):
 
 def printPythonInfo(var, length):
 
-    pp("1. Printing string of the variable: " + str(var)[0:length])
-    pp(var)
+    p("1. Printing string of the variable: " + str(var)[0:length])
+    p(var)
 
-    pp("2. Printing help() of the variable: " + str(var)[0:length])
-    pp(help(var))
+    p("2. Printing help() of the variable: " + str(var)[0:length])
+    p(help(var))
 
-    pp("3. Printing dir() of the variable: " + str(var)[0:length])
-    pp(dir(var))
+    p("3. Printing dir() of the variable: " + str(var)[0:length])
+    p(dir(var))
 
 
 
-    pp("4. Printing vars() of the variable: " + str(var)[0:length])
+    p("4. Printing vars() of the variable: " + str(var)[0:length])
     try:
-        pp(vars(var))
+        p(vars(var))
     except:
-        pp("An exception occurred printing vars() of the variable")
+        p("An exception occurred printing vars() of the variable")
 
 
 
 
-    pp("5. Printing and loopting through the variable: " + str(var)[0:length])
+    p("5. Printing and loopting through the variable: " + str(var)[0:length])
     try:
         for attr in dir(var):
-            pp("obj.%s = %r" % (attr, getattr(var, attr)))
+            p("obj.%s = %r" % (attr, getattr(var, attr)))
     except:
-        pp("An exception occurred printing and loopting through the variable")
+        p("An exception occurred printing and loopting through the variable")
 
 
 
-    pp("6. Printing the .__dict__ of the variable: " + str(var)[0:length])
+    p("6. Printing the .__dict__ of the variable: " + str(var)[0:length])
     try:
-        pp(var.__dict__)
+        p(var.__dict__)
     except:
-        pp("An exception occurred printing the .__dict__ of the variable")
+        p("An exception occurred printing the .__dict__ of the variable")
 
 
 
-    pp("7. Printing the repr() of the variable: " + str(var)[0:length])
+    p("7. Printing the repr() of the variable: " + str(var)[0:length])
     try:
-        pp(repr(var))
+        p(repr(var))
     except:
-        pp("An exception occurred printing the repr() of the variable")
+        p("An exception occurred printing the repr() of the variable")
 
 
 
@@ -215,7 +215,7 @@ def getFromList(listObj, position):
 def saveFile(dataObj, path):
 
     with open(path, "w") as out:
-        pp(dataObj, stream=out)
+        p(dataObj, stream=out)
 
 
 
@@ -237,7 +237,7 @@ def filterListOfLists(list, filterObj):
             if filterCount == len(dictionary):
                 listToReturn.append(item)
 
-    # pp(listToReturn)
+    # p(listToReturn)
 
     return listToReturn
 
@@ -388,7 +388,7 @@ def createTable(tblName, columnsObj, sqlCursor):
     # sqlList.append(
     #     "create table " + tblName + " (tranDate date, account varchar(255), accountType varchar(255), accountCategory varchar(255), amount float, tranType varchar(255), stockName varchar(255), broker varchar(255), lot varchar(255), shares float);")
 
-    # pp(sqlList)
+    # p(sqlList)
     executeSQLStatements(sqlList, sqlCursor)
 
 
@@ -450,7 +450,7 @@ def populateTable(totalRows, totalColumns, tblName, sheetDataList, sqlCursor, li
 
     sqlCommand = sqlCommand + ";"
 
-    # pp(sqlCommand)
+    # p(sqlCommand)
     executeSQLStatements([sqlCommand], sqlCursor)
      
 
@@ -477,17 +477,17 @@ def getQueryResult(sqlCommand, sqlCursor, includeColumnNames):
 
         for i in range(0, len(colNames)):
             if colNames[i].startswith("'"):
-                # pp(1)
+                # p(1)
                 colNames[i] = colNames[i][1:]
 
             if colNames[i].endswith("'"):
-                # pp(2)
+                # p(2)
                 colNames[i] = colNames[i][:-1]
 
 
         queryResult.insert(0, colNames)
 
-    # pp(queryResult)
+    # p(queryResult)
 
     return queryResult
 
@@ -514,7 +514,7 @@ def createPivotColDict(fieldToPivot, fieldToSum, dataList, **kwargs):
     pivotColStr = ""
 
 
-    # pp(colData)
+    # p(colData)
 
     for colItem in colData:
 
@@ -639,7 +639,7 @@ def mapData(map, valueToGive, valueToGiveColIndex, valueToGetColIndex):
 
     valueToGet = ""
 
-    # pp(map)
+    # p(map)
 
     # tickerSym = _myPyFunc.vlookup(lotStockName, tickerMapUniqueExtractedValues)
 
@@ -658,14 +658,14 @@ def removeRepeatedDataFromList(listToProcess):
     newList = copy.deepcopy(listToProcess)
 
     # for row in listToProcess:
-    #     pp(type(row))
+    #     p(type(row))
 
     for rowIndex in range(0, len(listToProcess)):
         if rowIndex != 0:
             for colIndex in range(0, len(listToProcess[rowIndex])):
                 if listToProcess[rowIndex][colIndex] == listToProcess[rowIndex - 1][colIndex] and listToProcess[rowIndex][colIndex] is not None:
                     newList[rowIndex][colIndex] = ""
-                    # pp("repeat val: " + listToProcess[rowIndex][colIndex])
+                    # p("repeat val: " + listToProcess[rowIndex][colIndex])
 
     return newList
 
@@ -681,9 +681,9 @@ def addTotal(listToProcess, colToTotal, totalsList):
 
             if listToProcess[rowIndex - 1][colToTotal] != listToProcess[rowIndex][colToTotal]:
 
-                # pp(totalsList[0])
+                # p(totalsList[0])
                 newList.insert(rowIndex, totalsList[0])
-                # pp(listToProcess[rowIndex][colToTotal])
+                # p(listToProcess[rowIndex][colToTotal])
 
             if rowIndex == len(listToProcess) - 1:
 
@@ -959,3 +959,23 @@ def numLockIsOff():
     VK_CAPITAL = 0x14
 
     return getKeyState(VK_NUMLOCK)
+
+
+def clickImageAfterWaiting(pngFileName, confidence=.9):
+
+    g.click(getCoordinatesAfterWaiting(pngFileName, confidence=confidence))
+
+
+def getCoordinatesAfterWaiting(pngFileName, confidence=.9, center=True):
+
+    coordinatesToReturn = None
+
+    while not coordinatesToReturn:
+        p(f'Looking for {pngFileName[:-4]}')
+
+        if center:
+            coordinatesToReturn = g.locateCenterOnScreen(pngFileName, confidence=confidence)
+        else:
+            coordinatesToReturn = g.locateOnScreen(pngFileName, confidence=confidence)
+
+    return coordinatesToReturn
