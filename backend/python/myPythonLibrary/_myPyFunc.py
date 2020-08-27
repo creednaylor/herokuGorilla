@@ -979,3 +979,18 @@ def getCoordinatesAfterWaiting(pngFileName, confidence=.9, center=True):
             coordinatesToReturn = g.locateOnScreen(pngFileName, confidence=confidence)
 
     return coordinatesToReturn
+
+
+def waitUntilGone(pngFileName, confidence=.9, center=True):
+
+    coordinatesToReturn = g.locateOnScreen(pngFileName, confidence=confidence)
+
+    while coordinatesToReturn:
+        p(f'Waiting for {pngFileName[:-4]} to disappear.')
+
+        if center:
+            coordinatesToReturn = g.locateCenterOnScreen(pngFileName, confidence=confidence)
+        else:
+            coordinatesToReturn = g.locateOnScreen(pngFileName, confidence=confidence)
+
+    return coordinatesToReturn
