@@ -33,13 +33,13 @@ def columnsMatch(firstArrayCurrentRow, secondArrayCurrentRow, firstArrayColumnsT
 
 
 
-def reconcileArraysFunction(oAuthMode, googleSheetTitle, firstArrayColumnsToMatch=None, secondArrayColumnsToMatch=None):
+def reconcileArrays(oAuthMode, googleSheetTitle, firstArrayColumnsToMatch=None, secondArrayColumnsToMatch=None, googleAccountUsername=None):
 
 
 	pathToRepos = _myPyFunc.getPathUpFolderTree(pathToThisPythonFile, 'repos')
 	pathToThisProjectRoot = pathToThisPythonFile.parents[3]
 
-	gspObj = _myGspreadFunc.authorizeGspread(oAuthMode, pathToThisProjectRoot)
+	gspObj = _myGspreadFunc.authorizeGspread(oAuthMode, pathToThisProjectRoot, googleAccountUsername=googleAccountUsername)
 
 	gspSpreadsheet = gspObj.open(googleSheetTitle)
 
@@ -61,21 +61,14 @@ def reconcileArraysFunction(oAuthMode, googleSheetTitle, firstArrayColumnsToMatc
 
 	matchedArray = [[firstTableName] + [''] * (len(firstArray[0])) + [secondTableName] + [''] * (len(secondArray[0]) - 1)]
 	matchedArray.append(firstArrayFirstRow + [''] + secondArrayFirstRow)
-	# p(matchedArray)
+	# # p(matchedArray)
 
 
-	if not firstArrayColumnsToMatch and not secondArrayColumnsToMatch:
-		if oAuthMode:
+	if not firstArrayColumnsToMatch:
+		firstArrayColumnsToMatch = [0]
 
-			for indexOfColumnIndexFirstArray, columnTitleFirstArray in enumerate(firstArrayFirstRow):
-				for indexOfColumnIndexSecondArray, columnTitleSecondArray in enumerate(secondArrayFirstRow):
-					if columnTitleFirstArray == columnTitleSecondArray:
-						firstArrayColumnsToMatch = [indexOfColumnIndexFirstArray]
-						secondArrayColumnsToMatch = [indexOfColumnIndexSecondArray]
-
-		else:
-			firstArrayColumnsToMatch = [0]  # [0, 1, 2]
-			secondArrayColumnsToMatch = [1]  # [0, 1, 2]
+	if not secondArrayColumnsToMatch:
+		secondArrayColumnsToMatch = [0]
 
 
 	while firstArray:
@@ -94,21 +87,6 @@ def reconcileArraysFunction(oAuthMode, googleSheetTitle, firstArrayColumnsToMatc
 					tempMatchedData.append([str(tempMatchedData[0][firstArrayColumnsToMatch[0]]) + ': matched ' + str(tempMatchedDataCurrentLength) + ' additional row(s)'] + [''] * (len(firstArrayCurrentRow)) + secondArrayCurrentRow)
 				else:
 					tempMatchedData.append(firstArrayCurrentRow + [''] + secondArrayCurrentRow)
-
-
-
-		# while secondArrayRowIndexCount in range(0, len(secondArray)):
-
-		# 	if columnsMatch(firstArrayCurrentRow, secondArray[secondArrayRowIndexCount], firstArrayColumnsToMatch, secondArrayColumnsToMatch):
-				
-		# 		secondArrayCurrentRow = secondArray.pop(0)
-
-		# 		if tempMatchedData:
-		# 			tempMatchedData.append([''] * (len(firstArrayCurrentRow) + 1) + secondArrayCurrentRow)
-		# 		else:
-		# 			tempMatchedData.append(firstArrayCurrentRow + [''] + secondArrayCurrentRow)
-
-		# 	secondArrayRowIndexCount = secondArrayRowIndexCount + 1
 
 
 		if tempMatchedData:
@@ -142,15 +120,15 @@ def reconcileArraysFunction(oAuthMode, googleSheetTitle, firstArrayColumnsToMatc
 	_myGspreadFunc.autoResizeColumnsOnSheet(gspSpreadsheet, didNotMatchTableName)
 
 
-	strToReturn = os.environ.get('urlOfKingGorillaGoogleSheetPublicStr')
+	# strToReturn = os.environ.get('urlOfKingGorillaGoogleSheetPublicStr')
 
-	if not strToReturn:
+	# if not strToReturn:
 
-		pathToConfigDataJSON = Path(pathToRepos, 'privateData', 'herokuGorilla', 'configData.json')
-		jsonFileObj = open(pathToConfigDataJSON)
-		strToReturn = json.load(jsonFileObj)['urlOfKingGorillaGoogleSheetPublicStr']
+	# 	pathToConfigDataJSON = Path(pathToRepos, 'privateData', 'herokuGorilla', 'configData.json')
+	# 	jsonFileObj = open(pathToConfigDataJSON)
+	# 	strToReturn = json.load(jsonFileObj)['urlOfKingGorillaGoogleSheetPublicStr']
 
-	strToReturn = strToReturn[:-1] + '871892682'
+	# strToReturn = strToReturn[:-1] + '871892682'
 
-	return strToReturn
+	# return strToReturn
 
