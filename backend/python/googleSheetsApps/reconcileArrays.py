@@ -1,4 +1,5 @@
 #rename to match
+#add "Matched" and "Not Matched"
 
 from google_auth_oauthlib.flow import InstalledAppFlow
 import json
@@ -82,17 +83,18 @@ def reconcileArrays(oAuthMode, googleSheetTitle, firstArrayColumnsToMatch=None, 
 				
 				secondArrayCurrentRow = secondArray.pop(secondArrayCurrentRowIndex)
 
-				if tempMatchedData:
-					tempMatchedDataCurrentLength = len(tempMatchedData)
-					tempMatchedData.append([str(tempMatchedData[0][firstArrayColumnsToMatch[0]]) + ': matched ' + str(tempMatchedDataCurrentLength) + ' additional row(s)'] + [''] * (len(firstArrayCurrentRow)) + secondArrayCurrentRow)
-				else:
-					tempMatchedData.append(firstArrayCurrentRow + [''] + secondArrayCurrentRow)
+				# if tempMatchedData:
+				# 	tempMatchedDataCurrentLength = len(tempMatchedData)
+				# 	tempMatchedData.append([str(tempMatchedData[0][firstArrayColumnsToMatch[0]]) + ': matched ' + str(tempMatchedDataCurrentLength) + ' additional row(s)'] + [''] * (len(firstArrayCurrentRow)) + secondArrayCurrentRow)
+				# else:
+				
+				tempMatchedData.append(firstArrayCurrentRow + ['Matched'] + secondArrayCurrentRow)
 
 
 		if tempMatchedData:
 			matchedArray.extend(tempMatchedData)
 		else:
-			matchedArray.append(firstArrayCurrentRow + [''])
+			matchedArray.append(firstArrayCurrentRow + ['Not Matched'])
 
 
 	clearAndResizeParameters = [{
