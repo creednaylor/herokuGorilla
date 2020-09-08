@@ -2,14 +2,14 @@ import React from 'react';
 import logo from './logo.svg';
 import Anchorlink from './Anchorlink';
 
-export default function Header() {
+export default function Header(props) {
     return (
-        <header className="App-header">
+      <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
         <p>
-          Change <code>src/App.js</code> and save to reload.
+          Hello {props.userName}!
         </p>
-        <Anchorlink/>
+        <Anchorlink nameOfUser={props.userName}/>
       </header>
     )
 }
