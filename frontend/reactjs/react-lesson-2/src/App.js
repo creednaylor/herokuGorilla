@@ -9,12 +9,7 @@ console.log("outside the function");
 
 function App() {
   
-  const [nameOfPerson, setNameOfPerson] = useState('Harry Potter');
-
-  const onNameChange = (event) => {
-    let newNameOfPerson = event.target.value;
-    setNameOfPerson(newNameOfPerson);
-  }
+  const [nameOfPerson, setNameOfPerson] = useState('Harry the Henderson');
 
   useEffect(() => {
     let newNameOfPerson = window.prompt('What is your name?', nameOfPerson);
@@ -23,8 +18,7 @@ function App() {
 
   return (
     <div className="App">
-      <Header userName={nameOfPerson}/>
-      <input type="text" onChange={onNameChange}/>
+      <Header userName={nameOfPerson} setNameOfPerson={setNameOfPerson}/>
     </div>
   );
 }
