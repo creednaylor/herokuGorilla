@@ -208,6 +208,9 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 		if len(comparisonCurrentRow) == len(bankDataFirstRow) + 1 and comparisonCurrentRow[bankTransactionTypeColumnIndex] != 'Check(s) Paid':
 
 			gpRowsThatMatchComparisonCurrentRow = []
+
+			# if comparisonCurrentRow[bankAmountColumnIndex] == -1100.48:
+			# 	p(1)
 			
 			for gpDataCurrentRowIndex in reversed(range(0, len(gpDataArray))):
 
@@ -246,20 +249,6 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 						comparisonArray[comparisonRowsThatMatchComparisonCurrentRow[comparisonDuplicateMatchedRowIndex]['comparisonDuplicateRowIndex']][spacingColumnIndex] = f'Matched on amount, {gpRowsThatMatchLength} bank rows with {gpRowsThatMatchLength} GP rows'
 		
 
-				# reversedListOfMatchedRowIndex = list(range(len(gpRowsThatMatchComparisonCurrentRow) - 1, 0, -1))  #[3, 2, 1]
-				# comparisonArrayAtCurrentRow = comparisonArray[comparisonCurrentRowIndex]
-				# gpMatchedLastRowIndex = len(gpRowsThatMatchComparisonCurrentRow) - 1
-
-				# for gpMatchedCurrentRowIndex, gpMatchedRow in enumerate(gpRowsThatMatchComparisonCurrentRow):
-
-				# 	if gpMatchedCurrentRowIndex == 0:
-				# 		comparisonArray[comparisonCurrentRowIndex] = [str(comparisonArrayAtCurrentRow[0]) + ' matched ' + str(reversedListOfMatchedRowIndex[gpMatchedCurrentRowIndex]) + ' additional row(s)'] + (len(bankDataFirstRow) - 1) * [''] + ['Matched on amount'] + gpDataArray.pop(gpMatchedRow['gpDataRowIndex'])
-				# 	elif gpMatchedCurrentRowIndex == gpMatchedLastRowIndex:
-				# 		comparisonArrayAtCurrentRow[spacingColumnIndex] = 'Matched on amount'
-				# 		comparisonArray.insert(comparisonCurrentRowIndex, comparisonArrayAtCurrentRow + gpDataArray.pop(gpMatchedRow['gpDataRowIndex']))
-				# 	else:
-				# 		comparisonArray.insert(comparisonCurrentRowIndex, [str(comparisonArrayAtCurrentRow[0]) + ' matched ' + str(reversedListOfMatchedRowIndex[gpMatchedCurrentRowIndex]) + ' additional row(s)'] + (len(bankDataFirstRow) - 1) * [''] + ['Matched on amount'] + gpDataArray.pop(gpMatchedRow['gpDataRowIndex']))
-
 
 	for comparisonCurrentRowIndex, comparisonCurrentRow in enumerate(comparisonArray):
 
@@ -278,6 +267,25 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 							comparisonArray[comparisonCurrentRowIndex] = comparisonArray[comparisonCurrentRowIndex] + gpDataArray[gpDataCurrentRowIndex]
 							comparisonArray[comparisonCurrentRowIndex][spacingColumnIndex] = 'Matched from Daily Deposits file'
 
+
+	for comparisonCurrentRowIndex, comparisonCurrentRow in enumerate(comparisonArray):
+
+		if len(comparisonCurrentRow) == len(bankDataFirstRow) + 1 and comparisonCurrentRow[bankTransactionTypeColumnIndex] == 'Check(s) Paid':
+    
+			gpRowsThatMatchComparisonCurrentRow = []
+			
+			for gpDataCurrentRowIndex, gpDataCurrentRow in enumerate(gpDataArray):
+
+				if comparisonCurrentRow[bankAmountColumnIndex] == gpDataCurrentRow[gpAmountColumnIndex] and comparisonCurrentRow[bankDateColumnIndex] == gpDataCurrentRow[gpTrxDateColumnIndex]: 
+
+					gpRowsThatMatchComparisonCurrentRow.append({
+						'gpDataRowIndex': gpDataCurrentRowIndex,
+						'gpDataRow': gpDataCurrentRow})
+
+			if len(gpRowsThatMatchComparisonCurrentRow) == 1:
+
+				comparisonArray[comparisonCurrentRowIndex] = comparisonArray[comparisonCurrentRowIndex] + gpDataArray.pop(gpRowsThatMatchComparisonCurrentRow[0]['gpDataRowIndex'])
+				comparisonArray[comparisonCurrentRowIndex][spacingColumnIndex] = 'Matched on amount and date, bank transaction is a check, GP transaction does not have the same check number'
 
 
 	clearAndResizeParameters = [{
