@@ -261,22 +261,22 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 				# 		comparisonArray.insert(comparisonCurrentRowIndex, [str(comparisonArrayAtCurrentRow[0]) + ' matched ' + str(reversedListOfMatchedRowIndex[gpMatchedCurrentRowIndex]) + ' additional row(s)'] + (len(bankDataFirstRow) - 1) * [''] + ['Matched on amount'] + gpDataArray.pop(gpMatchedRow['gpDataRowIndex']))
 
 
-	# for comparisonCurrentRowIndex, comparisonCurrentRow in enumerate(comparisonArray):
+	for comparisonCurrentRowIndex, comparisonCurrentRow in enumerate(comparisonArray):
 
-	# 	if len(comparisonCurrentRow) == len(bankDataFirstRow) + 1 and comparisonCurrentRow[bankTransactionTypeColumnIndex] != 'Check(s) Paid':
-	# 		# p(comparisonCurrentRow)
+		if len(comparisonCurrentRow) == len(bankDataFirstRow) + 1 and comparisonCurrentRow[bankTransactionTypeColumnIndex] != 'Check(s) Paid':
+			# p(comparisonCurrentRow)
 
-	# 		for dailyDepositsCurrentRow in dailyDepositsArray:
+			for dailyDepositsCurrentRow in dailyDepositsArray:
 				
-	# 			if comparisonCurrentRow[bankAmountColumnIndex] == dailyDepositsCurrentRow[dailyDepositsAmountColumnIndex]:
+				if comparisonCurrentRow[bankAmountColumnIndex] == dailyDepositsCurrentRow[dailyDepositsAmountColumnIndex]:
 					
-	# 				gpRowsThatMatchComparisonCurrentRow = []
+					gpRowsThatMatchComparisonCurrentRow = []
 
-	# 				for gpDataCurrentRowIndex in reversed(range(0, len(gpDataArray))):
+					for gpDataCurrentRowIndex in reversed(range(0, len(gpDataArray))):
 
-	# 					if gpDataArray[gpDataCurrentRowIndex][gpTrxNumberColumnIndex][2:7] == dailyDepositsCurrentRow[dailyDepositsTransactionIDColumnIndex]:
-	# 						comparisonArray[comparisonCurrentRowIndex] = comparisonArray[comparisonCurrentRowIndex] + gpDataArray[gpDataCurrentRowIndex]
-	# 						comparisonArray[comparisonCurrentRowIndex][spacingColumnIndex] = 'Matched from Daily Deposits file'
+						if gpDataArray[gpDataCurrentRowIndex][gpTrxNumberColumnIndex][2:7] == dailyDepositsCurrentRow[dailyDepositsTransactionIDColumnIndex]:
+							comparisonArray[comparisonCurrentRowIndex] = comparisonArray[comparisonCurrentRowIndex] + gpDataArray[gpDataCurrentRowIndex]
+							comparisonArray[comparisonCurrentRowIndex][spacingColumnIndex] = 'Matched from Daily Deposits file'
 
 
 
