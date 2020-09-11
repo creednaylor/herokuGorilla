@@ -1019,7 +1019,7 @@ def operateOnAllFileObjBreadthFirst(rootFolder, actionToPerformOnEachFileObj, da
         folderArray.extend(listOfSubFolders(currentFolder))
 
         try:
-            returnedFile = actionToPerformOnEachFileObj(currentFolder)
+            returnedFile = actionToPerformOnEachFileObj(currentFolder, dataForAction)
 
             if returnedFile:
                 return returnedFile
