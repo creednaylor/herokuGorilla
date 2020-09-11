@@ -994,3 +994,38 @@ def waitUntilGone(pngFileName, confidence=.9, center=True):
             coordinatesToReturn = g.locateOnScreen(pngFileName, confidence=confidence)
 
     return coordinatesToReturn
+
+
+def operateOnAllFileObj(rootFolder, actionToPerformOnEachFileObj, pathsToExclude=[]): 
+
+    def listOfSubFolders(folderPath):
+
+        subFolderArray = []
+
+        try:
+            for node in folderPath.iterdir():
+                if not node.is_file() and node not in pathsToExclude:
+                    subFolderArray.append(node)
+        except:
+            pass
+
+        return subFolderArray
+
+    folderArray = [rootFolder]
+
+    while folderArray:
+
+        currentFolder = folderArray.pop(0)
+        folderArray.extend(listOfSubFolders(currentFolder))
+
+        try:
+            returnedFile = actionToPerformOnEachFileObj(currentFolder)
+
+            if returnedFile:
+                return returnedFile
+
+        except:
+            pass
+
+    return None
+
