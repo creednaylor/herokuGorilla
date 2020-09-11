@@ -996,7 +996,7 @@ def waitUntilGone(pngFileName, confidence=.9, center=True):
     return coordinatesToReturn
 
 
-def operateOnAllFileObj(rootFolder, actionToPerformOnEachFileObj, pathsToExclude=[]): 
+def operateOnAllFileObjBreadthFirst(rootFolder, actionToPerformOnEachFileObj, dataForAction={}, pathsToExclude=[]): 
 
     def listOfSubFolders(folderPath):
 
