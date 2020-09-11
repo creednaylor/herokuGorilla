@@ -12,26 +12,34 @@ export default function Header(props) {
   }
 
 
-  const [firstNumber, setFirstNumber] = useState(0);
-  const [secondNumber, setSecondNumber] = useState(7);
+  const [firstInput, setfirstInput] = useState('');
+  const [secondInput, setsecondInput] = useState('');
   
-  const onFirstNumberChange = (event) => {
-    setFirstNumber(event.target.value);
+  const onfirstInputChange = (event) => {
+    setfirstInput(event.target.value);
+  }  
+  
+  const onsecondInputChange = (event) => {
+    setsecondInput(event.target.value);
   }
 
 
-  // const [toggleState, setToggleState] = useState(true);
-  
-  // const onNameChange = (event) => {
-  //   let newNameOfPerson = event.target.value;
-  //   props.setNameOfPerson(newNameOfPerson);
-  // }
+  const getOutput = () => {
 
-  let sum = parseInt(firstNumber) + 7;
+    const firstNumber = Number.parseInt(firstInput);
+    const secondNumber = Number.parseInt(secondInput);
+
+    const isValid = !Number.isNaN(firstNumber) && !Number.isNaN(secondNumber);
+
+    return isValid ? (firstNumber + secondNumber) : '';
+
+  }
+
 
   function handleClick(event) {
     setToggleState(!toggleState);
   }
+
 
   return (
     <header className="App-header">
@@ -43,7 +51,7 @@ export default function Header(props) {
       </div>
       <Anchorlink nameOfUser={props.userName}/>
       <p>Calculate the sum of two numbers:</p>
-      <input type="text" onChange={onFirstNumberChange} defaultValue={firstNumber}/>&nbsp;+&nbsp;<input type="text" onChange={onFirstNumberChange} defaultValue={secondNumber}/> = {sum}
+      <input type="text" onChange={onfirstInputChange} defaultValue={firstInput}/>&nbsp;+&nbsp;<input type="text" onChange={onsecondInputChange} defaultValue={secondInput}/> = {getOutput()}
     </header>
   );
 }
