@@ -1019,7 +1019,7 @@ def operateOnAllFileObj(rootFolder, actionToPerformOnEachFileObj, pathsToExclude
         folderArray.extend(listOfSubFolders(currentFolder))
 
         try:
-            returnedFile = actionToPerformOnEachFileObj(currentFolder)
+            returnedFile = actionToPerformOnEachFileObj(currentFolder, 'git')
 
             if returnedFile:
                 return returnedFile
