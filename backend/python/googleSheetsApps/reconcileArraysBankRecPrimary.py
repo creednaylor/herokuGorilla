@@ -337,5 +337,12 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 	# return strToReturn
 
 
+def mainFunction(arrayOfArguments):
+    reconcileArrays(True, arrayOfArguments[1], googleAccountUsername=arrayOfArguments[2])
+
+
 if __name__ == '__main__':
-    reconcileArrays(True, sys.argv[1], googleAccountUsername=sys.argv[2])
+    p(str(pathToThisPythonFile.name) + ' is not being imported. It is being run directly...')
+    mainFunction(sys.argv)
+else:
+	p(str(pathToThisPythonFile.name) + ' is being imported. It is not being run directly...')
