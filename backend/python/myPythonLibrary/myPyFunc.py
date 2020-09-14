@@ -1011,6 +1011,7 @@ def operateOnAllFileObjBreadthFirst(rootFolder, actionToPerformOnEachFileObj, da
 
         return subFolderArray
 
+
     folderArray = [rootFolder]
 
     while folderArray:

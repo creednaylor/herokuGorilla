@@ -2,7 +2,7 @@ from pathlib import Path
 pathToThisPythonFile = Path(__file__).resolve()
 import sys
 sys.path.append(str(pathToThisPythonFile.parents[2]))
-import myPythonLibrary._myPyFunc as _myPyFunc
+import myPythonLibrary.myPyFunc as myPyFunc
 
 from pprint import pprint as pp
 
@@ -39,13 +39,13 @@ def getDataWithGrid(spreadsheetIDStr, googleSheetsObj, rangesArgument):
 
 
 def getCellValue(dataObj, sheetPos, rowPos, colPos):
-    sheetsData = _myPyFunc.getFromDict(dataObj, "sheets")
-    currentSheetData = _myPyFunc.getFromList(sheetsData, sheetPos)
-    dataOnSheet = _myPyFunc.getFromList(_myPyFunc.getFromDict(currentSheetData, "data"), 0)
-    currentRowsData = _myPyFunc.getFromDict(dataOnSheet, "rowData")
-    currentRowData = _myPyFunc.getFromDict(_myPyFunc.getFromList(currentRowsData, rowPos), "values")
+    sheetsData = myPyFunc.getFromDict(dataObj, "sheets")
+    currentSheetData = myPyFunc.getFromList(sheetsData, sheetPos)
+    dataOnSheet = myPyFunc.getFromList(myPyFunc.getFromDict(currentSheetData, "data"), 0)
+    currentRowsData = myPyFunc.getFromDict(dataOnSheet, "rowData")
+    currentRowData = myPyFunc.getFromDict(myPyFunc.getFromList(currentRowsData, rowPos), "values")
     try:
-        return _myPyFunc.getFromList(currentRowData, colPos)["formattedValue"]
+        return myPyFunc.getFromList(currentRowData, colPos)["formattedValue"]
     except:
         return ""
 
@@ -53,13 +53,13 @@ def getCellValue(dataObj, sheetPos, rowPos, colPos):
 
 
 def getCellValueEffective(dataObj, sheetPos, rowPos, colPos):
-    sheetsData = _myPyFunc.getFromDict(dataObj, "sheets")
-    currentSheetData = _myPyFunc.getFromList(sheetsData, sheetPos)
-    dataOnSheet = _myPyFunc.getFromList(_myPyFunc.getFromDict(currentSheetData, "data"), 0)
-    currentRowsData = _myPyFunc.getFromDict(dataOnSheet, "rowData")
-    currentRowData = _myPyFunc.getFromDict(_myPyFunc.getFromList(currentRowsData, rowPos), "values")
+    sheetsData = myPyFunc.getFromDict(dataObj, "sheets")
+    currentSheetData = myPyFunc.getFromList(sheetsData, sheetPos)
+    dataOnSheet = myPyFunc.getFromList(myPyFunc.getFromDict(currentSheetData, "data"), 0)
+    currentRowsData = myPyFunc.getFromDict(dataOnSheet, "rowData")
+    currentRowData = myPyFunc.getFromDict(myPyFunc.getFromList(currentRowsData, rowPos), "values")
     try:
-        return _myPyFunc.getFromList(currentRowData, colPos)["effectiveValue"]
+        return myPyFunc.getFromList(currentRowData, colPos)["effectiveValue"]
     except:
         return getCellValue(dataObj, sheetPos, rowPos, colPos)
 
@@ -67,17 +67,17 @@ def getCellValueEffective(dataObj, sheetPos, rowPos, colPos):
 
 def countRows(dataObj, sheetPos):
 
-    sheetsData = _myPyFunc.getFromDict(dataObj, "sheets")
+    sheetsData = myPyFunc.getFromDict(dataObj, "sheets")
 
     # saveFile(sheetsData, pathlib.Path(pathlib.Path.cwd().parents[3]/"privateData"/"stockResults"/"sheetsData.json"))
     # for i in sheetsData:
     #     pp(str(i)[:50])
 
-    currentSheetData = _myPyFunc.getFromList(sheetsData, sheetPos)
-    dataOnSheet = _myPyFunc.getFromList(_myPyFunc.getFromDict(currentSheetData, "data"), 0)
+    currentSheetData = myPyFunc.getFromList(sheetsData, sheetPos)
+    dataOnSheet = myPyFunc.getFromList(myPyFunc.getFromDict(currentSheetData, "data"), 0)
 
     if "rowData" in dataOnSheet:
-        return len(_myPyFunc.getFromDict(dataOnSheet, "rowData"))
+        return len(myPyFunc.getFromDict(dataOnSheet, "rowData"))
     else:
         return 1000000
 
@@ -86,13 +86,13 @@ def countRows(dataObj, sheetPos):
 
 
 def countColumns(dataObj, sheetPos):
-    sheetsData = _myPyFunc.getFromDict(dataObj, "sheets")
-    currentSheetData = _myPyFunc.getFromList(sheetsData, sheetPos)
-    dataOnSheet = _myPyFunc.getFromList(_myPyFunc.getFromDict(currentSheetData, "data"), 0)
+    sheetsData = myPyFunc.getFromDict(dataObj, "sheets")
+    currentSheetData = myPyFunc.getFromList(sheetsData, sheetPos)
+    dataOnSheet = myPyFunc.getFromList(myPyFunc.getFromDict(currentSheetData, "data"), 0)
 
     if "rowData" in dataOnSheet:
-        currentRowsData = _myPyFunc.getFromDict(dataOnSheet, "rowData")
-        currentRowData = _myPyFunc.getFromDict(_myPyFunc.getFromList(currentRowsData, 0), "values")
+        currentRowsData = myPyFunc.getFromDict(dataOnSheet, "rowData")
+        currentRowData = myPyFunc.getFromDict(myPyFunc.getFromList(currentRowsData, 0), "values")
         return len(currentRowData)
     else:
         return 1000000
@@ -423,7 +423,7 @@ def populateSheet(rowsToKeep, colsToKeep, sheetName, googleSheetsObj, spreadshee
 
 
     if splitTime:
-        return _myPyFunc.printElapsedTime(splitTime, messageToPrint)
+        return myPyFunc.printElapsedTime(splitTime, messageToPrint)
 
 
 
@@ -478,7 +478,7 @@ def getGoogleSheetsAPIObj(arrayOfPathParts=None, pathToCredentialsDirectory=None
     pathToThisPythonFile = Path(__file__).resolve()
     import sys
     sys.path.append(str(Path(pathToThisPythonFile.parents[2], 'myPythonLibrary')))
-    import _myPyFunc
+    import myPyFunc
     
     import pickle, googleapiclient.discovery, google_auth_oauthlib.flow, google.auth.transport.requests
     from pprint import pprint as pp
@@ -500,9 +500,9 @@ def getGoogleSheetsAPIObj(arrayOfPathParts=None, pathToCredentialsDirectory=None
             pathToJSONForCredentialsRetrieval = Path(pathToCredentialsDirectory, 'jsonForCredentialsRetrieval.json')
             pathToPickleFileWithCredentials = Path(pathToCredentialsDirectory, 'pickleFileWithCredentials.pickle')
         else:
-            pathToRepos = _myPyFunc.getPathUpFolderTree(pathToThisPythonFile, 'repos')
-            pathToJSONForCredentialsRetrieval = _myPyFunc.addToPath(pathToRepos, arrayOfPathParts + ['jsonForCredentialsRetrieval.json'])
-            pathToPickleFileWithCredentials = _myPyFunc.addToPath(pathToRepos, arrayOfPathParts + ['pickleFileWithCredentials.pickle'])
+            pathToRepos = myPyFunc.getPathUpFolderTree(pathToThisPythonFile, 'repos')
+            pathToJSONForCredentialsRetrieval = myPyFunc.addToPath(pathToRepos, arrayOfPathParts + ['jsonForCredentialsRetrieval.json'])
+            pathToPickleFileWithCredentials = myPyFunc.addToPath(pathToRepos, arrayOfPathParts + ['pickleFileWithCredentials.pickle'])
 
 
 
@@ -671,12 +671,12 @@ def getArrayOfOneSheet(googleSheetsAPIObj, spreadsheetIDStr, sheetNameStr, strOf
 
 
     # jsonOfAllSheetsWithoutAddedColumn = getJSONOfAllSheets(spreadsheetIDStr, googleSheetsAPIObj, fieldMask=strOfAllFieldMAsks)
-    # _myPyFunc.saveToFile(jsonOfAllSheetsWithoutAddedColumn, 'jsonOfAllSheetsWithoutAddedColumn', 'json', pathToSaveFile)
+    # myPyFunc.saveToFile(jsonOfAllSheetsWithoutAddedColumn, 'jsonOfAllSheetsWithoutAddedColumn', 'json', pathToSaveFile)
     # addColumnToSheet()
     jsonOfAllSheets = getJSONOfAllSheets(spreadsheetIDStr, googleSheetsAPIObj, fieldMask=strOfAllFieldMasks)
-    _myPyFunc.saveToFile(jsonOfAllSheets, 'jsonOfAllSheets', 'json', pathToSaveFile)
+    myPyFunc.saveToFile(jsonOfAllSheets, 'jsonOfAllSheets', 'json', pathToSaveFile)
     jsonOfOneSheet = getJSONOfOneSheet(jsonOfAllSheets, sheetNameStr)
-    _myPyFunc.saveToFile(jsonOfOneSheet, 'jsonOfOneSheet', 'json', pathToSaveFile)
+    myPyFunc.saveToFile(jsonOfOneSheet, 'jsonOfOneSheet', 'json', pathToSaveFile)
     return getArrayFromJSONOfOneSheet(jsonOfOneSheet, googleSheetsAPIObj, spreadsheetIDStr, sheetNameStr)    
 
 
@@ -707,7 +707,7 @@ def addColumnToOneSheet(googleSheetsAPIObj, spreadsheetIDStr, sheetNameStr, strO
 
 
     
-    columnLetterOfLastColumn = _myPyFunc.getColumnLetterFromNumber(lengthOfLongestRowBeforeColumnAdd + 1)
+    columnLetterOfLastColumn = myPyFunc.getColumnLetterFromNumber(lengthOfLongestRowBeforeColumnAdd + 1)
     numberOfRows = len(arrayOfRowData)
     rangeToWriteTo = sheetNameStr + '!' + columnLetterOfLastColumn + '1' + ':' + columnLetterOfLastColumn + str(numberOfRows)
     valuesToWrite = ['Last Column' for i in range(numberOfRows)]

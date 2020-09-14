@@ -12,11 +12,11 @@ import gspread
 pathToThisPythonFile = Path(__file__).resolve()
 
 if os.environ.get('runningOnProductionServer') == 'true':
-	from ...myPythonLibrary import _myPyFunc
+	from ...myPythonLibrary import myPyFunc
 	runningOnProductionServer = True
 else:
 	sys.path.append(str(pathToThisPythonFile.parents[2]))
-	from myPythonLibrary import _myPyFunc
+	from myPythonLibrary import myPyFunc
 	runningOnProductionServer = False
 
 
@@ -133,10 +133,10 @@ def autoResizeColumnsOnSheet(gspSpreadsheet, sheetName):
 def getGspSpreadsheetObj(spreadsheetName):
 	#return gspread spreadsheet object
 
-	pathToRepos = _myPyFunc.getPathUpFolderTree(pathToThisPythonFile, 'repos')
+	pathToRepos = myPyFunc.getPathUpFolderTree(pathToThisPythonFile, 'repos')
 	arrayOfPartsToAddToPath = ['privateData', 'python', 'googleCredentials', 'usingServiceAccount', 'jsonWithAPIKey.json']
 
-	pathToCredentialsFileServiceAccount = _myPyFunc.addToPath(pathToRepos, arrayOfPartsToAddToPath)
+	pathToCredentialsFileServiceAccount = myPyFunc.addToPath(pathToRepos, arrayOfPartsToAddToPath)
 
 	gspObj = gspread.service_account(filename=pathToCredentialsFileServiceAccount)
 
@@ -178,7 +178,7 @@ def authorizeGspread(oAuthMode, pathToThisProjectRoot, loadSavedCredentials=True
 	if runningOnProductionServer:
 		loadedEncryptionKey = os.environ.get('savedEncryptionKeyStr', None)
 	else:
-		pathToRepos = _myPyFunc.getPathUpFolderTree(pathToThisProjectRoot, 'repos')
+		pathToRepos = myPyFunc.getPathUpFolderTree(pathToThisProjectRoot, 'repos')
 		pathToGoogleCredentials = Path(pathToRepos, 'privateData', 'python', 'googleCredentials')
 
 
@@ -189,8 +189,8 @@ def authorizeGspread(oAuthMode, pathToThisProjectRoot, loadSavedCredentials=True
 
 		if runningOnProductionServer:
 
-			pathToDecryptedJSONCredentialsFile = _myPyFunc.decryptIntoSameFolder(pathToConfigData, 'JSONCredentialsFile.json', loadedEncryptionKey)
-			pathToDecryptedAuthorizedUserFile = _myPyFunc.decryptIntoSameFolder(pathToConfigData, 'AuthorizedUserFile.json', loadedEncryptionKey)
+			pathToDecryptedJSONCredentialsFile = myPyFunc.decryptIntoSameFolder(pathToConfigData, 'JSONCredentialsFile.json', loadedEncryptionKey)
+			pathToDecryptedAuthorizedUserFile = myPyFunc.decryptIntoSameFolder(pathToConfigData, 'AuthorizedUserFile.json', loadedEncryptionKey)
 			decryptedFilesToClear = [pathToDecryptedJSONCredentialsFile, pathToDecryptedAuthorizedUserFile]
 
 		if not runningOnProductionServer:
@@ -217,7 +217,7 @@ def authorizeGspread(oAuthMode, pathToThisProjectRoot, loadSavedCredentials=True
 
 		if runningOnProductionServer:
 			
-			pathToDecryptedAPIKey = _myPyFunc.decryptIntoSameFolder(pathToConfigData, 'APIKey.json', loadedEncryptionKey)
+			pathToDecryptedAPIKey = myPyFunc.decryptIntoSameFolder(pathToConfigData, 'APIKey.json', loadedEncryptionKey)
 			decryptedFilesToClear = [pathToDecryptedAPIKey]
 
 		if not runningOnProductionServer: pathToDecryptedAPIKey = Path(pathToGoogleCredentials, 'usingServiceAccount', 'jsonWithAPIKey.json')
@@ -225,7 +225,7 @@ def authorizeGspread(oAuthMode, pathToThisProjectRoot, loadSavedCredentials=True
 		gspObj = gspread.service_account(filename=pathToDecryptedAPIKey)
 
 
-	if runningOnProductionServer: _myPyFunc.clearDecryptedFiles(decryptedFilesToClear)
+	if runningOnProductionServer: myPyFunc.clearDecryptedFiles(decryptedFilesToClear)
 
 	return gspObj
 
