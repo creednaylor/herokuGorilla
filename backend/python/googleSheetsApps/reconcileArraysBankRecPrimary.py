@@ -11,20 +11,20 @@ import gspread
 pathToThisPythonFile = Path(__file__).resolve()
 
 if os.environ.get('runningOnProductionServer') == 'true':
-	from ..myPythonLibrary import _myPyFunc
-	from ..googleSheets.myGoogleSheetsLibrary import _myGspreadFunc
+	from ..myPythonLibrary import myPyFunc
+	from ..googleSheets.myGoogleSheetsLibrary import myGspreadFunc
 else:
 	sys.path.append(str(pathToThisPythonFile.parents[1]))
-	from myPythonLibrary import _myPyFunc
-	from googleSheets.myGoogleSheetsLibrary import _myGspreadFunc
+	from myPythonLibrary import myPyFunc
+	from googleSheets.myGoogleSheetsLibrary import myGspreadFunc
 
 
 
 def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 
-	pathToRepos = _myPyFunc.getPathUpFolderTree(pathToThisPythonFile, 'repos')
+	pathToRepos = myPyFunc.getPathUpFolderTree(pathToThisPythonFile, 'repos')
 	pathToThisProjectRoot = pathToThisPythonFile.parents[3]
-	gspObj = _myGspreadFunc.authorizeGspread(oAuthMode, pathToThisProjectRoot, googleAccountUsername=googleAccountUsername)
+	gspObj = myGspreadFunc.authorizeGspread(oAuthMode, pathToThisProjectRoot, googleAccountUsername=googleAccountUsername)
 
 	bankStatusCol = 0
 	bankDateColumnIndex = 1
@@ -304,22 +304,22 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 
 	gspComparison.clear_basic_filter()
 	gspEndingGP.clear_basic_filter()
-	_myGspreadFunc.clearAndResizeSheets(clearAndResizeParameters)
+	myGspreadFunc.clearAndResizeSheets(clearAndResizeParameters)
 
-	_myGspreadFunc.updateCells(gspComparison, comparisonArray)
+	myGspreadFunc.updateCells(gspComparison, comparisonArray)
 
 
 	gpDataArray.insert(0, gpDataFirstRow)
-	_myGspreadFunc.updateCells(gspEndingGP, gpDataArray)
+	myGspreadFunc.updateCells(gspEndingGP, gpDataArray)
 
 
 	gspComparison.set_basic_filter(2, 1, len(comparisonArray), len(comparisonArray[0]) + 1)
 	gspEndingGP.set_basic_filter(1, 1, len(gpDataArray), len(gpDataArray[0]))
 
-	_myGspreadFunc.autoResizeColumnsOnSheet(gspSpreadsheet, 'bankData')
-	_myGspreadFunc.autoResizeColumnsOnSheet(gspSpreadsheet, 'gpData')
-	_myGspreadFunc.autoResizeColumnsOnSheet(gspSpreadsheet, 'bankGPComparisonData')
-	_myGspreadFunc.autoResizeColumnsOnSheet(gspSpreadsheet, 'endingGPData')
+	myGspreadFunc.autoResizeColumnsOnSheet(gspSpreadsheet, 'bankData')
+	myGspreadFunc.autoResizeColumnsOnSheet(gspSpreadsheet, 'gpData')
+	myGspreadFunc.autoResizeColumnsOnSheet(gspSpreadsheet, 'bankGPComparisonData')
+	myGspreadFunc.autoResizeColumnsOnSheet(gspSpreadsheet, 'endingGPData')
 
 
 
