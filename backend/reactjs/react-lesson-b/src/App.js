@@ -1,51 +1,24 @@
-import React, { useState } from 'react';
-import logo from './logo.svg';
+import React, { useState, useEffect } from 'react';
+// import logo from './logo.svg';
 import './App.css';
+import Header from './Header'
+
+
+console.log("outside the function");
+
 
 function App() {
-
-  const [inputText, setInputText] = useState('');
   
-  console.log('start');
+  const [nameOfPerson, setNameOfPerson] = useState('Harry the Henderson');
 
-  const getReverseString = () => inputText.split('').reduce(
-    
-    (accum, letter) => {
-
-      console.log('accum: ', accum);
-      console.log(`letter: ${letter}`);
-
-      return letter + accum;
-    },
-    ''
-  );
-
-  const onChangeHandler = (event) => {
-    setInputText(event.target.value);
-  }  
-  
-
+  useEffect(() => {
+    let newNameOfPerson = window.prompt('What is your name?', nameOfPerson);
+    setNameOfPerson(newNameOfPerson);
+  }, []);
 
   return (
     <div className="App">
-      <input type="text" onChange={onChangeHandler} defaultValue=""/>
-      <br></br>
-      {getReverseString()}
-
-      {/* <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header> */}
+      <Header userName={nameOfPerson} setNameOfPerson={setNameOfPerson}/>
     </div>
   );
 }
