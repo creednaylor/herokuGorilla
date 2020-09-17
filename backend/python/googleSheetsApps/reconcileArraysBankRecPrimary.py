@@ -127,7 +127,7 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 
 
 	bankDataFirstRow = bankDataArray.pop(0)
-	gpDataFirstRow= gpDataArray.pop(0)
+	gpDataFirstRow = gpDataArray.pop(0)
 
 	def filterGPData(currentRow):
 		if datetime.strptime(currentRow[gpTrxDateColumnIndex], '%Y-%m-%d %H:%M:%S') <= datetime(2020, 8, 31):
