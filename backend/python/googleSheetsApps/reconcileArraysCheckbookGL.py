@@ -51,12 +51,12 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 
 
 
- 	# glStatusCol = 0
+	# glStatusCol = 0
 
 	# glTransactionTypeColumnIndex = 7
- 	# glAmountColumnIndex = 9
+	# glAmountColumnIndex = 9
 	# glDescriptionTwoColumnIndex = 11
- 
+
 	glTrxDateColumnIndex = 2
 	glDebitColumnIndex = 5
 	glCreditColumnIndex = 6
@@ -75,7 +75,7 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 		return currentRow
 
 
-	glArray = [addAmountColumn(x) for x in glArray]
+	glArray = [addAmountColumn(currentRow) for currentRow in glArray]
 	glArray[0][len(glArray[0]) - 1] = 'Amount'
 
 
