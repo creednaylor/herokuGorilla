@@ -125,40 +125,53 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 
 		while glCurrentRowIndex in range(0, len(glArray) - 1) and len(rowToAppend) == len(checkbookCurrentRow) + 1:
 
+			glRowsThatMatchComparisonCurrentRow = []
 			glCurrentRow = glArray[glCurrentRowIndex]
 
 			if glCurrentRow[glAmountColumnIndex] == checkbookCurrentRow[checkbookAmountColumnIndex]:
 
 				if glCurrentRow[glTrxDateColumnIndex] == checkbookCurrentRow[checkbookTrxDateColumnIndex]:
         
-					glDataRowToAppend = glArray.pop(glCurrentRowIndex)
-					rowToAppend = rowToAppend + glDataRowToAppend
-					rowToAppend[spacingColumnIndex] = 'Matched on amount and date'
+					glRowsThatMatchComparisonCurrentRow.append({
+							'glDataRowIndex': glCurrentRowIndex,
+							'glDataRow': glCurrentRow})
+
+					if glCurrentRow[glAmountColumnIndex] == -2191.7:
+						p(1)
+
+					# glDataRowToAppend = glArray.pop(glCurrentRowIndex)
+					# rowToAppend = rowToAppend + glDataRowToAppend
+					# rowToAppend[spacingColumnIndex] = 'Matched on amount and date'
+
+			if len(glRowsThatMatchComparisonCurrentRow) == 1:
+
+				glDataRowToAppend = glArray.pop(glRowsThatMatchComparisonCurrentRow[0]['glDataRowIndex'])
+				rowToAppend = rowToAppend + glDataRowToAppend
+				rowToAppend[spacingColumnIndex] = 'Matched on amount and date'	
 
 			glCurrentRowIndex = glCurrentRowIndex + 1
 
 		comparisonArray.append(rowToAppend)
 
 
-	# for comparisonCurrentRowIndex, comparisonCurrentRow in enumerate(comparisonArray):
+	for comparisonCurrentRowIndex, comparisonCurrentRow in enumerate(comparisonArray):
 
-	# 	if len(comparisonCurrentRow) == len(glDataFirstRow) + 1 and comparisonCurrentRow[glTransactionTypeColumnIndex] != 'Check(s) Paid':
+		if len(comparisonCurrentRow) == len(checkbookFirstRow) + 1:
 
-	# 		glRowsThatMatchComparisonCurrentRow = []
+			glRowsThatMatchComparisonCurrentRow = []
 			
-	# 		for checkbookCurrentRowIndex, checkbookCurrentRow in enumerate(checkbookArray):
+			for glCurrentRowIndex, glCurrentRow in enumerate(glArray):
 
-	# 			if comparisonCurrentRow[glAmountColumnIndex] == checkbookCurrentRow[glAmountColumnIndex] and comparisonCurrentRow[glDateColumnIndex] == checkbookCurrentRow[glTrxDateColumnIndex]: 
+				if comparisonCurrentRow[checkbookAmountColumnIndex] == glCurrentRow[glAmountColumnIndex]: 
 
-	# 				if checkbookCurrentRow[glTrxTypeColumnIndex] != 'Check' or (checkbookCurrentRow[glTrxTypeColumnIndex] == 'Check' and len(checkbookCurrentRow[glTrxNumberColumnIndex])!= 5):
-	# 					glRowsThatMatchComparisonCurrentRow.append({
-	# 						'glDataRowIndex': checkbookCurrentRowIndex,
-	# 						'glDataRow': checkbookCurrentRow})
+					glRowsThatMatchComparisonCurrentRow.append({
+						'glDataRowIndex': glCurrentRowIndex,
+						'glDataRow': glCurrentRow})
 
-	# 		if len(glRowsThatMatchComparisonCurrentRow) == 1:
+			if len(glRowsThatMatchComparisonCurrentRow) == 1:
 
-	# 			comparisonArray[comparisonCurrentRowIndex] = comparisonArray[comparisonCurrentRowIndex] + checkbookArray.pop(glRowsThatMatchComparisonCurrentRow[0]['glDataRowIndex'])
-	# 			comparisonArray[comparisonCurrentRowIndex][spacingColumnIndex] = 'Matched on amount and date'
+				comparisonArray[comparisonCurrentRowIndex] = comparisonArray[comparisonCurrentRowIndex] + glArray.pop(glRowsThatMatchComparisonCurrentRow[0]['glDataRowIndex'])
+				comparisonArray[comparisonCurrentRowIndex][spacingColumnIndex] = 'Matched on amount'
 			
 
 
