@@ -1030,3 +1030,12 @@ def operateOnAllFileObjBreadthFirst(rootFolder, actionToPerformOnEachFileObj, da
 
     return None
 
+
+
+def repeatActionOnArray(array, action):
+    
+    for currentIndex, currentElement in enumerate(array):
+        action(currentIndex, currentElement)
+    
+    return array
+
