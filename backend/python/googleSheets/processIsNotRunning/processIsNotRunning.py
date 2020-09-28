@@ -10,8 +10,8 @@ from pathlib import Path
 import sys
 pathToThisPythonFile = Path(__file__).resolve()
 sys.path.append(str(pathToThisPythonFile.parents[2]))
-import googleSheets.myGoogleSheetsLibrary._myGoogleSheetsFunc as _myGoogleSheetsFunc
-import googleSheets.myGoogleSheetsLibrary._myGspreadFunc as _myGspreadFunc
+import googleSheets.myGoogleSheetsLibrary.myGoogleSheetsFunc as myGoogleSheetsFunc
+import googleSheets.myGoogleSheetsLibrary.myGspreadFunc as myGspreadFunc
 
 #standard library imports
 from pprint import pprint as p
@@ -29,7 +29,7 @@ def getArrayOfProcesses(saveToGoogleSheetsBoolean):
     arrayOfRunningProcesses = [['Name', 'Process ID', 'Exe', 'Current Directory', 'Execution Module', 'Command Line (0)']]
 
     for runningProcess in psutil.process_iter():
-           
+        
         processToAppend = [runningProcess.name(), runningProcess.pid]
 
         try:
@@ -50,7 +50,7 @@ def getArrayOfProcesses(saveToGoogleSheetsBoolean):
             pass
 
         arrayOfRunningProcesses.append(processToAppend)
-  
+
     
     numberOfTotalColumns = max([len(i) for i in arrayOfRunningProcesses])
 
@@ -91,7 +91,7 @@ def processIsNotRunning(processFromInput, saveToGoogleSheetsBoolean):
 
 def saveToGoogleSheets(arrayToOutput):
     
-    objOfSheets = _myGspreadFunc.getObjOfSheets('Data For Apps')
+    objOfSheets = myGspreadFunc.getObjOfSheets('Data For Apps')
 
     clearAndResizeParameters = [{
         'sheetObj': objOfSheets['currentlyRunningProcesses']['sheetObj'],
@@ -101,9 +101,9 @@ def saveToGoogleSheets(arrayToOutput):
     }]
 
     
-    _myGspreadFunc.clearAndResizeSheets(clearAndResizeParameters)
+    myGspreadFunc.clearAndResizeSheets(clearAndResizeParameters)
 
-    _myGspreadFunc.updateCells(objOfSheets['currentlyRunningProcesses']['sheetObj'], arrayToOutput)
+    myGspreadFunc.updateCells(objOfSheets['currentlyRunningProcesses']['sheetObj'], arrayToOutput)
 
 
 
@@ -126,4 +126,7 @@ def mainFunction(arrayOfArguments):
 
 
 if __name__ == '__main__':
+    p(str(pathToThisPythonFile.name) + ' is not being imported. It is being run directly...')
     mainFunction(sys.argv)
+else:
+	p(str(pathToThisPythonFile.name) + ' is being imported. It is not being run directly...')
