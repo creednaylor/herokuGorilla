@@ -7,15 +7,15 @@ function App() {
 
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [consoleMessage, setConsoleMessage] = useState('');
+  const [messageToPrint, setMessageToPrint] = useState('');
 
   const submitButtonHandler = () => {
 
     if (username == 'username' && password == 'a') {
-      setConsoleMessage(`Login successful. Username: ${username}. Password: ${password}.`);
+      setMessageToPrint(`Login successful. Username: ${username}. Password: ${password}.`);
     }
     else {
-      setConsoleMessage(`Login failed.`)
+      setMessageToPrint(`Login failed.`)
     }
 
   }
@@ -37,7 +37,7 @@ function App() {
         <br></br>
         <input type="submit" value="Submit" onClick={submitButtonHandler} />
       </form>
-      {consoleMessage}
+      {messageToPrint}
     </div>
   );
 }
