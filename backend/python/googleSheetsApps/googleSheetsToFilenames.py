@@ -23,7 +23,10 @@ def getFilenamesFromGoogleSheets(pathToDirectoryOfFiles, googleAccountUsername):
         else:
             filenameCurrentPath = str(Path(pathToDirectoryOfFiles, ' - '.join(filename[0:3]) + '.pdf'))
             
-        p('mv "' + filenameCurrentPath + '" "' + str(Path(pathToDirectoryOfFiles, filename[0] + ' - ' + filename[1] + ' - ' + filename[3] + '.pdf')) + '"')
+        newFilenamePath = str(Path(pathToDirectoryOfFiles, filename[0] + ' - ' + filename[1] + ' - ' + filename[3] + '.pdf')) 
+        
+        command = 'mv "' + filenameCurrentPath + '" "' + newFilenamePath + '"'
+        p(command)
     
     
     
