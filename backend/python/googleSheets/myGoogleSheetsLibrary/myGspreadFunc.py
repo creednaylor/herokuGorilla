@@ -163,12 +163,12 @@ def getObjOfSheets(spreadsheetName):
 
 
 
-def authorizeGspread(oAuthMode, pathToThisProjectRoot, loadSavedCredentials=True, googleAccountUsername=None):
+def authorizeGspread(oAuthMode, pathBelowRepos, loadSavedCredentials=True, googleAccountUsername=None):
 
 	from google_auth_oauthlib.flow import InstalledAppFlow
 	from pprint import pprint as p
 
-	pathToConfigData = Path(pathToThisProjectRoot, 'backend', 'configData')
+	pathToConfigData = Path(pathBelowRepos, 'backend', 'configData')
 
 	# p('pathToConfigData {}'.format(pathToConfigData))
 	# p('oAuthMode {}'.format(oAuthMode))
@@ -178,7 +178,7 @@ def authorizeGspread(oAuthMode, pathToThisProjectRoot, loadSavedCredentials=True
 	if runningOnProductionServer:
 		loadedEncryptionKey = os.environ.get('savedEncryptionKeyStr', None)
 	else:
-		pathToRepos = myPyFunc.getPathUpFolderTree(pathToThisProjectRoot, 'repos')
+		pathToRepos = myPyFunc.getPathUpFolderTree(pathBelowRepos, 'repos')
 		pathToGoogleCredentials = Path(pathToRepos, 'privateData', 'python', 'googleCredentials')
 
 

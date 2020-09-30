@@ -23,8 +23,8 @@ else:
 def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 
 	pathToRepos = myPyFunc.getPathUpFolderTree(pathToThisPythonFile, 'repos')
-	pathToThisProjectRoot = pathToThisPythonFile.parents[3]
-	accountLevelObj = myGspreadFunc.authorizeGspread(oAuthMode, pathToThisProjectRoot, googleAccountUsername=googleAccountUsername)
+	pathBelowRepos = pathToThisPythonFile.parents[3]
+	accountLevelObj = myGspreadFunc.authorizeGspread(oAuthMode, pathBelowRepos, googleAccountUsername=googleAccountUsername)
 
 	bankStatusCol = 0
 	bankDateColumnIndex = 1
