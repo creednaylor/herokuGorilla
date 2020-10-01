@@ -19,14 +19,22 @@ def getFilenamesFromGoogleSheets(pathToDirectoryOfFiles, googleAccountUsername):
     for filename in filenamesToWriteArray[1:]:
         
         if filename[2] == '':
-            filenameCurrentPath = str(Path(pathToDirectoryOfFiles, ' - '.join(filename[0:2]) + '.pdf'))
+            oldFilenamePath = Path(pathToDirectoryOfFiles, ' - '.join(filename[0:2]) + '.pdf')
         else:
-            filenameCurrentPath = str(Path(pathToDirectoryOfFiles, ' - '.join(filename[0:3]) + '.pdf'))
+            oldFilenamePath = Path(pathToDirectoryOfFiles, ' - '.join(filename[0:3]) + '.pdf')
             
-        newFilenamePath = str(Path(pathToDirectoryOfFiles, filename[0] + ' - ' + filename[1] + ' - ' + filename[3] + '.pdf')) 
+        # if oldFilenamePath.exists():
+        #     p('True')
+        # else:
+        #     p('False')
         
-        command = 'mv "' + filenameCurrentPath + '" "' + newFilenamePath + '"'
-        p(command)
+        newFilenamePath = Path(pathToDirectoryOfFiles, filename[0] + ' - ' + filename[1] + ' - ' + filename[3] + '.pdf')
+        
+        # command = 'mv "' + str(oldFilenamePath) + '" "' + str(newFilenamePath) + '"'
+        # p(command)
+        
+        oldFilenamePath.rename(newFilenamePath)
+        
     
     
     
