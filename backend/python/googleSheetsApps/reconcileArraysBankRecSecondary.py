@@ -55,7 +55,7 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 
 
 	pathToRepos = _myPyFunc.getPathUpFolderTree(pathToThisPythonFile, 'repos')
-	pathBelowRepos = pathToThisPythonFile.parents[3]
+	pathBelowRepos = pathToThisPythonFile
 
 	gspObj = _myGspreadFunc.authorizeGspread(oAuthMode, pathBelowRepos, googleAccountUsername=googleAccountUsername)
 
