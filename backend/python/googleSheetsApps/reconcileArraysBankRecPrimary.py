@@ -22,7 +22,7 @@ else:
 
 def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 
-	pathToRepos = myPyFunc.getPathUpFolderTree(pathToThisPythonFile, 'repos')
+	# pathToRepos = myPyFunc.getPathUpFolderTree(pathToThisPythonFile, 'repos')
 	pathBelowRepos = pathToThisPythonFile.parents[3]
 	accountLevelObj = myGspreadFunc.authorizeGspread(oAuthMode, pathBelowRepos, googleAccountUsername=googleAccountUsername)
 
