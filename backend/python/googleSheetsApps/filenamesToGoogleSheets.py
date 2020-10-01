@@ -12,11 +12,10 @@ from pprint import pprint as p
 def getFilenamesFromDisk(pathToDirectoryOfFiles, googleAccountUsername):
     # p(Path(pathToDirectoryOfFiles).parents[3])
     
-    arrayOfPDFFiles = [['Check Date', 'Vendor', 'Repeat Number']]
+    arrayOfPDFFiles = [['Check Date', 'Vendor', 'Amount']]
     
     for node in Path(pathToDirectoryOfFiles).iterdir():
-        if node.suffix == '.pdf':
-            arrayOfPDFFiles.append(node.stem.split(' - '))
+        arrayOfPDFFiles.append(node.stem.split(' - '))
     
     accountLevelObj = myGspreadFunc.authorizeGspread(True, pathToThisPythonFile, googleAccountUsername=googleAccountUsername)
     spreadsheetLevelObj = accountLevelObj.open('Vendor Rebates')
