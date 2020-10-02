@@ -102,32 +102,55 @@ def updateCells(gspSheetOfArray, arrayOfSheet):
 		addressOfSheet = startingCell + ':' + endingCell
 
 		# print(addressOfSheet)
+		
 		gspSheetOfArray.update(addressOfSheet, arrayOfSheet)
 
 
 
-def autoResizeColumnsOnSheet(gspSpreadsheet, sheetName):
+def autoResizeColumnsOnSheet(spreadsheetLevelObj, sheetName):
 
-	body = {
+	requestBody = {
 		"requests": [
 			{
 				"autoResizeDimensions": {
 					"dimensions": {
-						"sheetId": gspSpreadsheet.worksheet(sheetName)._properties['sheetId'],
+						"sheetId": spreadsheetLevelObj.worksheet(sheetName)._properties['sheetId'],
 						"dimension": "COLUMNS",
-						"startIndex": 0,  # Please set the column index.
-						# "endIndex": 2  # Please set the column index.
+						"startIndex": 0
 					}
 				}
 			}
 		]
 	}
 
-	gspSpreadsheet.batch_update(body)
+	spreadsheetLevelObj.batch_update(requestBody)
 
 
+def autoResizeColumnsInSpreadsheet(spreadsheetLevelObj):
 
+	requestBody = {
+		"requests": []
+	}
 
+	# p(spreadsheetLevelObj.worksheets())
+
+	for sheetObj in spreadsheetLevelObj.worksheets():
+		requestBody['requests'].append(
+			{
+				"autoResizeDimensions": {
+					"dimensions": {
+						"sheetId": sheetObj._properties['sheetId'],
+						"dimension": "COLUMNS",
+						"startIndex": 0
+					}
+				}
+			}
+		)
+
+		# p(sheetObj)
+	
+	# p(requestBody)
+	spreadsheetLevelObj.batch_update(requestBody)
 
 
 def getGspSpreadsheetObj(spreadsheetName):
@@ -146,11 +169,11 @@ def getGspSpreadsheetObj(spreadsheetName):
 def getObjOfSheets(spreadsheetName):
 	#return dictionary of sheets
 
-	gspSpreadsheet = getGspSpreadsheetObj(spreadsheetName)
+	spreadsheetLevelObj = getGspSpreadsheetObj(spreadsheetName)
 
 	objOfSheets = {}
 
-	for sheet in gspSpreadsheet.worksheets():
+	for sheet in spreadsheetLevelObj.worksheets():
 		objOfSheets[sheet.title] = {
 			'sheetObj': sheet,
 			'array': sheet.get_all_values()
