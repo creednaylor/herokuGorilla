@@ -52,7 +52,7 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 	def transformExtractedFilenames(currentRowIndex, currentRow):
 
 		if currentRowIndex > 0:
-			currentRow[extractedFilenamesAmountColumnIndex] = float(currentRow[extractedFilenamesAmountColumnIndex].replace(',', ''))
+			currentRow[extractedFilenamesAmountColumnIndex] = -float(currentRow[extractedFilenamesAmountColumnIndex].replace(',', ''))
 			# currentRowDateStr = currentRow[extractedFilenamesDateColumnIndex]
 			# p(currentRowDateStr[6:8])
 			# currentRowDateObj = datetime(int(currentRowDate[0:4]), int(currentRowDate[6:8]), int(currentRowDate[4:6]))
