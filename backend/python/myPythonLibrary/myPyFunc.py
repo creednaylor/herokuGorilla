@@ -1039,3 +1039,7 @@ def repeatActionOnArray(array, action):
     
     return array
 
+
+
+def getFloatFromStr(string):
+	return float(string.replace(',', '').replace('$', ''))

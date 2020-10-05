@@ -72,7 +72,7 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 			currentType = currentRow[11]
 			currentPaidTo = currentRow[14]
 
-			amount = float(currentAmount.replace(',', ''))
+			amount = myPyFunc.getFloatFromStr(currentAmount)
 
 			if currentType == 'Decrease Adjustment' or 'Transfer To' in currentPaidTo:
 				amount = -amount
@@ -93,12 +93,12 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 			if currentDebitAmount == '':
 				newDebitAmount = 0
 			else:
-				newDebitAmount = float(currentDebitAmount.replace('$', '').replace(',', ''))
+				newDebitAmount = myPyFunc.getFloatFromStr(currentDebitAmount)
 
 			if currentCreditAmount == '':
 				newCreditAmount = 0
 			else:
-				newCreditAmount = float(currentCreditAmount.replace('$', '').replace(',', ''))
+				newCreditAmount = myPyFunc.getFloatFromStr(currentCreditAmount)
 				
 			currentRow.append(newCreditAmount - newDebitAmount)
 
@@ -119,31 +119,32 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 			currentRow.append('BisTrack Amount')
 			currentRow.append('Bank Amount')
 		else:
-			currentBistrackAmount = currentRow[6]
 			currentType = currentRow[2]
-			currentBankAmount = currentRow[4]
-
+			
 			def getBistrackAmount():
+				currentBistrackAmount = currentRow[6]
+
 				if currentBistrackAmount == '':
 					bistrackAmount = 0
 				else:
-					bistrackAmount = float(currentBistrackAmount.replace(',', ''))
+					bistrackAmount = myPyFunc.getFloatFromStr(currentBistrackAmount)
 
 					if currentType == 'Debit':
 						bistrackAmount = -bistrackAmount
 				
 				return bistrackAmount
 
-			frg 
+			def getBankAmount():
+				currentBankAmount = currentRow[4]
+				bankAmount = myPyFunc.getFloatFromStr(currentBankAmount)
+
+				if currentType == 'Debit':
+					bankAmount = -bankAmount
+				
+				return bankAmount
 
 			currentRow.append(getBistrackAmount())
-			
-			bankAmount = float(currentBankAmount.replace(',', ''))
-
-			if currentType == 'Debit':
-				bankAmount = -bankAmount
-	
-			currentRow.append(bankAmount)
+			currentRow.append(getBankAmount())
 
 	dailyDepositsArray = myPyFunc.repeatActionOnArray(dailyDepositsArray, transformDailyDepositsArray)
 

@@ -257,5 +257,3 @@ def authorizeGspread(oAuthMode, pathBelowRepos, loadSavedCredentials=True, googl
 def updateCell(sheetToUpdate, rowIndex, columnIndex, valueToUpdate):
 
 	sheetToUpdate.update_cell(rowIndex + 1, columnIndex + 1, valueToUpdate)
-
-
