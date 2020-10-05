@@ -90,17 +90,18 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 			currentDebitAmount = currentRow[5]
 			currentCreditAmount = currentRow[6]
 
-			if currentDebitAmount == '':
-				newDebitAmount = 0
-			else:
-				newDebitAmount = myPyFunc.getFloatFromStr(currentDebitAmount)
+			def getDebitAmount():
+				if currentDebitAmount == '':
+					return 0
+				else:
+					return myPyFunc.getFloatFromStr(currentDebitAmount)
 
 			if currentCreditAmount == '':
 				newCreditAmount = 0
 			else:
 				newCreditAmount = myPyFunc.getFloatFromStr(currentCreditAmount)
 				
-			currentRow.append(newCreditAmount - newDebitAmount)
+			currentRow.append(newCreditAmount - getDebitAmount())
 
 	secondArray = myPyFunc.repeatActionOnArray(secondArray, transformSecondArray)
 
@@ -125,14 +126,14 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 				currentBistrackAmount = currentRow[6]
 
 				if currentBistrackAmount == '':
-					bistrackAmount = 0
+					return 0
 				else:
 					bistrackAmount = myPyFunc.getFloatFromStr(currentBistrackAmount)
 
 					if currentType == 'Debit':
-						bistrackAmount = -bistrackAmount
+						return -bistrackAmount
 				
-				return bistrackAmount
+					return bistrackAmount
 
 			def getBankAmount():
 				currentBankAmount = currentRow[4]
