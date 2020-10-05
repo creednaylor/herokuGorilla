@@ -58,21 +58,23 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 	secondTableName = 'Second Table'
 	matchedTableName = 'Matched'
 	didNotMatchTableName = 'Did Not Match'
+	dailyDepositsTableName = 'Daily Deposits'
 
 	firstArray = spreadsheetLevelObj.worksheet(firstTableName).get_all_values()
 	secondArray = spreadsheetLevelObj.worksheet(secondTableName).get_all_values()
-	dailyDepositsArray = spreadsheetLevelObj.worksheet('Daily Deposits').get_all_values()
+	dailyDepositsArray = spreadsheetLevelObj.worksheet(dailyDepositsTableName).get_all_values()
+	amountColumnName = 'Amount+-'
 
 	def transformFirstArray(currentRowIndex, currentRow):
 		if currentRowIndex == 0:
-			currentRow.append('Amount+-')
+			currentRow.append(amountColumnName)
 			currentRow.append('Bank Amount')
 		else:
 			currentAmount = currentRow[5]
 			currentType = currentRow[11]
 			currentPaidTo = currentRow[14]
 
-			amount = myPyFunc.getFloatFromStr(currentAmount)
+			amount = myPyFunc.strToFloat(currentAmount)
 
 			if currentType == 'Decrease Adjustment' or 'Transfer To' in currentPaidTo:
 				amount = -amount
@@ -85,32 +87,22 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 
 	def transformSecondArray(currentRowIndex, currentRow):
 		if currentRowIndex == 0:
-			currentRow.append('Amount+-')
+			currentRow.append(amountColumnName)
 		else:
 			currentDebitAmount = currentRow[5]
 			currentCreditAmount = currentRow[6]
 
-			def getDebitAmount():
-				if currentDebitAmount == '':
-					return 0
-				else:
-					return myPyFunc.getFloatFromStr(currentDebitAmount)
-
-			if currentCreditAmount == '':
-				newCreditAmount = 0
-			else:
-				newCreditAmount = myPyFunc.getFloatFromStr(currentCreditAmount)
-				
-			currentRow.append(newCreditAmount - getDebitAmount())
+			currentRow.append(myPyFunc.strToFloat(currentCreditAmount) - myPyFunc.strToFloat(currentDebitAmount))
 
 	secondArray = myPyFunc.repeatActionOnArray(secondArray, transformSecondArray)
 
 
 	for dailyDepositsRowIndex in range(1, len(dailyDepositsArray)):
 		dailyDepositsCurrentRow = dailyDepositsArray[dailyDepositsRowIndex]
+		dailyDepositsDateColumnIndex = 0
 
-		if dailyDepositsCurrentRow[0] != '':
-			currentDate = dailyDepositsCurrentRow[0]
+		if dailyDepositsCurrentRow[dailyDepositsDateColumnIndex] != '':
+			currentDate = dailyDepositsCurrentRow[dailyDepositsDateColumnIndex]
 		dailyDepositsCurrentRow.append(currentDate)
 
 
@@ -124,25 +116,11 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 			
 			def getBistrackAmount():
 				currentBistrackAmount = currentRow[6]
-
-				if currentBistrackAmount == '':
-					return 0
-				else:
-					bistrackAmount = myPyFunc.getFloatFromStr(currentBistrackAmount)
-
-					if currentType == 'Debit':
-						return -bistrackAmount
-				
-					return bistrackAmount
+				return myPyFunc.ifConditionFlipSign(myPyFunc.strToFloat(currentBistrackAmount), currentType, 'Debit')
 
 			def getBankAmount():
 				currentBankAmount = currentRow[4]
-				bankAmount = myPyFunc.getFloatFromStr(currentBankAmount)
-
-				if currentType == 'Debit':
-					bankAmount = -bankAmount
-				
-				return bankAmount
+				return myPyFunc.ifConditionFlipSign(myPyFunc.strToFloat(currentBankAmount), currentType, 'Debit')
 
 			currentRow.append(getBistrackAmount())
 			currentRow.append(getBankAmount())
@@ -150,11 +128,10 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 	dailyDepositsArray = myPyFunc.repeatActionOnArray(dailyDepositsArray, transformDailyDepositsArray)
 
 
-
 	firstArrayFirstRow = firstArray.pop(0)
 	secondArrayFirstRow = secondArray.pop(0)
 
-	matchedArray = [[firstTableName] + [''] * (len(firstArray[0])) + [secondTableName] + [''] * (len(secondArray[0]) - 1)]
+	matchedArray = [[firstTableName] + [''] * (len(firstArrayFirstRow)) + [secondTableName] + [''] * (len(secondArrayFirstRow) - 1)]
 	matchedArray.append(firstArrayFirstRow + [''] + secondArrayFirstRow)
 
 
@@ -175,6 +152,9 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 	while firstArray:
 
 		firstArrayCurrentRow = firstArray.pop(0)
+		# p(firstArrayColumnsToMatch)
+		# p(secondArrayColumnsToMatch)
+
 		tempMatchedData = getMatchedRow(secondArray, firstArrayCurrentRow, firstArrayColumnsToMatch, secondArrayColumnsToMatch)
 
 		if tempMatchedData:

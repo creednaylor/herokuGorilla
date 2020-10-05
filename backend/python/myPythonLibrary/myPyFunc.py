@@ -46,11 +46,11 @@ def convertSingleSpaceToZero(s):
         return s
 
 
-def convertToZero(s):
-    if s in [" ", None]:
+def strToZero(string):
+    if string in [' ', '', None]:
         return 0
     else:
-        return s
+        return string
 
 
 # def excelNumToPyNum(s):
@@ -1041,5 +1041,15 @@ def repeatActionOnArray(array, action):
 
 
 
-def getFloatFromStr(string):
-	return float(string.replace(',', '').replace('$', ''))
+def strToFloat(string):
+    if string in ['', ' ', None]:
+        string = '0'
+
+    return float(string.replace(',', '').replace('$', ''))
+
+def ifConditionFlipSign(amount, firstToken, secondToken):
+
+    if firstToken == secondToken:
+        return -amount
+    
+    return amount
