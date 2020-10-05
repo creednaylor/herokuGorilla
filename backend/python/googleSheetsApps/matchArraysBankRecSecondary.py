@@ -63,18 +63,18 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 	secondArray = spreadsheetLevelObj.worksheet(secondTableName).get_all_values()
 	dailyDepositsArray = spreadsheetLevelObj.worksheet('Daily Deposits').get_all_values()
 
-	firstArrayAmountColumnIndex = 5
-	firstArrayTypeColumnIndex = 11
-	firstArrayPaidToColumnIndex = 14
-
 	def transformFirstArray(currentRowIndex, currentRow):
 		if currentRowIndex == 0:
 			currentRow.append('Amount+-')
 			currentRow.append('Bank Amount')
 		else:
-			amount = float(currentRow[firstArrayAmountColumnIndex].replace(',', ''))
+			currentAmount = currentRow[5]
+			currentType = currentRow[11]
+			currentPaidTo = currentRow[14]
 
-			if currentRow[firstArrayTypeColumnIndex] == 'Decrease Adjustment' or 'Transfer To' in currentRow[firstArrayPaidToColumnIndex]:
+			amount = float(currentAmount.replace(',', ''))
+
+			if currentType == 'Decrease Adjustment' or 'Transfer To' in currentPaidTo:
 				amount = -amount
 
 			currentRow.append(amount)
@@ -87,45 +87,61 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 		if currentRowIndex == 0:
 			currentRow.append('Amount+-')
 		else:
-			if currentRow[5] == '':
-				debitAmount = 0
-			else:
-				debitAmount = float(currentRow[5].replace('$', '').replace(',', ''))
+			currentDebitAmount = currentRow[5]
+			currentCreditAmount = currentRow[6]
 
-			if currentRow[6] == '':
-				creditAmount = 0
+			if currentDebitAmount == '':
+				newDebitAmount = 0
 			else:
-				creditAmount = float(currentRow[6].replace('$', '').replace(',', ''))
+				newDebitAmount = float(currentDebitAmount.replace('$', '').replace(',', ''))
+
+			if currentCreditAmount == '':
+				newCreditAmount = 0
+			else:
+				newCreditAmount = float(currentCreditAmount.replace('$', '').replace(',', ''))
 				
-			currentRow.append(creditAmount - debitAmount)
+			currentRow.append(newCreditAmount - newDebitAmount)
 
 	secondArray = myPyFunc.repeatActionOnArray(secondArray, transformSecondArray)
 
 
-	dailyDepositsArray[0].append('Date')
-	dailyDepositsArray[0].append('BisTrack Amount')
-	dailyDepositsArray[0].append('Bank Amount')
-
 	for dailyDepositsRowIndex in range(1, len(dailyDepositsArray)):
-
 		dailyDepositsCurrentRow = dailyDepositsArray[dailyDepositsRowIndex]
 
 		if dailyDepositsCurrentRow[0] != '':
 			currentDate = dailyDepositsCurrentRow[0]
 		dailyDepositsCurrentRow.append(currentDate)
 
-		if dailyDepositsCurrentRow[6] == '':
-			dailyDepositsCurrentRow.append(0)
-		else:
-			if dailyDepositsCurrentRow[2] == 'Debit':
-				dailyDepositsCurrentRow.append(-float(dailyDepositsCurrentRow[6].replace(',', '')))
-			else:
-				dailyDepositsCurrentRow.append(float(dailyDepositsCurrentRow[6].replace(',', '')))
 
-		if dailyDepositsCurrentRow[2] == 'Debit':
-			dailyDepositsCurrentRow.append(-float(dailyDepositsCurrentRow[4].replace(',', '')))
+	def transformDailyDepositsArray(currentRowIndex, currentRow):
+
+		if currentRowIndex == 0:
+			currentRow.append('BisTrack Amount')
+			currentRow.append('Bank Amount')
 		else:
-			dailyDepositsCurrentRow.append(float(dailyDepositsCurrentRow[4].replace(',', '')))
+			currentBistrackAmount = currentRow[6]
+			currentType = currentRow[2]
+			currentBankAmount = currentRow[4]
+
+			if currentBistrackAmount == '':
+				bistrackAmount = 0
+			else:
+				bistrackAmount = float(currentBistrackAmount.replace(',', ''))
+
+				if currentType == 'Debit':
+					bistrackAmount = -bistrackAmount
+
+			currentRow.append(bistrackAmount)
+			
+			bankAmount = float(currentBankAmount.replace(',', ''))
+
+			if currentType == 'Debit':
+				bankAmount = -bankAmount
+	
+			currentRow.append(bankAmount)
+
+	dailyDepositsArray = myPyFunc.repeatActionOnArray(dailyDepositsArray, transformDailyDepositsArray)
+
 
 
 	firstArrayFirstRow = firstArray.pop(0)
