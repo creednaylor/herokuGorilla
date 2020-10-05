@@ -123,15 +123,20 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 			currentType = currentRow[2]
 			currentBankAmount = currentRow[4]
 
-			if currentBistrackAmount == '':
-				bistrackAmount = 0
-			else:
-				bistrackAmount = float(currentBistrackAmount.replace(',', ''))
+			def getBistrackAmount():
+				if currentBistrackAmount == '':
+					bistrackAmount = 0
+				else:
+					bistrackAmount = float(currentBistrackAmount.replace(',', ''))
 
-				if currentType == 'Debit':
-					bistrackAmount = -bistrackAmount
+					if currentType == 'Debit':
+						bistrackAmount = -bistrackAmount
+				
+				return bistrackAmount
 
-			currentRow.append(bistrackAmount)
+			frg 
+
+			currentRow.append(getBistrackAmount())
 			
 			bankAmount = float(currentBankAmount.replace(',', ''))
 
