@@ -27,8 +27,19 @@ def columnsMatch(firstArrayCurrentRow, secondArrayCurrentRow, firstArrayColumnsT
 	
 	return True
 
+def getMatchStatus(firstArrayColumnsToMatch):
 
-def getMatchedRow(secondArray, firstArrayCurrentRow, firstArrayColumnsToMatch, secondArrayColumnsToMatch):
+	matchStatus = 'Matched on '
+
+	for column in firstArrayColumnsToMatch:
+		if matchStatus == 'Matched on ':
+			matchStatus = matchStatus + str(column)
+		else:
+			matchStatus = matchStatus + ' and ' + str(column)
+
+	return matchStatus
+
+def getMatchedRows(secondArray, firstArrayCurrentRow, firstArrayColumnsToMatch, secondArrayColumnsToMatch):
 
 	tempMatchedData = []
 
@@ -42,7 +53,7 @@ def getMatchedRow(secondArray, firstArrayCurrentRow, firstArrayColumnsToMatch, s
 					tempMatchedDataCurrentLength = len(tempMatchedData)
 					tempMatchedData.append([str(tempMatchedData[0][firstArrayColumnsToMatch[0]]) + ': matched ' + str(tempMatchedDataCurrentLength) + ' additional row(s)'] + [''] * (len(firstArrayCurrentRow)) + secondArrayCurrentRow)
 				else:
-					tempMatchedData.append(firstArrayCurrentRow + [''] + secondArrayCurrentRow)
+					tempMatchedData.append(firstArrayCurrentRow + [getMatchStatus(firstArrayColumnsToMatch)] + secondArrayCurrentRow)
 
 	return tempMatchedData
 
@@ -64,35 +75,43 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 	secondArray = spreadsheetLevelObj.worksheet(secondTableName).get_all_values()
 	dailyDepositsArray = spreadsheetLevelObj.worksheet(dailyDepositsTableName).get_all_values()
 	amountColumnName = 'Amount+-'
+	dateStrColumnName = 'Date String'
 
 	def transformFirstArray(currentRowIndex, currentRow):
 		if currentRowIndex == 0:
 			currentRow.append(amountColumnName)
 			currentRow.append('Bank Amount')
+			currentRow.append(dateStrColumnName)
 		else:
 			currentAmount = currentRow[5]
 			currentType = currentRow[11]
 			currentPaidTo = currentRow[14]
+			currentDate = currentRow[1]
 
 			amount = myPyFunc.strToFloat(currentAmount)
 
-			if currentType == 'Decrease Adjustment' or 'Transfer To' in currentPaidTo:
+			if 'Decrease Adjustment' == currentType or 'Transfer To' in currentPaidTo:
 				amount = -amount
 
 			currentRow.append(amount)
 			currentRow.append(amount)
+			currentRow.append(myPyFunc.dateStrToStr(currentDate))
 
 
 	firstArray = myPyFunc.repeatActionOnArray(firstArray, transformFirstArray)
+	# p(firstArray[0:2])
 
 	def transformSecondArray(currentRowIndex, currentRow):
 		if currentRowIndex == 0:
 			currentRow.append(amountColumnName)
+			currentRow.append(dateStrColumnName)
 		else:
 			currentDebitAmount = currentRow[5]
 			currentCreditAmount = currentRow[6]
+			currentDate = currentRow[0]
 
 			currentRow.append(myPyFunc.strToFloat(currentCreditAmount) - myPyFunc.strToFloat(currentDebitAmount))
+			currentRow.append(myPyFunc.dateStrToStr(currentDate))
 
 	secondArray = myPyFunc.repeatActionOnArray(secondArray, transformSecondArray)
 
@@ -134,30 +153,25 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 	matchedArray = [[firstTableName] + [''] * (len(firstArrayFirstRow)) + [secondTableName] + [''] * (len(secondArrayFirstRow) - 1)]
 	matchedArray.append(firstArrayFirstRow + [''] + secondArrayFirstRow)
 
+	firstArrayAmountColumnIndex = 17
+	firstArrayDateColumnIndex = 19
+	secondArrayAmountColumnIndex = 7
+	secondArrayDateColumnIndex = 8
 
-
-	if oAuthMode:
-
-		for indexOfColumnIndexFirstArray, columnTitleFirstArray in enumerate(firstArrayFirstRow):
-			for indexOfColumnIndexSecondArray, columnTitleSecondArray in enumerate(secondArrayFirstRow):
-				if columnTitleFirstArray == columnTitleSecondArray:
-					firstArrayColumnsToMatch = [indexOfColumnIndexFirstArray]
-					secondArrayColumnsToMatch = [indexOfColumnIndexSecondArray]
-
-	else:
-		firstArrayColumnsToMatch = [0]  # [0, 1, 2]
-		secondArrayColumnsToMatch = [1]  # [0, 1, 2]
-
+	firstArrayColumnsToMatch = [firstArrayAmountColumnIndex, firstArrayDateColumnIndex]
+	secondArrayColumnsToMatch = [secondArrayAmountColumnIndex, secondArrayDateColumnIndex]
+	
 
 	while firstArray:
 
 		firstArrayCurrentRow = firstArray.pop(0)
-		# p(firstArrayColumnsToMatch)
-		# p(secondArrayColumnsToMatch)
+		
+	# 	# p(firstArrayColumnsToMatch)
+	# 	# p(secondArrayColumnsToMatch)
 
-		tempMatchedData = getMatchedRow(secondArray, firstArrayCurrentRow, firstArrayColumnsToMatch, secondArrayColumnsToMatch)
+		tempMatchedData = getMatchedRows(secondArray, firstArrayCurrentRow, firstArrayColumnsToMatch, secondArrayColumnsToMatch)
 
-		if tempMatchedData:
+		if len(tempMatchedData) == 1:
 			matchedArray.extend(tempMatchedData)
 		else:
 
@@ -177,7 +191,7 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 				
 				updatedFirstArrayCurrentRow = firstArrayCurrentRow[0:len(firstArrayCurrentRow) - 1] + [matchedDailyDepositsAmount]
 
-				tempMatchedDailyDeposits = getMatchedRow(secondArray, updatedFirstArrayCurrentRow, [17], secondArrayColumnsToMatch)
+				tempMatchedDailyDeposits = getMatchedRows(secondArray, updatedFirstArrayCurrentRow, [17], secondArrayColumnsToMatch)
 				# p(tempMatchedDailyDeposits)
 
 				if tempMatchedDailyDeposits:

@@ -43,8 +43,7 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 			currentRow.append('Amount')
 		else:
 			currentRow.append(float(currentRow[gpTransactionsDebitColumnIndex].replace(',', '')) - float(currentRow[gpTransactionsCreditColumnIndex].replace(',', '')))
-			currentRowDateArray = currentRow[gpTransactionsDateColumnIndex].split('/')
-			currentRow[gpTransactionsDateColumnIndex] = currentRowDateArray[2] + currentRowDateArray[0].zfill(2) + currentRowDateArray[1].zfill(2)
+			currentRow[gpTransactionsDateColumnIndex] = myPyFunc.dateStrToStr(currentRow[gpTransactionsDateColumnIndex])
 
 	gpTransactions = myPyFunc.repeatActionOnArray(gpTransactions, transformGPTransactions)
 	gpTransactionsFirstRow = gpTransactions.pop(0)
