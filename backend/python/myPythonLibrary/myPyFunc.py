@@ -1,6 +1,6 @@
 from collections import OrderedDict
 import copy
-from cryptography.fernet import Fernet
+
 from datetime import datetime, date
 import json
 from pathlib import Path
@@ -8,7 +8,7 @@ from pprint import pprint as p
 # import re
 import sqlite3
 import time
-import pyautogui as g
+
 
 
 
@@ -88,14 +88,6 @@ def removeCommaFromStr(s):
     if isinstance(s, str):
         return s.replace(",", "")
     return s
-
-
-def repetitiveKeyPress(numberOfTabs, keyToPress):
-
-    import pyautogui
-
-    for i in range(0, numberOfTabs):
-        pyautogui.press(keyToPress)
 
 
 
@@ -769,83 +761,6 @@ def getVariableNameStr(dictionaryOfVariables, variableToFind):
 
 
 
-def generateKey(pathToKeyFile):
-    """
-    Generates a key and save it into a file
-    """
-    
-    generatedKey = Fernet.generate_key()
-
-    with open(pathToKeyFile, 'wb') as keyFileObj:
-        keyFileObj.write(generatedKey)
-
-
-
-def openSavedKey(pathToKeyFile):
-    """
-    Loads the key from the current directory named `keyFile.key`
-    """
-
-    return open(pathToKeyFile, 'rb').read()
-
-
-
-def encryptFile(pathOfFileToProcess, loadedKey, pathToSaveEncryptedFile=None):
-    """
-    Given a pathOfFileToProcess (str) and key (bytes), it encrypts the file and write it
-    """
-
-    fernetObjUsingKey = Fernet(loadedKey)
-
-    with open(pathOfFileToProcess, "rb") as fileObj:
-        # read all file data
-        fileData = fileObj.read()
-
-
-    # encrypt data
-    encryptedFileData = fernetObjUsingKey.encrypt(fileData)
-
-    # write the encrypted file
-    with open(pathToSaveEncryptedFile, "wb") as fileObj:
-        fileObj.write(encryptedFileData)
-
-
-
-def decryptFile(pathOfEncryptedFile, loadedKey, pathToSaveDecryptedFile=None):
-    """
-    Given a pathOfEncryptedFile (str) and key (bytes), it decrypts the file and write it
-    """
-
-    fernetObjUsingKey = Fernet(loadedKey)
-
-    with open(pathOfEncryptedFile, "rb") as fileObj:
-        # read the encrypted data
-        encryptedFileData = fileObj.read()
-
-    # decrypt data
-    decryptedFileData = fernetObjUsingKey.decrypt(encryptedFileData)
-
-
-    # write the original file
-    with open(pathToSaveDecryptedFile, "wb") as fileObj:
-        fileObj.write(decryptedFileData)
-
-
-
-
-def decryptIntoSameFolder(pathToFolder, fileName, encryptionKey):
-
-	pathToDecryptedFile = Path(pathToFolder, 'decrypted' + fileName)
-
-	decryptFile(Path(pathToFolder, 'encrypted' + fileName), encryptionKey, pathToSaveDecryptedFile=pathToDecryptedFile)
-	return pathToDecryptedFile
-
-
-
-def clearDecryptedFiles(decryptedFilesToClear):
-	for decryptedFileToClear in decryptedFilesToClear:
-			with open(decryptedFileToClear, "w") as fileObj:
-				fileObj.write('')
 
 
 
@@ -917,29 +832,7 @@ def clearDecryptedFiles(decryptedFilesToClear):
 #     return value
 
 
-def typeCharactersOnRemoteDesktop(charactersToType, priorPyAutoGuiPause, pause=None):
 
-    import pyautogui
-    charactersNeedingShift = (list(range(123, 127)) + list(range(94, 96)) + list(range(62, 91)) + [60, 58] + list(range(40, 44)) + list(range(33, 39)))
-    
-
-    for characterToType in charactersToType:
-
-        if ord(characterToType) in charactersNeedingShift:
-
-            if pause == None:
-                pyautogui.PAUSE = .0001
-            else:
-                pyautogui.PAUSE = pause
-
-            # pyautogui.hotkey('shift', characterToType)
-            pyautogui.keyDown('shift')
-            pyautogui.press(characterToType)
-            pyautogui.keyUp('shift')
-            pyautogui.PAUSE = priorPyAutoGuiPause
-
-        else:
-            pyautogui.press(characterToType)
 
 
 
@@ -961,39 +854,6 @@ def numLockIsOff():
     return getKeyState(VK_NUMLOCK)
 
 
-def clickImageAfterWaiting(pngFileName, confidence=.9):
-
-    g.click(getCoordinatesAfterWaiting(pngFileName, confidence=confidence))
-
-
-def getCoordinatesAfterWaiting(pngFileName, confidence=.9, center=True):
-
-    coordinatesToReturn = None
-
-    while not coordinatesToReturn:
-        p(f'Looking for {pngFileName[:-4]}')
-
-        if center:
-            coordinatesToReturn = g.locateCenterOnScreen(pngFileName, confidence=confidence)
-        else:
-            coordinatesToReturn = g.locateOnScreen(pngFileName, confidence=confidence)
-
-    return coordinatesToReturn
-
-
-def waitUntilGone(pngFileName, confidence=.9, center=True):
-
-    coordinatesToReturn = g.locateOnScreen(pngFileName, confidence=confidence)
-
-    while coordinatesToReturn:
-        p(f'Waiting for {pngFileName[:-4]} to disappear.')
-
-        if center:
-            coordinatesToReturn = g.locateCenterOnScreen(pngFileName, confidence=confidence)
-        else:
-            coordinatesToReturn = g.locateOnScreen(pngFileName, confidence=confidence)
-
-    return coordinatesToReturn
 
 
 def operateOnAllFileObjBreadthFirst(rootFolder, actionToPerformOnEachFileObj, dataForAction={}, pathsToExclude=[]): 
