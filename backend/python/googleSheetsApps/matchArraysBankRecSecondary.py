@@ -61,6 +61,32 @@ def getMatchedRows(secondArray, firstArrayCurrentRow, columnsToMatch):
 	return rowsThatMatch
 
 
+def criteriaAreTrue(row, criteriaToCheck):
+
+	if len(row) > criteriaToCheck['maxRowLength']:
+		return False
+	else:
+		for criterion in criteriaToCheck['criteria']:
+			if row[criterion['columnIndexToCheck']] != criterion['valueToCheckFor']:
+				return False
+
+	return True
+
+
+
+
+def getNumberOfRecords(arrayToSearch, criteriaToCheck):
+
+	numberOfRecords = 0
+
+	for row in arrayToSearch:
+		if criteriaAreTrue(row, criteriaToCheck):
+			numberOfRecords = numberOfRecords + 1
+
+	return numberOfRecords
+
+
+
 def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 
 
@@ -195,15 +221,25 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 
 			rowsThatMatch = getMatchedRows(secondArray, matchedArrayCurrentRow, columnsToMatch)
 
-			if len(rowsThatMatch) == 1:
+			criteriaToCheck = {
+				'maxRowLength': 20,
+				'criteria': [
+					{
+						'columnIndexToCheck': 17,
+						'valueToCheckFor': matchedArrayCurrentRow[17]
+					}
+				]
+			}
 
-				# p('One row matches second pass')
+			if len(rowsThatMatch) == 1 or getNumberOfRecords(matchedArray, criteriaToCheck) == len(rowsThatMatch):
+
+				# if getNumberOfRecords(matchedArray, criteriaToCheck) == len(rowsThatMatch):
+				# 	p('in')
+
+				# for row in rowsThatMatch:
 				matchedArrayCurrentRow.extend([getMatchStatus(columnsToMatch)] + secondArray.pop(rowsThatMatch[0]['secondArrayRowIndex']))
+			
 
-
-			elif len(rowsThatMatch) > 1:
-				p('More rows that match second pass')
-				# p(rowsThatMatch)
 
 		# else:
 
