@@ -101,7 +101,7 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 			currentRow.append(myPyFunc.dateStrToStr(currentDate))
 
 
-	firstArray = myPyFunc.repeatActionOnArray(firstArray, transformFirstArray)
+	firstArray = myPyFunc.repeatOnEnumeratedArray(firstArray, transformFirstArray)
 	# p(firstArray[0:2])
 
 	def transformSecondArray(currentRowIndex, currentRow):
@@ -116,7 +116,7 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 			currentRow.append(myPyFunc.strToFloat(currentCreditAmount) - myPyFunc.strToFloat(currentDebitAmount))
 			currentRow.append(myPyFunc.dateStrToStr(currentDate))
 
-	secondArray = myPyFunc.repeatActionOnArray(secondArray, transformSecondArray)
+	secondArray = myPyFunc.repeatOnEnumeratedArray(secondArray, transformSecondArray)
 
 
 	for dailyDepositsRowIndex in range(1, len(dailyDepositsArray)):
@@ -147,7 +147,7 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 			currentRow.append(getBistrackAmount())
 			currentRow.append(getBankAmount())
 
-	dailyDepositsArray = myPyFunc.repeatActionOnArray(dailyDepositsArray, transformDailyDepositsArray)
+	dailyDepositsArray = myPyFunc.repeatOnEnumeratedArray(dailyDepositsArray, transformDailyDepositsArray)
 
 
 	firstArrayFirstRow = firstArray.pop(0)

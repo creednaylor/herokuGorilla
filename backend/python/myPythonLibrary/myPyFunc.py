@@ -892,7 +892,7 @@ def operateOnAllFileObjBreadthFirst(rootFolder, actionToPerformOnEachFileObj, da
 
 
 
-def repeatActionOnArray(array, action):
+def repeatOnEnumeratedArray(array, action):
     
     for currentIndex, currentElement in enumerate(array):
         action(currentIndex, currentElement)

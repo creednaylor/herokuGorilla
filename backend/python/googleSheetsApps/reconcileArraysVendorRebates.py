@@ -45,7 +45,7 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 			currentRow.append(float(currentRow[gpTransactionsDebitColumnIndex].replace(',', '')) - float(currentRow[gpTransactionsCreditColumnIndex].replace(',', '')))
 			currentRow[gpTransactionsDateColumnIndex] = myPyFunc.dateStrToStr(currentRow[gpTransactionsDateColumnIndex])
 
-	gpTransactions = myPyFunc.repeatActionOnArray(gpTransactions, transformGPTransactions)
+	gpTransactions = myPyFunc.repeatOnEnumeratedArray(gpTransactions, transformGPTransactions)
 	gpTransactionsFirstRow = gpTransactions.pop(0)
 
 	def transformExtractedFilenames(currentRowIndex, currentRow):
@@ -57,7 +57,7 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 			# currentRowDateObj = datetime(int(currentRowDate[0:4]), int(currentRowDate[6:8]), int(currentRowDate[4:6]))
 			# currentRow[extractedFilenamesDateColumnIndex] = f"{currentRowDateObj.day}/{currentRowDateObj.month}/{currentRowDateObj.strftime('%y')}"
 
-	extractedFilenames = myPyFunc.repeatActionOnArray(extractedFilenames, transformExtractedFilenames)
+	extractedFilenames = myPyFunc.repeatOnEnumeratedArray(extractedFilenames, transformExtractedFilenames)
 	extractedFilenamesFirstRow = extractedFilenames.pop(0)
 
 
