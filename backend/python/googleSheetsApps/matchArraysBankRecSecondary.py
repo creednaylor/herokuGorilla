@@ -18,20 +18,26 @@ else:
 	from googleSheets.myGoogleSheetsLibrary import myGspreadFunc
 
 
-def columnsMatch(firstArrayCurrentRow, secondArrayCurrentRow, firstArrayColumnsToMatch, secondArrayColumnsToMatch):
+def columnsMatch(firstArrayCurrentRow, secondArrayCurrentRow, columnsToMatch):
 
-	for columnIndex in range(0, len(firstArrayColumnsToMatch)):
+	# p(firstArrayCurrentRow)
+	# p(secondArrayCurrentRow)
+	
+	# p(firstArrayColumnsToMatch)
+	# p(secondArrayColumnsToMatch)
 
-		if firstArrayCurrentRow[firstArrayColumnsToMatch[columnIndex]] != secondArrayCurrentRow[secondArrayColumnsToMatch[columnIndex]]:
+	for columnIndex, column in enumerate(columnsToMatch['firstArrayColumnsToMatch']):
+
+		if firstArrayCurrentRow[column] != secondArrayCurrentRow[columnsToMatch['secondArrayColumnsToMatch'][columnIndex]]:
 			return False
 	
 	return True
 
-def getMatchStatus(firstArrayColumnsToMatch):
+def getMatchStatus(columnsToMatch):
 
 	matchStatus = 'Matched on '
 
-	for column in firstArrayColumnsToMatch:
+	for column in columnsToMatch['firstArrayColumnsToMatch']:
 		if matchStatus == 'Matched on ':
 			matchStatus = matchStatus + str(column)
 		else:
@@ -39,23 +45,20 @@ def getMatchStatus(firstArrayColumnsToMatch):
 
 	return matchStatus
 
-def getMatchedRows(secondArray, firstArrayCurrentRow, firstArrayColumnsToMatch, secondArrayColumnsToMatch):
+def getMatchedRows(secondArray, firstArrayCurrentRow, columnsToMatch):
 
-	tempMatchedData = []
+	rowsThatMatch = []
 
-	for secondArrayRowIndex in reversed(range(len(secondArray))):
+	for secondArrayRowIndex, secondArrayCurrentRow in enumerate(secondArray):
 			
-			if columnsMatch(firstArrayCurrentRow, secondArray[secondArrayRowIndex], firstArrayColumnsToMatch, secondArrayColumnsToMatch):
+			if columnsMatch(firstArrayCurrentRow, secondArrayCurrentRow, columnsToMatch):
 				
-				secondArrayCurrentRow = secondArray.pop(secondArrayRowIndex)
+				rowsThatMatch.append({
+					'secondArrayRowIndex': secondArrayRowIndex,
+					'secondArrayRow': secondArrayCurrentRow
+				})
 
-				if tempMatchedData:
-					tempMatchedDataCurrentLength = len(tempMatchedData)
-					tempMatchedData.append([str(tempMatchedData[0][firstArrayColumnsToMatch[0]]) + ': matched ' + str(tempMatchedDataCurrentLength) + ' additional row(s)'] + [''] * (len(firstArrayCurrentRow)) + secondArrayCurrentRow)
-				else:
-					tempMatchedData.append(firstArrayCurrentRow + [getMatchStatus(firstArrayColumnsToMatch)] + secondArrayCurrentRow)
-
-	return tempMatchedData
+	return rowsThatMatch
 
 
 def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
@@ -150,63 +153,92 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 	firstArrayFirstRow = firstArray.pop(0)
 	secondArrayFirstRow = secondArray.pop(0)
 
-	matchedArray = [[firstTableName] + [''] * (len(firstArrayFirstRow)) + [secondTableName] + [''] * (len(secondArrayFirstRow) - 1)]
+	matchedArray = [[firstTableName] + [''] * (len(firstArrayFirstRow) - 1) + [''] + [secondTableName] + [''] * (len(secondArrayFirstRow) - 1)]
 	matchedArray.append(firstArrayFirstRow + [''] + secondArrayFirstRow)
 
-	firstArrayAmountColumnIndex = 17
-	firstArrayDateColumnIndex = 19
-	secondArrayAmountColumnIndex = 7
-	secondArrayDateColumnIndex = 8
+	columnsToMatch = {
+		'firstArrayColumnsToMatch': [17, 19],
+		'secondArrayColumnsToMatch': [7, 8],
+	}
 
-	firstArrayColumnsToMatch = [firstArrayAmountColumnIndex, firstArrayDateColumnIndex]
-	secondArrayColumnsToMatch = [secondArrayAmountColumnIndex, secondArrayDateColumnIndex]
 	
 
 	while firstArray:
 
 		firstArrayCurrentRow = firstArray.pop(0)
+		rowToAppend = firstArrayCurrentRow
 		
 	# 	# p(firstArrayColumnsToMatch)
 	# 	# p(secondArrayColumnsToMatch)
 
-		tempMatchedData = getMatchedRows(secondArray, firstArrayCurrentRow, firstArrayColumnsToMatch, secondArrayColumnsToMatch)
+		rowsThatMatch = getMatchedRows(secondArray, firstArrayCurrentRow, columnsToMatch)
 
-		if len(tempMatchedData) == 1:
-			matchedArray.extend(tempMatchedData)
-		else:
+		if len(rowsThatMatch) == 1:
+			# p(rowsThatMatch[0]['secondArrayRowIndex'])
+			rowToAppend = rowToAppend + [getMatchStatus(columnsToMatch)] + secondArray.pop(rowsThatMatch[0]['secondArrayRowIndex'])
+		elif len(rowsThatMatch) > 1:
+			p('More rows that match first pass')
+			p(rowsThatMatch)
 
-			matchedDailyDepositsAmount = None
 
-			for dailyDepositsArrayRowIndex in reversed(range(len(dailyDepositsArray))):
+		matchedArray.append(rowToAppend)
 
-				if columnsMatch(firstArrayCurrentRow, dailyDepositsArray[dailyDepositsArrayRowIndex], firstArrayColumnsToMatch, [11]):
 
-					dailyDepositsCurrentRow = dailyDepositsArray.pop(dailyDepositsArrayRowIndex)
+	columnsToMatch = {
+		'firstArrayColumnsToMatch': [17],
+		'secondArrayColumnsToMatch': [7],
+	}
 
-					if not matchedDailyDepositsAmount:
-						# p(dailyDepositsCurrentRow[12])
-						matchedDailyDepositsAmount = dailyDepositsCurrentRow[12]
+	for matchedArrayCurrentRow in matchedArray:
+
+		if len(matchedArrayCurrentRow) == len(firstArrayFirstRow):
+
+			rowsThatMatch = getMatchedRows(secondArray, matchedArrayCurrentRow, columnsToMatch)
+
+			if len(rowsThatMatch) == 1:
+
+				# p('One row matches second pass')
+				matchedArrayCurrentRow.extend([getMatchStatus(columnsToMatch)] + secondArray.pop(rowsThatMatch[0]['secondArrayRowIndex']))
+
+
+			elif len(rowsThatMatch) > 1:
+				p('More rows that match second pass')
+				# p(rowsThatMatch)
+
+		# else:
+
+		# 	matchedDailyDepositsAmount = None
+
+		# 	for dailyDepositsArrayRowIndex in reversed(range(len(dailyDepositsArray))):
+
+		# 		if columnsMatch(firstArrayCurrentRow, dailyDepositsArray[dailyDepositsArrayRowIndex], firstArrayColumnsToMatch, [11]):
+
+		# 			dailyDepositsCurrentRow = dailyDepositsArray.pop(dailyDepositsArrayRowIndex)
+
+		# 			if not matchedDailyDepositsAmount:
+		# 				# p(dailyDepositsCurrentRow[12])
+		# 				matchedDailyDepositsAmount = dailyDepositsCurrentRow[12]
 			
-			if matchedDailyDepositsAmount:
+		# 	if matchedDailyDepositsAmount:
 				
-				updatedFirstArrayCurrentRow = firstArrayCurrentRow[0:len(firstArrayCurrentRow) - 1] + [matchedDailyDepositsAmount]
+		# 		updatedFirstArrayCurrentRow = firstArrayCurrentRow[0:len(firstArrayCurrentRow) - 1] + [matchedDailyDepositsAmount]
 
-				tempMatchedDailyDeposits = getMatchedRows(secondArray, updatedFirstArrayCurrentRow, [17], secondArrayColumnsToMatch)
-				# p(tempMatchedDailyDeposits)
+		# 		tempMatchedDailyDeposits = getMatchedRows(secondArray, updatedFirstArrayCurrentRow, [17], secondArrayColumnsToMatch)
+		# 		# p(tempMatchedDailyDeposits)
 
-				if tempMatchedDailyDeposits:
-					matchedArray.extend(tempMatchedDailyDeposits)
-				else:
-					matchedArray.append(updatedFirstArrayCurrentRow + ['Match found on Daily Deposits but not on bank transactions'])
+		# 		if tempMatchedDailyDeposits:
+		# 			matchedArray.extend(tempMatchedDailyDeposits)
+		# 		else:
+		# 			matchedArray.append(updatedFirstArrayCurrentRow + ['Match found on Daily Deposits but not on bank transactions'])
 			
-			else:
-				matchedArray.append(firstArrayCurrentRow + ['No match found'])
+		# 	else:
+		# 		matchedArray.append(firstArrayCurrentRow + ['No match found'])
 
 	# p(matchedArray[0:4])
-	for matchedArrayRowIndex in range(2, len(matchedArray)):
-		if matchedArray[matchedArrayRowIndex][18] != 'No match found':
-			# p(matchedArray[matchedArrayRowIndex][18]
-			matchedArray[matchedArrayRowIndex][18] = float(matchedArray[matchedArrayRowIndex][16] or 0) - float(matchedArray[matchedArrayRowIndex][17] or 0)
+	# for matchedArrayRowIndex in range(2, len(matchedArray)):
+	# 	if matchedArray[matchedArrayRowIndex][18] != 'No match found':
+	# 		# p(matchedArray[matchedArrayRowIndex][18]
+	# 		matchedArray[matchedArrayRowIndex][18] = float(matchedArray[matchedArrayRowIndex][16] or 0) - float(matchedArray[matchedArrayRowIndex][17] or 0)
 
 
 	clearAndResizeParameters = [{
@@ -224,6 +256,7 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 
 
 	myGspreadFunc.clearAndResizeSheets(clearAndResizeParameters)
+	# p(matchedArray)
 	myGspreadFunc.updateCells(spreadsheetLevelObj.worksheet(matchedTableName), matchedArray)
 
 	secondArray.insert(0, secondArrayFirstRow)
