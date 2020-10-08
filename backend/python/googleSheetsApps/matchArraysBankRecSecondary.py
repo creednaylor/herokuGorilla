@@ -36,7 +36,6 @@ def dailyDepositsColumnsMatch(firstArrayCurrentRow, secondArrayCurrentRow):
 	return True
 
 
-
 def getMatchStatus(columnsToMatch):
 
 	matchStatus = 'Matched on '
@@ -48,6 +47,7 @@ def getMatchStatus(columnsToMatch):
 			matchStatus = matchStatus + ' and ' + str(column)
 
 	return matchStatus
+
 
 def getMatchedRows(secondArray, firstArrayCurrentRow, columnsToMatch):
 
@@ -81,8 +81,6 @@ def getMatchedDailyDepositsRows(secondArray, firstArrayCurrentRow):
 	return rowsThatMatch
 
 
-
-
 def criteriaAreTrue(row, criteriaToCheck):
 
 	if len(row) > criteriaToCheck['maxRowLength']:
@@ -93,8 +91,6 @@ def criteriaAreTrue(row, criteriaToCheck):
 				return False
 
 	return True
-
-
 
 
 def getNumberOfRecords(arrayToSearch, criteriaToCheck):
@@ -108,9 +104,7 @@ def getNumberOfRecords(arrayToSearch, criteriaToCheck):
 	return numberOfRecords
 
 
-
 def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
-
 
 	# pathToRepos = myPyFunc.getPathUpFolderTree(pathToThisPythonFile, 'repos')
 	pathBelowRepos = pathToThisPythonFile
@@ -210,19 +204,14 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 	}
 
 	
-
 	while firstArray:
 
 		firstArrayCurrentRow = firstArray.pop(0)
 		rowToAppend = firstArrayCurrentRow
 		
-	# 	# p(firstArrayColumnsToMatch)
-	# 	# p(secondArrayColumnsToMatch)
-
 		rowsThatMatch = getMatchedRows(secondArray, firstArrayCurrentRow, columnsToMatch)
 
 		if len(rowsThatMatch) == 1:
-			# p(rowsThatMatch[0]['secondArrayRowIndex'])
 			rowToAppend = rowToAppend + [getMatchStatus(columnsToMatch)] + secondArray.pop(rowsThatMatch[0]['secondArrayRowIndex'])
 		elif len(rowsThatMatch) > 1:
 			p('More rows that match first pass')
@@ -255,10 +244,6 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 
 			if len(rowsThatMatch) == 1 or getNumberOfRecords(matchedArray, criteriaToCheck) == len(rowsThatMatch):
 
-				# if getNumberOfRecords(matchedArray, criteriaToCheck) == len(rowsThatMatch):
-				# 	p('in')
-
-				# for row in rowsThatMatch:
 				matchedArrayCurrentRow.extend([getMatchStatus(columnsToMatch)] + secondArray.pop(rowsThatMatch[0]['secondArrayRowIndex']))
 			
 
@@ -270,42 +255,6 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 
 			if len(rowsThatMatch) == 1:
 				pass
-				# p(rowsThatMatch)
-
-		# else:
-
-		# 	matchedDailyDepositsAmount = None
-
-		# 	for dailyDepositsArrayRowIndex in reversed(range(len(dailyDepositsArray))):
-
-		# 		if columnsMatch(firstArrayCurrentRow, dailyDepositsArray[dailyDepositsArrayRowIndex], firstArrayColumnsToMatch, [11]):
-
-		# 			dailyDepositsCurrentRow = dailyDepositsArray.pop(dailyDepositsArrayRowIndex)
-
-		# 			if not matchedDailyDepositsAmount:
-		# 				# p(dailyDepositsCurrentRow[12])
-		# 				matchedDailyDepositsAmount = dailyDepositsCurrentRow[12]
-			
-		# 	if matchedDailyDepositsAmount:
-				
-		# 		updatedFirstArrayCurrentRow = firstArrayCurrentRow[0:len(firstArrayCurrentRow) - 1] + [matchedDailyDepositsAmount]
-
-		# 		tempMatchedDailyDeposits = getMatchedRows(secondArray, updatedFirstArrayCurrentRow, [17], secondArrayColumnsToMatch)
-		# 		# p(tempMatchedDailyDeposits)
-
-		# 		if tempMatchedDailyDeposits:
-		# 			matchedArray.extend(tempMatchedDailyDeposits)
-		# 		else:
-		# 			matchedArray.append(updatedFirstArrayCurrentRow + ['Match found on Daily Deposits but not on bank transactions'])
-			
-		# 	else:
-		# 		matchedArray.append(firstArrayCurrentRow + ['No match found'])
-
-	# p(matchedArray[0:4])
-	# for matchedArrayRowIndex in range(2, len(matchedArray)):
-	# 	if matchedArray[matchedArrayRowIndex][18] != 'No match found':
-	# 		# p(matchedArray[matchedArrayRowIndex][18]
-	# 		matchedArray[matchedArrayRowIndex][18] = float(matchedArray[matchedArrayRowIndex][16] or 0) - float(matchedArray[matchedArrayRowIndex][17] or 0)
 
 
 	clearAndResizeParameters = [{
@@ -323,7 +272,6 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 
 
 	myGspreadFunc.clearAndResizeSheets(clearAndResizeParameters)
-	# p(matchedArray)
 	myGspreadFunc.updateCells(spreadsheetLevelObj.worksheet(matchedTableName), matchedArray)
 
 	secondArray.insert(0, secondArrayFirstRow)
