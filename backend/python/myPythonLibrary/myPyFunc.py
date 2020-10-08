@@ -892,12 +892,34 @@ def operateOnAllFileObjBreadthFirst(rootFolder, actionToPerformOnEachFileObj, da
 
 
 
-def repeatOnEnumeratedArray(array, action):
+def transformArray(array, action):
     
     for currentIndex, currentElement in enumerate(array):
         action(currentIndex, currentElement)
     
     return array
+
+
+def transferToArray(transferringArray, receivingArray, getElementToAppend):
+
+    while transferringArray:
+        currentElement = transferringArray.pop(0)
+        receivingArray.append(getElementToAppend(currentElement))
+
+
+
+
+# def createNewArray(originalArray, getNewElement):
+
+#     newArray = []
+
+#     for currentIndex, currentElement in enumerate(originalArray):
+#         if getNewElement(currentIndex, currentElement):
+#             newArray.append(getNewElement((currentIndex, currentElement)))
+    
+#     return newArray
+
+
 
 
 
