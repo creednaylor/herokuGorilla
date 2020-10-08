@@ -20,18 +20,22 @@ else:
 
 def columnsMatch(firstArrayCurrentRow, secondArrayCurrentRow, columnsToMatch):
 
-	# p(firstArrayCurrentRow)
-	# p(secondArrayCurrentRow)
-	
-	# p(firstArrayColumnsToMatch)
-	# p(secondArrayColumnsToMatch)
-
 	for columnIndex, column in enumerate(columnsToMatch['firstArrayColumnsToMatch']):
 
 		if firstArrayCurrentRow[column] != secondArrayCurrentRow[columnsToMatch['secondArrayColumnsToMatch'][columnIndex]]:
 			return False
 	
 	return True
+
+
+def dailyDepositsColumnsMatch(firstArrayCurrentRow, secondArrayCurrentRow):
+
+	if firstArrayCurrentRow[12][2:7] != secondArrayCurrentRow[8]:
+		return False
+	
+	return True
+
+
 
 def getMatchStatus(columnsToMatch):
 
@@ -59,6 +63,24 @@ def getMatchedRows(secondArray, firstArrayCurrentRow, columnsToMatch):
 				})
 
 	return rowsThatMatch
+
+
+def getMatchedDailyDepositsRows(secondArray, firstArrayCurrentRow):
+
+	rowsThatMatch = []
+
+	for secondArrayRowIndex, secondArrayCurrentRow in enumerate(secondArray):
+			
+			if dailyDepositsColumnsMatch(firstArrayCurrentRow, secondArrayCurrentRow):
+				
+				rowsThatMatch.append({
+					'secondArrayRowIndex': secondArrayRowIndex,
+					'secondArrayRow': secondArrayCurrentRow
+				})
+
+	return rowsThatMatch
+
+
 
 
 def criteriaAreTrue(row, criteriaToCheck):
@@ -240,6 +262,15 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 				matchedArrayCurrentRow.extend([getMatchStatus(columnsToMatch)] + secondArray.pop(rowsThatMatch[0]['secondArrayRowIndex']))
 			
 
+	for matchedArrayCurrentRow in matchedArray:
+
+		if len(matchedArrayCurrentRow) == len(firstArrayFirstRow):
+
+			rowsThatMatch = getMatchedDailyDepositsRows(dailyDepositsArray, matchedArrayCurrentRow)
+
+			if len(rowsThatMatch) == 1:
+				pass
+				# p(rowsThatMatch)
 
 		# else:
 
