@@ -941,3 +941,4 @@ def dateStrToStr(dateStr):
 
     dateArray = dateStr.split('/')
     return dateArray[2] + dateArray[0].zfill(2) + dateArray[1].zfill(2)
+
