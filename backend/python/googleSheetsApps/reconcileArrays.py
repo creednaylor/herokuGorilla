@@ -40,7 +40,7 @@ def reconcileArrays(oAuthMode, googleSheetTitle, firstArrayColumnsToMatch=None, 
 	pathToRepos = _myPyFunc.getPathUpFolderTree(pathToThisPythonFile, 'repos')
 	pathToThisProjectRoot = pathToThisPythonFile.parents[3]
 
-	gspObj = _myGspreadFunc.authorizeGspread(oAuthMode, pathToThisProjectRoot, googleAccountUsername=googleAccountUsername)
+	gspObj = _myGspreadFunc.getSpreadsheetLevelObj(oAuthMode, pathToThisProjectRoot, googleAccountUsername=googleAccountUsername)
 
 	gspSpreadsheet = gspObj.open(googleSheetTitle)
 
@@ -112,10 +112,10 @@ def reconcileArrays(oAuthMode, googleSheetTitle, firstArrayColumnsToMatch=None, 
 
 
 	_myGspreadFunc.clearAndResizeSheets(clearAndResizeParameters)
-	_myGspreadFunc.updateCells(gspMatchedTable, matchedArray)
+	_myGspreadFunc.displayArray(gspMatchedTable, matchedArray)
 
 	secondArray.insert(0, secondArrayFirstRow)
-	_myGspreadFunc.updateCells(gspDidNotMatchTable, secondArray)
+	_myGspreadFunc.displayArray(gspDidNotMatchTable, secondArray)
 
 
 	_myGspreadFunc.autoResizeColumnsOnSheet(gspSpreadsheet, matchedTableName)

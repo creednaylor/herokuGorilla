@@ -17,10 +17,10 @@ def getFilenamesFromDisk(pathToDirectoryOfFiles, googleAccountUsername):
     for node in Path(pathToDirectoryOfFiles).iterdir():
         arrayOfPDFFiles.append(node.stem.split(' - '))
     
-    accountLevelObj = myGspreadFunc.authorizeGspread(True, pathToThisPythonFile, googleAccountUsername=googleAccountUsername)
+    accountLevelObj = myGspreadFunc.getSpreadsheetLevelObj(True, pathToThisPythonFile, googleAccountUsername=googleAccountUsername)
     spreadsheetLevelObj = accountLevelObj.open('Vendor Rebates')
     sheetLevelObj = spreadsheetLevelObj.worksheet('extractedFilenames')
-    myGspreadFunc.updateCells(sheetLevelObj, arrayOfPDFFiles)
+    myGspreadFunc.displayArray(sheetLevelObj, arrayOfPDFFiles)
 
 
 

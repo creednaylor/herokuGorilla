@@ -103,7 +103,7 @@ def saveToGoogleSheets(arrayToOutput):
     
     myGspreadFunc.clearAndResizeSheets(clearAndResizeParameters)
 
-    myGspreadFunc.updateCells(objOfSheets['currentlyRunningProcesses']['sheetObj'], arrayToOutput)
+    myGspreadFunc.displayArray(objOfSheets['currentlyRunningProcesses']['sheetObj'], arrayToOutput)
 
 
 

@@ -6,6 +6,7 @@ import sys
 
 #third-party imports
 import gspread
+from google_auth_oauthlib.flow import InstalledAppFlow
 
 
 #local application imports
@@ -37,16 +38,16 @@ def clearArray(startingRowIndex, endingRowIndex, startingColumnIndex, endingColu
 
 
 
-def clearSheet(startingRowIndex, endingRowIndex, startingColumnIndex, endingColumnIndex, gspSheetOfArray):
+def clearSheet(startingRowIndex, endingRowIndex, startingColumnIndex, endingColumnIndex, sheetLevelObj):
 
-	arrayOfSheet = gspSheetOfArray.get_all_values()
+	arrayOfSheet = sheetLevelObj.get_all_values()
 
 	if len(arrayOfSheet) > 0:
 
 		arrayOfSheet = clearArray(startingRowIndex, endingRowIndex, startingColumnIndex, endingColumnIndex, arrayOfSheet)
-		updateCells(gspSheetOfArray, arrayOfSheet)
+		displayArray(sheetLevelObj, arrayOfSheet)
 
-		
+
 
 
 def clearSheets(startingRowIndex, endingRowIndex, startingColumnIndex, endingColumnIndex, arrayOfSheetObjects):
@@ -56,54 +57,41 @@ def clearSheets(startingRowIndex, endingRowIndex, startingColumnIndex, endingCol
 
 
 
-def clearAndResizeSheets(arrayOfSheetObj):
+def clearAndResizeSheets(spreadsheetLevelParameters):
 
-	if isinstance(arrayOfSheetObj[0], dict):
-		for sheetObj in arrayOfSheetObj:
+	if isinstance(spreadsheetLevelParameters[0], dict):
+		for sheetLevelParameters in spreadsheetLevelParameters:
 
-			resizeParameter = 'resizeRows'
-			if resizeParameter in sheetObj:
-				sheetObj['sheetObj'].resize(rows=sheetObj[resizeParameter])
+			for resizeParameter in ['resizeRows', 'resizeColumns']:
+				if resizeParameter in sheetLevelParameters:
+					arguments = {resizeParameter.replace('resize', '')[0:3].lower() + 's': sheetLevelParameters[resizeParameter]}
+					sheetLevelParameters['sheetObj'].resize(**arguments)
 
-			resizeParameter = 'resizeColumns'
-			if resizeParameter in sheetObj:
-				sheetObj['sheetObj'].resize(cols=sheetObj[resizeParameter])
-			
-			for propertyToCheck in ['startingRowIndexToClear', 'startingColumnIndexToClear']:
-				if propertyToCheck not in sheetObj: sheetObj[propertyToCheck] = 0
+			clearParameters = {
+				0: ['startingRowIndexToClear', 'startingColumnIndexToClear'],
+				-1: ['endingRowIndexToClear', 'endingColumnIndexToClear']
+			}
 
-			for propertyToCheck in ['endingRowIndexToClear', 'endingColumnIndexToClear']:
-				if propertyToCheck not in sheetObj: sheetObj[propertyToCheck] = -1
-				
-			clearSheet(sheetObj['startingRowIndexToClear'], sheetObj['endingRowIndexToClear'], sheetObj['startingColumnIndexToClear'], sheetObj['endingColumnIndexToClear'], sheetObj['sheetObj'])
-	
-	else:
-		for sheetObj in arrayOfSheetObjects:
-			sheetObj.resize(rows=1, cols=1)
-			clearSheet(0, -1, 0, -1, sheetObj)
+			for group in clearParameters:
+				for parameter in clearParameters[group]:
+					if parameter not in sheetLevelParameters: sheetLevelParameters[parameter] = group
+
+			clearSheet(sheetLevelParameters['startingRowIndexToClear'], sheetLevelParameters['endingRowIndexToClear'], sheetLevelParameters['startingColumnIndexToClear'], sheetLevelParameters['endingColumnIndexToClear'], sheetLevelParameters['sheetObj'])
 
 
 
-def updateCells(gspSheetOfArray, arrayOfSheet):
+def displayArray(sheetLevelObj, arrayToDisplay):
 
-	if len(arrayOfSheet) > 0:
+	if len(arrayToDisplay) > 0:
 
-		numberOfRowsInArrayOfSheet = len(arrayOfSheet)
-		
-		arrayOfArrayLengths = [len(i) for i in arrayOfSheet]
+		numberOfRowsInArrayOfSheet = len(arrayToDisplay)
+		arrayOfArrayLengths = [len(row) for row in arrayToDisplay]
 		numberOfColumnsInArrayOfSheet = max(arrayOfArrayLengths)
-
-		for row in arrayOfSheet:
-			if len(row) > numberOfColumnsInArrayOfSheet:
-				numberOfColumnsInArrayOfSheet = len(row)
 		
-		startingCell = 'R1C1'
 		endingCell = 'R' + str(numberOfRowsInArrayOfSheet) + 'C' + str(numberOfColumnsInArrayOfSheet)
-		addressOfSheet = startingCell + ':' + endingCell
+		addressOfSheet = 'R1C1' + ':' + endingCell
 
-		# print(addressOfSheet)
-		
-		gspSheetOfArray.update(addressOfSheet, arrayOfSheet)
+		sheetLevelObj.update(addressOfSheet, arrayToDisplay)
 
 
 
@@ -161,9 +149,9 @@ def getGspSpreadsheetObj(spreadsheetName):
 
 	pathToCredentialsFileServiceAccount = myPyFunc.addToPath(pathToRepos, arrayOfPartsToAddToPath)
 
-	gspObj = gspread.service_account(filename=pathToCredentialsFileServiceAccount)
+	spreadsheetLevelObj = gspread.service_account(filename=pathToCredentialsFileServiceAccount)
 
-	return gspObj.open(spreadsheetName)
+	return spreadsheetLevelObj.open(spreadsheetName)
 
 
 def getObjOfSheets(spreadsheetName):
@@ -184,12 +172,7 @@ def getObjOfSheets(spreadsheetName):
 
 
 
-
-
-def authorizeGspread(oAuthMode, pathBelowRepos, loadSavedCredentials=True, googleAccountUsername=None):
-
-	from google_auth_oauthlib.flow import InstalledAppFlow
-	from pprint import pprint as p
+def getSpreadsheetLevelObj(oAuthMode, pathBelowRepos, loadSavedCredentials=True, googleAccountUsername=None):
 
 	pathToConfigData = Path(pathBelowRepos, 'backend', 'configData')
 
@@ -233,7 +216,7 @@ def authorizeGspread(oAuthMode, pathBelowRepos, loadSavedCredentials=True, googl
 			if not runningOnProductionServer:
 				gspread.auth.store_credentials(credentialsObj, filename=pathToCheckForDecryptedAuthorizedUserFile)
 
-		gspObj = gspread.client.Client(auth=credentialsObj)
+		spreadsheetLevelObj = gspread.client.Client(auth=credentialsObj)
 
 
 	if not oAuthMode:
@@ -245,12 +228,12 @@ def authorizeGspread(oAuthMode, pathBelowRepos, loadSavedCredentials=True, googl
 
 		if not runningOnProductionServer: pathToDecryptedAPIKey = Path(pathToGoogleCredentials, 'usingServiceAccount', 'jsonWithAPIKey.json')
 
-		gspObj = gspread.service_account(filename=pathToDecryptedAPIKey)
+		spreadsheetLevelObj = gspread.service_account(filename=pathToDecryptedAPIKey)
 
 
 	if runningOnProductionServer: myPyFunc.clearDecryptedFiles(decryptedFilesToClear)
 
-	return gspObj
+	return spreadsheetLevelObj
 
 
 

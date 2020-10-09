@@ -31,7 +31,7 @@ def moveColumns(googleSheetTitle, googleAccountUsername=None):
 	if googleAccountUsername:
 		oAuthMode = True
 
-	gspObj = _myGspreadFunc.authorizeGspread(oAuthMode, pathToThisProjectRoot, googleAccountUsername=googleAccountUsername)
+	gspObj = _myGspreadFunc.getSpreadsheetLevelObj(oAuthMode, pathToThisProjectRoot, googleAccountUsername=googleAccountUsername)
 	gspSpreadsheet = gspObj.open(googleSheetTitle)
 
 	sheetName = 'Scenarios'

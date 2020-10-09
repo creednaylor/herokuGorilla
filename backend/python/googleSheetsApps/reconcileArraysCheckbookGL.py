@@ -24,7 +24,7 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 
 	pathToRepos = myPyFunc.getPathUpFolderTree(pathToThisPythonFile, 'repos')
 	pathToThisProjectRoot = pathToThisPythonFile.parents[3]
-	gspObj = myGspreadFunc.authorizeGspread(oAuthMode, pathToThisProjectRoot, googleAccountUsername=googleAccountUsername)
+	gspObj = myGspreadFunc.getSpreadsheetLevelObj(oAuthMode, pathToThisProjectRoot, googleAccountUsername=googleAccountUsername)
 
 
 	spacingColumnIndex = 18
@@ -278,11 +278,11 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 	gspEnding.clear_basic_filter()
 	myGspreadFunc.clearAndResizeSheets(clearAndResizeParameters)
 
-	myGspreadFunc.updateCells(gspComparison, comparisonArray)
+	myGspreadFunc.displayArray(gspComparison, comparisonArray)
 
 
 	glArray.insert(0, glFirstRow)
-	myGspreadFunc.updateCells(gspEnding, glArray)
+	myGspreadFunc.displayArray(gspEnding, glArray)
 
 
 	gspComparison.set_basic_filter(2, 1, len(comparisonArray), len(comparisonArray[0]) + 1)

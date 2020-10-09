@@ -22,7 +22,7 @@ else:
 def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 
 	pathBelowRepos = pathToThisPythonFile
-	spreadsheetLevelObj = myGspreadFunc.authorizeGspread(oAuthMode, pathBelowRepos, googleAccountUsername=googleAccountUsername).open(googleSheetTitle)
+	spreadsheetLevelObj = myGspreadFunc.getSpreadsheetLevelObj(oAuthMode, pathBelowRepos, googleAccountUsername=googleAccountUsername).open(googleSheetTitle)
 
 	extractedFilenames = spreadsheetLevelObj.worksheet('extractedFilenames').get_all_values()
 	gpTransactions = spreadsheetLevelObj.worksheet('gpTransactions').get_all_values()
@@ -147,9 +147,9 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 	myGspreadFunc.clearAndResizeSheets(clearAndResizeParameters)
 
 	extractedFilenames.insert(0, extractedFilenamesFirstRow)
-	myGspreadFunc.updateCells(spreadsheetLevelObj.worksheet('endingExtractedFilenames'), extractedFilenames)
+	myGspreadFunc.displayArray(spreadsheetLevelObj.worksheet('endingExtractedFilenames'), extractedFilenames)
 
-	myGspreadFunc.updateCells(spreadsheetLevelObj.worksheet('Comparison'), comparedTransactions)
+	myGspreadFunc.displayArray(spreadsheetLevelObj.worksheet('Comparison'), comparedTransactions)
 
 
 	# sheetLevelComparison.set_basic_filter(2, 1, len(comparedTransactions), len(comparedTransactions[0]) + 1)

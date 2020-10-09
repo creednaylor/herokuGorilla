@@ -25,7 +25,7 @@ def looperFunction(oAuthMode, googleSheetTitle):
 
 	pathToRepos = _myPyFunc.getPathUpFolderTree(pathToThisPythonFile, 'repos')
 	pathToThisProjectRoot = pathToThisPythonFile.parents[3]
-	gspObj = _myGspreadFunc.authorizeGspread(oAuthMode, pathToThisProjectRoot)
+	gspObj = _myGspreadFunc.getSpreadsheetLevelObj(oAuthMode, pathToThisProjectRoot)
 
 	gspSpreadsheet = gspObj.open(googleSheetTitle)
 	gspLoopTable = gspSpreadsheet.worksheet('loopTable')
@@ -68,7 +68,7 @@ def looperFunction(oAuthMode, googleSheetTitle):
 				resultTableArray.append([loopTableArray[rowIndex][0], calculationTableArray[1][2]])
 
 
-	_myGspreadFunc.updateCells(gspResultTable, resultTableArray)
+	_myGspreadFunc.displayArray(gspResultTable, resultTableArray)
 
 
 	strToReturn = os.environ.get('urlOfKingGorillaGoogleSheetPublicStr')

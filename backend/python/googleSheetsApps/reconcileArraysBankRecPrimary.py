@@ -23,7 +23,7 @@ else:
 def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 
 	pathBelowRepos = pathToThisPythonFile
-	accountLevelObj = myGspreadFunc.authorizeGspread(oAuthMode, pathBelowRepos, googleAccountUsername=googleAccountUsername)
+	accountLevelObj = myGspreadFunc.getSpreadsheetLevelObj(oAuthMode, pathBelowRepos, googleAccountUsername=googleAccountUsername)
 
 	bankStatusCol = 0
 	bankDateColumnIndex = 1
@@ -310,11 +310,11 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 	sheetLevelEndingGP.clear_basic_filter()
 	myGspreadFunc.clearAndResizeSheets(clearAndResizeParameters)
 
-	myGspreadFunc.updateCells(sheetLevelComparison, comparisonArray)
+	myGspreadFunc.displayArray(sheetLevelComparison, comparisonArray)
 
 
 	gpArray.insert(0, gpArrayFirstRow)
-	myGspreadFunc.updateCells(sheetLevelEndingGP, gpArray)
+	myGspreadFunc.displayArray(sheetLevelEndingGP, gpArray)
 
 
 	sheetLevelComparison.set_basic_filter(2, 1, len(comparisonArray), len(comparisonArray[0]) + 1)

@@ -27,6 +27,13 @@ def columnDataMatches(firstArrayCurrentRow, secondArrayCurrentRow, columnsToMatc
 	
 	return True
 
+def dailyDepositsColumnDataMatches(firstArrayCurrentRow, secondArrayCurrentRow):
+
+	if firstArrayCurrentRow[12][2:7] != secondArrayCurrentRow[8]:
+		return False
+	
+	return True
+
 
 def getMatchedRows(secondArray, firstArrayCurrentRow, columnsToMatch):
 
@@ -42,14 +49,6 @@ def getMatchedRows(secondArray, firstArrayCurrentRow, columnsToMatch):
 				})
 
 	return rowsThatMatch
-
-
-def dailyDepositsColumnDataMatches(firstArrayCurrentRow, secondArrayCurrentRow):
-
-	if firstArrayCurrentRow[12][2:7] != secondArrayCurrentRow[8]:
-		return False
-	
-	return True
 
 
 def getMatchedDailyDepositsRows(secondArray, firstArrayCurrentRow):
@@ -128,7 +127,7 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 
 	# pathToRepos = myPyFunc.getPathUpFolderTree(pathToThisPythonFile, 'repos')
 	pathBelowRepos = pathToThisPythonFile
-	spreadsheetLevelObj = myGspreadFunc.authorizeGspread(oAuthMode, pathBelowRepos, googleAccountUsername=googleAccountUsername).open(googleSheetTitle)
+	spreadsheetLevelObj = myGspreadFunc.getSpreadsheetLevelObj(oAuthMode, pathBelowRepos, googleAccountUsername=googleAccountUsername).open(googleSheetTitle)
 
 	firstTableName = 'First Table'
 	secondTableName = 'Second Table'
@@ -293,11 +292,10 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 
 
 	myGspreadFunc.clearAndResizeSheets(clearAndResizeParameters)
-	myGspreadFunc.updateCells(spreadsheetLevelObj.worksheet(matchedTableName), matchedArray)
+	myGspreadFunc.displayArray(spreadsheetLevelObj.worksheet(matchedTableName), matchedArray)
 
 	secondArray.insert(0, secondArrayFirstRow)
-	myGspreadFunc.updateCells(spreadsheetLevelObj.worksheet(didNotMatchTableName), secondArray)
-
+	myGspreadFunc.displayArray(spreadsheetLevelObj.worksheet(didNotMatchTableName), secondArray)
 
 	myGspreadFunc.autoResizeColumnsInSpreadsheet(spreadsheetLevelObj)
 

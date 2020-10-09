@@ -11,7 +11,7 @@ from pprint import pprint as p
 
 def getFilenamesFromGoogleSheets(pathToDirectoryOfFiles, googleAccountUsername):
     
-    accountLevelObj = myGspreadFunc.authorizeGspread(True, pathToThisPythonFile, googleAccountUsername=googleAccountUsername)
+    accountLevelObj = myGspreadFunc.getSpreadsheetLevelObj(True, pathToThisPythonFile, googleAccountUsername=googleAccountUsername)
     spreadsheetLevelObj = accountLevelObj.open('Vendor Rebates')
     sheetLevelObj = spreadsheetLevelObj.worksheet('filenamesToWrite')
     filenamesToWriteArray = sheetLevelObj.get_all_values()

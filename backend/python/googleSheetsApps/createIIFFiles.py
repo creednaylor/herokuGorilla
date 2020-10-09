@@ -25,7 +25,7 @@ else:
 def createIIFFilesFunction(oAuthMode, googleSheetTitle, loadSavedCredentials=True, listingService='Airbnb'):
 
 	pathToThisProjectRoot = pathToThisPythonFile.parents[3]
-	gspObj = _myGspreadFunc.authorizeGspread(oAuthMode, pathToThisProjectRoot, loadSavedCredentials)
+	gspObj = _myGspreadFunc.getSpreadsheetLevelObj(oAuthMode, pathToThisProjectRoot, loadSavedCredentials)
 	outputSheetName = 'Output'
 	outputOtherSheetName = 'Output - Other'
 
@@ -215,8 +215,8 @@ def createIIFFilesFunction(oAuthMode, googleSheetTitle, loadSavedCredentials=Tru
 	}]
 
 	_myGspreadFunc.clearAndResizeSheets(clearAndResizeParameters)
-	_myGspreadFunc.updateCells(gspOutput, outputArray)
-	_myGspreadFunc.updateCells(gspOutputOther, outputArrayOther)
+	_myGspreadFunc.displayArray(gspOutput, outputArray)
+	_myGspreadFunc.displayArray(gspOutputOther, outputArrayOther)
 	_myGspreadFunc.autoResizeColumnsOnSheet(gspSpreadsheet, outputSheetName)
 	_myGspreadFunc.autoResizeColumnsOnSheet(gspSpreadsheet, outputOtherSheetName)
 
