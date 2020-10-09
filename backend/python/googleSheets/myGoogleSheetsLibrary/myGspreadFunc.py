@@ -64,7 +64,7 @@ def clearAndResizeSheets(spreadsheetLevelParameters):
 
 			for resizeParameter in ['resizeRows', 'resizeColumns']:
 				if resizeParameter in sheetLevelParameters:
-					arguments = {resizeParameter.replace('resize', '')[0:3].lower() + 's': sheetLevelParameters[resizeParameter]}
+					arguments = {resizeParameter[6:9].lower() + 's': sheetLevelParameters[resizeParameter]}
 					sheetLevelParameters['sheetObj'].resize(**arguments)
 
 			clearParameters = {
