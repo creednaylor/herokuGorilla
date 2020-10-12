@@ -31,7 +31,7 @@ def sortArrayOfArrays(array, subArrayIndexToSortBy):
 def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 
 	pathBelowRepos = pathToThisPythonFile
-	spreadsheetLevelObj = myGspreadFunc.getSpreadsheetLevelObj(oAuthMode, pathBelowRepos, googleAccountUsername=googleAccountUsername)
+	spreadsheetLevelObj = myGspreadFunc.getSpreadsheetLevelObj(oAuthMode, pathBelowRepos, googleAccountUsername=googleAccountUsername).open(googleSheetTitle)
 
 	bankTableName = 'Bank'
 	gpTableName = 'GP'
@@ -39,7 +39,7 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 	comparisonTableName = 'Comparison'
 	endingGPTableName = 'endingGP'
 
-	spreadsheetLevelObj = spreadsheetLevelObj.open(googleSheetTitle)
+	spreadsheetLevelObj = spreadsheetLevelObj
 
 	bankStatusCol = 0
 	bankDateColumnIndex = 1

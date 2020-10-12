@@ -127,7 +127,7 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 
 	# pathToRepos = myPyFunc.getPathUpFolderTree(pathToThisPythonFile, 'repos')
 	pathBelowRepos = pathToThisPythonFile
-	spreadsheetLevelObj = myGspreadFunc.getSpreadsheetLevelObj(oAuthMode, pathBelowRepos, googleAccountUsername=googleAccountUsername)
+	spreadsheetLevelObj = myGspreadFunc.getSpreadsheetLevelObj(oAuthMode, pathBelowRepos, googleAccountUsername=googleAccountUsername).open(googleSheetTitle)
 
 	firstTableName = 'First Table'
 	secondTableName = 'Second Table'
