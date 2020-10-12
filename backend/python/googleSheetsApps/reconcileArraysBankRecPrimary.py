@@ -99,7 +99,7 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 				currentRow[bankAmountColumnIndex] = -currentRow[bankAmountColumnIndex]
 
 
-	bankArray = myPyFunc.forEnumeratedArgValueFunction(bankArray, prepareBankArray)
+	bankArray = myPyFunc.transformArray(bankArray, prepareBankArray)
 
 	def prepareGPArray(currentRowIndex, currentRow):
 
@@ -127,7 +127,7 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 		if currentRow[gpTransferColumnIndex] == 'Out':
 			currentRow[gpAmountColumnIndex] = -currentRow[gpAmountColumnIndex]
 
-	gpArray = myPyFunc.forEnumeratedArgValueFunction(gpArray, prepareGPArray)
+	gpArray = myPyFunc.transformArray(gpArray, prepareGPArray)
 
 
 	bankArrayFirstRow = bankArray.pop(0)
