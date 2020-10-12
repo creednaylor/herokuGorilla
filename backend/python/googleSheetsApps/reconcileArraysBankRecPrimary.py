@@ -19,11 +19,27 @@ else:
 	from googleSheets.myGoogleSheetsLibrary import myGspreadFunc
 
 
+def sortArrayOfArrays(array, subArrayIndexToSortBy): 
+	# reverse = None (Sorts in Ascending order) 
+	# key is set to sort using second element of  
+	# sublist lambda has been used
+
+	return(sorted(array, key = lambda x: x[subArrayIndexToSortBy])) 
+
+
 
 def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 
 	pathBelowRepos = pathToThisPythonFile
-	accountLevelObj = myGspreadFunc.getSpreadsheetLevelObj(oAuthMode, pathBelowRepos, googleAccountUsername=googleAccountUsername)
+	spreadsheetLevelObj = myGspreadFunc.getSpreadsheetLevelObj(oAuthMode, pathBelowRepos, googleAccountUsername=googleAccountUsername).open(googleSheetTitle)
+
+	bankTableName = 'Bank'
+	gpTableName = 'GP'
+	dailyDepositsTableName = 'dailyDeposits'
+	comparisonTableName = 'Comparison'
+	endingGPTableName = 'endingGP'
+
+	spreadsheetLevelObj = spreadsheetLevelObj
 
 	bankStatusCol = 0
 	bankDateColumnIndex = 1
@@ -32,18 +48,7 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 	bankAmountColumnIndex = 9
 	bankDescriptionTwoColumnIndex = 11
 
-	spacingColumnIndex = 14
-
-	spreadsheetLevelObj = accountLevelObj.open(googleSheetTitle)
-	sheetLevelBank = spreadsheetLevelObj.worksheet('Bank')
-	sheetLevelGP = spreadsheetLevelObj.worksheet('GP')
-	sheetLevelDailyDeposits = spreadsheetLevelObj.worksheet('dailyDeposits')
-	sheetLevelComparison = spreadsheetLevelObj.worksheet('Comparison')
-	sheetLevelEndingGP = spreadsheetLevelObj.worksheet('endingGP')
-
-
-	bankArray = sheetLevelBank.get_all_values()
-
+	bankArray = spreadsheetLevelObj.worksheet(bankTableName).get_all_values()
 
 	def filterBankArray(currentRow):
 
@@ -54,36 +59,7 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 
 	bankArray = list(filter(filterBankArray, bankArray))
 
-	gpTrxDateColumnIndex = 1
-	gpAmountColumnIndex = 5
-	gpTrxTypeColumnIndex = 11
-	gpTrxNumberColumnIndex = 12
-	gpPaidToReceivedFromColumnIndex = 14
-	gpTransferColumnIndex = 17
-	
-	gpArray = sheetLevelGP.get_all_values()
-	gpArray = [currentRow for currentRow in gpArray if currentRow[gpTrxDateColumnIndex] not in ['']]
-
-
-	dailyDepositsAmountColumnIndex = 5
-	dailyDepositsTransactionIDColumnIndex = 7
-	dailyDepositsArray = sheetLevelDailyDeposits.get_all_values()
-
-
-	def dailyDepositsTransform(indexAndElementData):
-
-		currentRowIndex, currentRow = indexAndElementData
-
-		if currentRowIndex > 0:
-			currentRow[dailyDepositsAmountColumnIndex] = float(currentRow[dailyDepositsAmountColumnIndex].lstrip('$').replace(',', ''))
-
-		return currentRow
-
-
-	dailyDepositsArray = list(map(dailyDepositsTransform, enumerate(dailyDepositsArray)))
-
-
-	def prepareBankArray(currentRowIndex, currentRow):
+	def transformBankArray(currentRowIndex, currentRow):
 
 		if currentRowIndex > 0:
 
@@ -99,9 +75,25 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 				currentRow[bankAmountColumnIndex] = -currentRow[bankAmountColumnIndex]
 
 
-	bankArray = myPyFunc.transformArray(bankArray, prepareBankArray)
+	bankArray = myPyFunc.transformArray(bankArray, transformBankArray)
+	bankArrayFirstRow = bankArray.pop(0)
+	bankArray = sortArrayOfArrays(bankArray, bankDateColumnIndex)
 
-	def prepareGPArray(currentRowIndex, currentRow):
+
+	gpTrxDateColumnIndex = 1
+	gpAmountColumnIndex = 5
+	gpTrxTypeColumnIndex = 11
+	gpTrxNumberColumnIndex = 12
+	gpPaidToReceivedFromColumnIndex = 14
+	gpTransferColumnIndex = 17
+
+	spacingColumnIndex = 14
+	
+	gpArray = spreadsheetLevelObj.worksheet(gpTableName).get_all_values()
+	gpArray = [currentRow for currentRow in gpArray if currentRow[gpTrxDateColumnIndex] not in ['']]
+
+
+	def transformGPArray(currentRowIndex, currentRow):
 
 		if currentRowIndex == 0:
 			currentRow.append('Transfer')
@@ -127,37 +119,41 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 		if currentRow[gpTransferColumnIndex] == 'Out':
 			currentRow[gpAmountColumnIndex] = -currentRow[gpAmountColumnIndex]
 
-	gpArray = myPyFunc.transformArray(gpArray, prepareGPArray)
-
-
-	bankArrayFirstRow = bankArray.pop(0)
+	gpArray = myPyFunc.transformArray(gpArray, transformGPArray)
 	gpArrayFirstRow = gpArray.pop(0)
 
 	def filterGPArray(currentRow):
-		if datetime.strptime(currentRow[gpTrxDateColumnIndex], '%Y-%m-%d %H:%M:%S') <= datetime(2020, 8, 31):
+		if datetime.strptime(currentRow[gpTrxDateColumnIndex], '%Y-%m-%d %H:%M:%S') <= datetime(2020, 9, 30):
 			return True
 		else:
 			return False
 
 	gpArray = list(filter(filterGPArray, gpArray))
-
-
-
-	def sortArrayOfArrays(array, subArrayIndexToSortBy): 
-		# reverse = None (Sorts in Ascending order) 
-		# key is set to sort using second element of  
-		# sublist lambda has been used
-
-		return(sorted(array, key = lambda x: x[subArrayIndexToSortBy])) 
-
-	bankArray = sortArrayOfArrays(bankArray, bankDateColumnIndex)
 	gpArray = sortArrayOfArrays(gpArray, gpTrxDateColumnIndex)
+
+
+	dailyDepositsAmountColumnIndex = 5
+	dailyDepositsTransactionIDColumnIndex = 7
+	dailyDepositsArray = spreadsheetLevelObj.worksheet(dailyDepositsTableName).get_all_values()
+
+
+	def dailyDepositsTransform(indexAndElementData):
+
+		currentRowIndex, currentRow = indexAndElementData
+
+		if currentRowIndex > 0:
+			currentRow[dailyDepositsAmountColumnIndex] = float(currentRow[dailyDepositsAmountColumnIndex].lstrip('$').replace(',', ''))
+
+		return currentRow
+
+	dailyDepositsArray = list(map(dailyDepositsTransform, enumerate(dailyDepositsArray)))
+
 
 
 	comparisonArray = [['Bank'] + [''] * (len(bankArray[0])) + ['GP'] + [''] * (len(gpArray[0]) - 1)]
 	comparisonArray.append(bankArrayFirstRow + ['Match Status'] + gpArrayFirstRow)
 
-	
+
 
 	while bankArray:
 
@@ -183,6 +179,8 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 			gpArrayCurrentRowIndex = gpArrayCurrentRowIndex + 1
 
 		comparisonArray.append(rowToAppend)
+
+
 
 
 	for comparisonCurrentRowIndex, comparisonCurrentRow in enumerate(comparisonArray):
@@ -293,38 +291,30 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 
 
 	clearAndResizeParameters = [{
-		'sheetObj': sheetLevelComparison,
+		'sheetObj': spreadsheetLevelObj.worksheet(comparisonTableName),
 		'resizeRows': 3,
 		'startingRowIndexToClear': 0,
 		'resizeColumns': 3
 	},
 	{
-		'sheetObj': sheetLevelEndingGP,
+		'sheetObj': spreadsheetLevelObj.worksheet(endingGPTableName),
 		'resizeRows': 2,
 		'startingRowIndexToClear': 0,
 		'resizeColumns': 1
 	}]
 
 
-	sheetLevelComparison.clear_basic_filter()
-	sheetLevelEndingGP.clear_basic_filter()
+
 	myGspreadFunc.clearAndResizeSheets(clearAndResizeParameters)
-
-	myGspreadFunc.displayArray(sheetLevelComparison, comparisonArray)
-
+	myGspreadFunc.displayArray(spreadsheetLevelObj.worksheet(comparisonTableName), comparisonArray)
 
 	gpArray.insert(0, gpArrayFirstRow)
-	myGspreadFunc.displayArray(sheetLevelEndingGP, gpArray)
+	myGspreadFunc.displayArray(spreadsheetLevelObj.worksheet(endingGPTableName), gpArray)
 
 
-	sheetLevelComparison.set_basic_filter(2, 1, len(comparisonArray), len(comparisonArray[0]) + 1)
-	sheetLevelEndingGP.set_basic_filter(1, 1, len(gpArray), len(gpArray[0]))
-
-	myGspreadFunc.autoResizeColumnsOnSheet(spreadsheetLevelObj, 'Bank')
-	myGspreadFunc.autoResizeColumnsOnSheet(spreadsheetLevelObj, 'GP')
-	myGspreadFunc.autoResizeColumnsOnSheet(spreadsheetLevelObj, 'Comparison')
-	myGspreadFunc.autoResizeColumnsOnSheet(spreadsheetLevelObj, 'endingGP')
-
+	customTopRows = {'Comparison': 2}
+	myGspreadFunc.setFiltersOnSpreadsheet(spreadsheetLevelObj, customTopRows)
+	myGspreadFunc.autoAlignColumnsInSpreadsheet(spreadsheetLevelObj)
 
 
 

@@ -155,7 +155,7 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 	# sheetLevelComparison.set_basic_filter(2, 1, len(comparedTransactions), len(comparedTransactions[0]) + 1)
 	# sheetLevelEndingGP.set_basic_filter(1, 1, len(extractedFilenames), len(extractedFilenames[0]))
 
-	myGspreadFunc.autoResizeColumnsInSpreadsheet(spreadsheetLevelObj)
+	myGspreadFunc.autoAlignColumnsInSpreadsheet(spreadsheetLevelObj)
 
 
 def mainFunction(arrayOfArguments):

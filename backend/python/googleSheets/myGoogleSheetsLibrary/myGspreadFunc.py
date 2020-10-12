@@ -59,24 +59,23 @@ def clearSheets(startingRowIndex, endingRowIndex, startingColumnIndex, endingCol
 
 def clearAndResizeSheets(spreadsheetLevelParameters):
 
-	if isinstance(spreadsheetLevelParameters[0], dict):
-		for sheetLevelParameters in spreadsheetLevelParameters:
+	for sheetLevelParameters in spreadsheetLevelParameters:
 
-			for resizeParameter in ['resizeRows', 'resizeColumns']:
-				if resizeParameter in sheetLevelParameters:
-					arguments = {resizeParameter[6:9].lower() + 's': sheetLevelParameters[resizeParameter]}
-					sheetLevelParameters['sheetObj'].resize(**arguments)
+		for resizeParameter in ['resizeRows', 'resizeColumns']:
+			if resizeParameter in sheetLevelParameters:
+				arguments = {resizeParameter[6:9].lower() + 's': sheetLevelParameters[resizeParameter]}
+				sheetLevelParameters['sheetObj'].resize(**arguments)
 
-			clearParameters = {
-				0: ['startingRowIndexToClear', 'startingColumnIndexToClear'],
-				-1: ['endingRowIndexToClear', 'endingColumnIndexToClear']
-			}
+		clearParameters = {
+			0: ['startingRowIndexToClear', 'startingColumnIndexToClear'],
+			-1: ['endingRowIndexToClear', 'endingColumnIndexToClear']
+		}
 
-			for group in clearParameters:
-				for parameter in clearParameters[group]:
-					if parameter not in sheetLevelParameters: sheetLevelParameters[parameter] = group
+		for group in clearParameters:
+			for parameter in clearParameters[group]:
+				if parameter not in sheetLevelParameters: sheetLevelParameters[parameter] = group
 
-			clearSheet(sheetLevelParameters['startingRowIndexToClear'], sheetLevelParameters['endingRowIndexToClear'], sheetLevelParameters['startingColumnIndexToClear'], sheetLevelParameters['endingColumnIndexToClear'], sheetLevelParameters['sheetObj'])
+		clearSheet(sheetLevelParameters['startingRowIndexToClear'], sheetLevelParameters['endingRowIndexToClear'], sheetLevelParameters['startingColumnIndexToClear'], sheetLevelParameters['endingColumnIndexToClear'], sheetLevelParameters['sheetObj'])
 
 
 
@@ -114,7 +113,7 @@ def autoResizeColumnsOnSheet(spreadsheetLevelObj, sheetName):
 	spreadsheetLevelObj.batch_update(requestBody)
 
 
-def autoResizeColumnsInSpreadsheet(spreadsheetLevelObj):
+def autoAlignColumnsInSpreadsheet(spreadsheetLevelObj):
 
 	requestBody = {
 		"requests": []
@@ -127,7 +126,7 @@ def autoResizeColumnsInSpreadsheet(spreadsheetLevelObj):
 			{
 				"autoResizeDimensions": {
 					"dimensions": {
-						"sheetId": sheetObj._properties['sheetId'],
+						"sheetId": sheetObj.id,
 						"dimension": "COLUMNS",
 						"startIndex": 0
 					}
@@ -135,10 +134,16 @@ def autoResizeColumnsInSpreadsheet(spreadsheetLevelObj):
 			}
 		)
 
-		# p(sheetObj)
-	
-	# p(requestBody)
 	spreadsheetLevelObj.batch_update(requestBody)
+
+
+def setFiltersOnSpreadsheet(spreadsheetLevelObj, customTopRows):
+
+	for sheetObj in spreadsheetLevelObj.worksheets():
+		if sheetObj.title in customTopRows:
+			sheetObj.set_basic_filter(customTopRows[sheetObj.title], 1, sheetObj.row_count, sheetObj.col_count)
+		else:
+			sheetObj.set_basic_filter(1, 1, sheetObj.row_count, sheetObj.col_count)
 
 
 def getGspSpreadsheetObj(spreadsheetName):
