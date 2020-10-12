@@ -127,7 +127,7 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 
 	# pathToRepos = myPyFunc.getPathUpFolderTree(pathToThisPythonFile, 'repos')
 	pathBelowRepos = pathToThisPythonFile
-	spreadsheetLevelObj = myGspreadFunc.getSpreadsheetLevelObj(oAuthMode, pathBelowRepos, googleAccountUsername=googleAccountUsername).open(googleSheetTitle)
+	spreadsheetLevelObj = myGspreadFunc.getSpreadsheetLevelObj(oAuthMode, pathBelowRepos, googleAccountUsername=googleAccountUsername)
 
 	firstTableName = 'First Table'
 	secondTableName = 'Second Table'
@@ -297,7 +297,9 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 	secondArray.insert(0, secondArrayFirstRow)
 	myGspreadFunc.displayArray(spreadsheetLevelObj.worksheet(didNotMatchTableName), secondArray)
 
-	myGspreadFunc.autoResizeColumnsInSpreadsheet(spreadsheetLevelObj)
+	customTopRows = {'Matched': 2}
+	myGspreadFunc.setFiltersOnSpreadsheet(spreadsheetLevelObj, customTopRows)
+	myGspreadFunc.autoAlignColumnsInSpreadsheet(spreadsheetLevelObj)
 
 
 	# strToReturn = os.environ.get('urlOfKingGorillaGoogleSheetPublicStr')
