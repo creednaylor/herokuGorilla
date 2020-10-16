@@ -892,6 +892,15 @@ def operateOnAllFileObjBreadthFirst(rootFolder, actionToPerformOnEachFileObj, da
 
 
 
+
+def operateOnAllFileObjInThisDirectory(directory, actionToPerform):
+
+    for fileObj in Path(directory).iterdir():
+        actionToPerform(fileObj)
+
+
+
+
 def transformArray(array, action):
     
     for currentIndex, currentElement in enumerate(array):
