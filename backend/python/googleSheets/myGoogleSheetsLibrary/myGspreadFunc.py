@@ -78,6 +78,14 @@ def clearAndResizeSheets(spreadsheetLevelParameters):
 		clearSheet(sheetLevelParameters['startingRowIndexToClear'], sheetLevelParameters['endingRowIndexToClear'], sheetLevelParameters['startingColumnIndexToClear'], sheetLevelParameters['endingColumnIndexToClear'], sheetLevelParameters['sheetObj'])
 
 
+def updateFormatting(spreadsheetLevelObj, formatParameters):
+
+	for sheetLevelParameters in formatParameters:
+
+		for formatRange in sheetLevelParameters['formatRanges']:
+			spreadsheetLevelObj.worksheet(sheetLevelParameters['sheetName']).format(formatRange, sheetLevelParameters['formatObj'])
+
+
 
 def displayArray(sheetLevelObj, arrayToDisplay):
 

@@ -23,6 +23,8 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 
 	pathBelowRepos = pathToThisPythonFile
 	spreadsheetLevelObj = myGspreadFunc.getSpreadsheetLevelObj(oAuthMode, pathBelowRepos, googleAccountUsername=googleAccountUsername).open(googleSheetTitle)
+	endingExtractedFilenamesSheet = spreadsheetLevelObj.worksheet('endingExtractedFilenames')
+	comparisonSheet = spreadsheetLevelObj.worksheet('Comparison')
 
 	extractedFilenames = spreadsheetLevelObj.worksheet('extractedFilenames').get_all_values()
 	gpTransactions = spreadsheetLevelObj.worksheet('gpTransactions').get_all_values()
@@ -44,8 +46,12 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 		else:
 			currentRow.append(float(currentRow[gpTransactionsDebitColumnIndex].replace(',', '')) - float(currentRow[gpTransactionsCreditColumnIndex].replace(',', '')))
 			currentRow[gpTransactionsDateColumnIndex] = myPyFunc.dateStrToStr(currentRow[gpTransactionsDateColumnIndex])
+			
+			for column in [gpTransactionsDebitColumnIndex, gpTransactionsCreditColumnIndex, gpTransactionsAmountColumnIndex]:
+				if isinstance(currentRow[column], str):
+					currentRow[column] = float(currentRow[column].replace(',', ''))
 
-	gpTransactions = myPyFunc.forEnumeratedArgValueFunction(gpTransactions, transformGPTransactions)
+	gpTransactions = myPyFunc.transformArray(gpTransactions, transformGPTransactions)
 	gpTransactionsFirstRow = gpTransactions.pop(0)
 
 	def transformExtractedFilenames(currentRowIndex, currentRow):
@@ -57,11 +63,11 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 			# currentRowDateObj = datetime(int(currentRowDate[0:4]), int(currentRowDate[6:8]), int(currentRowDate[4:6]))
 			# currentRow[extractedFilenamesDateColumnIndex] = f"{currentRowDateObj.day}/{currentRowDateObj.month}/{currentRowDateObj.strftime('%y')}"
 
-	extractedFilenames = myPyFunc.forEnumeratedArgValueFunction(extractedFilenames, transformExtractedFilenames)
+	extractedFilenames = myPyFunc.transformArray(extractedFilenames, transformExtractedFilenames)
 	extractedFilenamesFirstRow = extractedFilenames.pop(0)
 
 
-	comparedTransactions = [['GP Transactions'] + [''] * (len(gpTransactions[0])) + ['Extracted Filenames'] + [''] * (len(extractedFilenames[0]) - 1)]
+	comparedTransactions = [['GP Transactions'] + [''] * (len(gpTransactionsFirstRow)) + ['Extracted Filenames'] + [''] * (len(extractedFilenamesFirstRow) - 1)]
 	comparedTransactions.append(gpTransactionsFirstRow + ['Match Status'] + extractedFilenamesFirstRow)
 
 
@@ -129,32 +135,42 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 
 
 	clearAndResizeParameters = [{
-		'sheetObj': spreadsheetLevelObj.worksheet('Comparison'),
+		'sheetObj': comparisonSheet,
 		'resizeRows': 3,
 		'startingRowIndexToClear': 0,
 		'resizeColumns': 1
 	},
 	{
-		'sheetObj': spreadsheetLevelObj.worksheet('endingExtractedFilenames'),
+		'sheetObj': endingExtractedFilenamesSheet,
 		'resizeRows': 2,
 		'startingRowIndexToClear': 0,
 		'resizeColumns': 1
 	}]
 
 
-	# sheetLevelComparison.clear_basic_filter()
-	# sheetLevelEndingGP.clear_basic_filter()
 	myGspreadFunc.clearAndResizeSheets(clearAndResizeParameters)
 
 	extractedFilenames.insert(0, extractedFilenamesFirstRow)
-	myGspreadFunc.displayArray(spreadsheetLevelObj.worksheet('endingExtractedFilenames'), extractedFilenames)
+	myGspreadFunc.displayArray(endingExtractedFilenamesSheet, extractedFilenames)
+	myGspreadFunc.displayArray(comparisonSheet, comparedTransactions)
 
-	myGspreadFunc.displayArray(spreadsheetLevelObj.worksheet('Comparison'), comparedTransactions)
+	myGspreadFunc.setFiltersOnSpreadsheet(spreadsheetLevelObj, {'Comparison': 2})
+	numberFormatObj = {'numberFormat': {'type': 'NUMBER', 'pattern': '#,##0.00;(#,##0.00)'}}
 
+	formatParameters = [
+		{
+			'sheetName': 'Comparison',
+			'formatRanges': ['F:F', 'G:G', 'M:M', 'Q:Q'],
+			'formatObj': numberFormatObj
+		},
+		{
+			'sheetName': 'endingExtractedFilenames',
+			'formatRanges': ['C:C'],
+			'formatObj': numberFormatObj
+		}
+	]
 
-	# sheetLevelComparison.set_basic_filter(2, 1, len(comparedTransactions), len(comparedTransactions[0]) + 1)
-	# sheetLevelEndingGP.set_basic_filter(1, 1, len(extractedFilenames), len(extractedFilenames[0]))
-
+	myGspreadFunc.updateFormatting(spreadsheetLevelObj, formatParameters)
 	myGspreadFunc.autoAlignColumnsInSpreadsheet(spreadsheetLevelObj)
 
 

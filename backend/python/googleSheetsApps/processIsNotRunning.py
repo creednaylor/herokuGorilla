@@ -51,7 +51,7 @@ def getArrayOfProcesses(saveToGoogleSheetsBoolean):
 
         arrayOfRunningProcesses.append(processToAppend)
 
-    
+
     numberOfTotalColumns = max([len(i) for i in arrayOfRunningProcesses])
 
 

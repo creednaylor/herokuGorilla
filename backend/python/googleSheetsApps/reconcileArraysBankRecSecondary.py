@@ -302,19 +302,6 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 	myGspreadFunc.autoAlignColumnsInSpreadsheet(spreadsheetLevelObj)
 
 
-	# strToReturn = os.environ.get('urlOfKingGorillaGoogleSheetPublicStr')
-
-	# if not strToReturn:
-
-	# 	pathToConfigDataJSON = Path(pathToRepos, 'privateData', 'herokuGorilla', 'configData.json')
-	# 	jsonFileObj = open(pathToConfigDataJSON)
-	# 	strToReturn = json.load(jsonFileObj)['urlOfKingGorillaGoogleSheetPublicStr']
-
-	# strToReturn = strToReturn[:-1] + '871892682'
-
-	# return strToReturn
-
-
 
 def mainFunction(arrayOfArguments):
     reconcileArrays(True, arrayOfArguments[1], googleAccountUsername=arrayOfArguments[2])

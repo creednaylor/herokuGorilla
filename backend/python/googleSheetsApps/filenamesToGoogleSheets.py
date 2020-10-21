@@ -9,20 +9,33 @@ import googleSheets.myGoogleSheetsLibrary.myGspreadFunc as myGspreadFunc
 from pprint import pprint as p
 
 
-def getFilenamesFromDisk(pathToDirectoryOfFiles, googleAccountUsername):
-    # p(Path(pathToDirectoryOfFiles).parents[3])
+def getFilenamesFromDisk(pathToDirectoryOfFilesForNameExtraction, googleAccountUsername):
+    # p(Path(pathToDirectoryOfFilesForNameExtraction).parents[3])
     
-    arrayOfPDFFiles = [['Check Date', 'Vendor', 'Amount']]
+    extractedFilenamesToDisplay = [['Check Date', 'Vendor', 'Amount']]
     
-    for node in Path(pathToDirectoryOfFiles).iterdir():
-        arrayOfPDFFiles.append(node.stem.split(' - '))
+    for node in Path(pathToDirectoryOfFilesForNameExtraction).iterdir():
+        arrayToAppend = node.stem.split(' - ')
+        arrayToAppend[2] = float(arrayToAppend[2])
+        extractedFilenamesToDisplay.append(arrayToAppend)
     
     accountLevelObj = myGspreadFunc.getSpreadsheetLevelObj(True, pathToThisPythonFile, googleAccountUsername=googleAccountUsername)
     spreadsheetLevelObj = accountLevelObj.open('Vendor Rebates')
     sheetLevelObj = spreadsheetLevelObj.worksheet('extractedFilenames')
-    myGspreadFunc.displayArray(sheetLevelObj, arrayOfPDFFiles)
 
+    clearAndResizeParameters = [{
+        'sheetObj': sheetLevelObj,
+        'resizeRows': 2,
+        'startingRowIndexToClear': 0,
+        'resizeColumns': 1
+    }]
 
+    myGspreadFunc.clearAndResizeSheets(clearAndResizeParameters)
+    myGspreadFunc.displayArray(sheetLevelObj, extractedFilenamesToDisplay)
+    # p(extractedFilenamesToDisplay)
+    sheetLevelObj.format('C:C', {'numberFormat': {'type': 'NUMBER', 'pattern': '#,###.00'}})
+    myGspreadFunc.autoAlignColumnsInSpreadsheet(spreadsheetLevelObj)
+    
 
 
 def mainFunction(arrayOfArguments):
@@ -32,4 +45,4 @@ if __name__ == '__main__':
     p(str(pathToThisPythonFile.name) + ' is not being imported. It is being run directly...')
     mainFunction(sys.argv)
 else:
-	p(str(pathToThisPythonFile.name) + ' is being imported. It is not being run directly...')
+    p(str(pathToThisPythonFile.name) + ' is being imported. It is not being run directly...')
