@@ -8,6 +8,7 @@ from pprint import pprint as p
 # import re
 import sqlite3
 import time
+from pytz import timezone
 
 
 
@@ -893,7 +894,7 @@ def operateOnAllFileObjBreadthFirst(rootFolder, actionToPerformOnEachFileObj, da
 
 
 
-def operateOnAllFileObjInThisDirectory(directory, actionToPerform):
+def onAllFileObjInDir(directory, actionToPerform):
 
     for fileObj in Path(directory).iterdir():
         actionToPerform(fileObj)
@@ -929,14 +930,12 @@ def transferToArray(transferringArray, receivingArray, getElementToAppend):
 #     return newArray
 
 
-
-
-
 def strToFloat(string):
     if string in ['', ' ', None]:
         string = '0'
 
     return float(string.replace(',', '').replace('$', ''))
+
 
 def ifConditionFlipSign(amount, firstToken, secondToken):
 
@@ -951,3 +950,10 @@ def dateStrToStr(dateStr):
     dateArray = dateStr.split('/')
     return dateArray[2] + dateArray[0].zfill(2) + dateArray[1].zfill(2)
 
+
+
+def addTimezoneToDateObj(dateObj, newTimezone):
+    return dateObj.replace(tzinfo=timezone('UTC')).astimezone(timezone(newTimezone))
+
+def unixMillisecondsToDateObj(unixMilliseconds):
+    return datetime.utcfromtimestamp(unixMilliseconds/1000)
