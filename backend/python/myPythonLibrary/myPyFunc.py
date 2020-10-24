@@ -902,12 +902,24 @@ def onAllFileObjInDir(directory, actionToPerform):
 
 
 
-def transformArray(array, action):
+def transformArray(array, transformAction):
     
     for currentIndex, currentElement in enumerate(array):
-        action(currentIndex, currentElement)
+        transformAction(currentIndex, currentElement)
     
     return array
+
+
+
+def reduceArray(array, combine, startingReduceResult):
+
+    currentReduceResult = startingReduceResult
+
+    for element in array:
+        currentReduceResult = combine(currentReduceResult, element)
+
+    return currentReduceResult
+
 
 
 def transferToArray(transferringArray, receivingArray, getElementToAppend):
