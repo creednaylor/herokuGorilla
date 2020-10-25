@@ -913,12 +913,12 @@ def transformArray(array, transformAction):
 
 def reduceArray(array, combine, startingReduceResult):
 
-    currentReduceResult = startingReduceResult
+    currentResultOfReduce = startingReduceResult
 
     for element in array:
-        currentReduceResult = combine(currentReduceResult, element)
+        currentResultOfReduce = combine(currentResultOfReduce, element)
 
-    return currentReduceResult
+    return currentResultOfReduce
 
 
 
