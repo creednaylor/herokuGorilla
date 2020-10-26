@@ -878,7 +878,9 @@ def onAllFileObjInTreeBreadthFirst(rootDirectory, actionToPerformOnEachFileObj, 
     while currentArrayOfFileObj:
 
         currentFileObj = currentArrayOfFileObj.pop(0)
-        currentArrayOfFileObj.extend(getArrayOfFileObjInDir(currentFileObj))
+
+        if currentFileObj.is_dir():
+            currentArrayOfFileObj.extend(getArrayOfFileObjInDir(currentFileObj))
 
         try:
             returnedFile = actionToPerformOnEachFileObj(currentFileObj)
@@ -967,6 +969,7 @@ def ifConditionFlipSign(amount, firstToken, secondToken):
     return amount
 
 
+
 def dateStrToStr(dateStr):
 
     dateArray = dateStr.split('/')
@@ -974,8 +977,39 @@ def dateStrToStr(dateStr):
 
 
 
+
 def addTimezoneToDateObj(dateObj, newTimezone):
     return dateObj.replace(tzinfo=timezone('UTC')).astimezone(timezone(newTimezone))
 
+
 def unixMillisecondsToDateObj(unixMilliseconds):
     return datetime.utcfromtimestamp(unixMilliseconds/1000)
+
+
+def getUniqueArray(array):
+
+    checkedForDuplicatesSet = set()
+    arrayOfUniques = []
+
+    for element in array:
+        if element not in checkedForDuplicatesSet:
+            arrayOfUniques.append(element)
+            checkedForDuplicatesSet.add(element)
+            
+    return arrayOfUniques
+
+
+def getArrayOfDuplicatedElements(array):
+    
+    checkedForDuplicatesSet = {}
+    arrayOfDuplicates = []
+
+    for element in array:
+        if element not in checkedForDuplicatesSet:
+            checkedForDuplicatesSet[element] = 1
+        else:
+            if checkedForDuplicatesSet[element] == 1:
+                arrayOfDuplicates.append(element)
+            checkedForDuplicatesSet[element] += 1
+
+    return arrayOfDuplicates
