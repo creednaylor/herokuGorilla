@@ -930,6 +930,16 @@ def transferToArray(transferringArray, receivingArray, getElementToAppend):
 
 
 
+def filterArray(array, test):
+
+    passed = []
+
+    for element in array:
+        if test(element):
+            passed.append(element)
+
+    return passed
+
 
 # def createNewArray(originalArray, getNewElement):
 
