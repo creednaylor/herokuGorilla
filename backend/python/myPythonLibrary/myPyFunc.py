@@ -857,31 +857,31 @@ def numLockIsOff():
 
 
 
-def onAllFileObjInTreeBreadthFirst(rootFolder, actionToPerformOnEachFileObj, dataForAction={}, pathsToExclude=[]): 
+def onAllFileObjInTreeBreadthFirst(rootDirectory, actionToPerformOnEachFileObj, dataForAction={}, pathsToExclude=[]): 
 
-    def getArrayOfDirWithinDir(folderPath):
+    def getArrayOfFileObjInDir(pathToDir):
 
-        arrayOfDirWithinDir = []
+        arrayOfFileObjInDir = []
 
         try:
-            for node in folderPath.iterdir():
-                if not node.is_file() and node not in pathsToExclude:
-                    arrayOfDirWithinDir.append(node)
+            for node in pathToDir.iterdir():
+                if node not in pathsToExclude:
+                    arrayOfFileObjInDir.append(node)
         except:
             pass
 
-        return arrayOfDirWithinDir
+        return arrayOfFileObjInDir
 
 
-    arrayOfDirectories = [rootFolder]
+    currentArrayOfFileObj = [rootDirectory]
 
-    while arrayOfDirectories:
+    while currentArrayOfFileObj:
 
-        currentDirectory = arrayOfDirectories.pop(0)
-        arrayOfDirectories.extend(getArrayOfDirWithinDir(currentDirectory))
+        currentFileObj = currentArrayOfFileObj.pop(0)
+        currentArrayOfFileObj.extend(getArrayOfFileObjInDir(currentFileObj))
 
         try:
-            returnedFile = actionToPerformOnEachFileObj(currentDirectory, dataForAction)
+            returnedFile = actionToPerformOnEachFileObj(currentFileObj, {})
 
             if returnedFile:
                 return returnedFile
