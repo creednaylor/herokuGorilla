@@ -857,7 +857,7 @@ def numLockIsOff():
 
 
 
-def onAllFileObjInTreeBreadthFirst(rootDirectory, actionToPerformOnEachFileObj, dataForAction={}, pathsToExclude=[]): 
+def onAllFileObjInTreeBreadthFirst(rootDirectory, actionToPerformOnEachFileObj, pathsToExclude=[]): 
 
     def getArrayOfFileObjInDir(pathToDir):
 
@@ -881,7 +881,7 @@ def onAllFileObjInTreeBreadthFirst(rootDirectory, actionToPerformOnEachFileObj, 
         currentArrayOfFileObj.extend(getArrayOfFileObjInDir(currentFileObj))
 
         try:
-            returnedFile = actionToPerformOnEachFileObj(currentFileObj, {})
+            returnedFile = actionToPerformOnEachFileObj(currentFileObj)
 
             if returnedFile:
                 return returnedFile
