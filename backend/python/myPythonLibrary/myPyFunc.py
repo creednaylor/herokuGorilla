@@ -874,6 +874,7 @@ def onAllFileObjInTreeBreadthFirst(rootDirectory, actionToPerformOnEachFileObj, 
 
 
     currentArrayOfFileObj = [rootDirectory]
+    dataForActionObj = {}
 
     while currentArrayOfFileObj:
 
@@ -882,17 +883,17 @@ def onAllFileObjInTreeBreadthFirst(rootDirectory, actionToPerformOnEachFileObj, 
         if currentFileObj.is_dir():
             currentArrayOfFileObj.extend(getArrayOfFileObjInDir(currentFileObj))
 
+        dataForActionObj['currentFileObj'] = currentFileObj
+
         try:
-            returnedFile = actionToPerformOnEachFileObj(currentFileObj)
-
-            if returnedFile:
-                return returnedFile
-
+            dataForActionObj = actionToPerformOnEachFileObj(dataForActionObj)
         except:
-            pass
+            p('Error')
 
-    return None
+        if 'pathToPythonFileForImport' in dataForActionObj:
+            return dataForActionObj
 
+    return dataForActionObj
 
 
 
