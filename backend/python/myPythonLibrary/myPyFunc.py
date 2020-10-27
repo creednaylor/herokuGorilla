@@ -864,10 +864,10 @@ def onAllFileObjInTreeBreadthFirst(rootDirectory, actionToPerformOnEachFileObj, 
         
         for node in pathToDir.iterdir():
             if 'pathsToExclude' not in otherDataObj or node not in otherDataObj['pathsToExclude']:
-                try:
-                    arrayOfFileObjInDir.append(node)
-                except:
-                    pass
+                # try:
+                arrayOfFileObjInDir.append(node)
+                # except:
+                #     pass
 
         return arrayOfFileObjInDir
 
@@ -884,10 +884,10 @@ def onAllFileObjInTreeBreadthFirst(rootDirectory, actionToPerformOnEachFileObj, 
 
         dataForActionObj['currentFileObj'] = currentFileObj
 
-        try:
-            dataForActionObj = actionToPerformOnEachFileObj(dataForActionObj)
-        except:
-            p('Error')
+        # try:
+        dataForActionObj = actionToPerformOnEachFileObj(dataForActionObj)
+        # except:
+        #     p('Error')
 
         if 'pathToPythonFileForImport' in dataForActionObj:
             return dataForActionObj
