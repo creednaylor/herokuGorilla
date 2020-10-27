@@ -1006,11 +1006,11 @@ def getUniqueArrayOfObj(array):
 
     for element in array:
 
-        jsonOfElement = json.dumps(element.items(), sort_keys=True)
+        elementItemsTuple = tuple(element.items())
         
-        if jsonOfElement not in checkedForDuplicatesSet:
+        if elementItemsTuple not in checkedForDuplicatesSet:
             arrayOfUniques.append(element)
-            checkedForDuplicatesSet.add(jsonOfElement)
+            checkedForDuplicatesSet.add(elementItemsTuple)
 
     return arrayOfUniques
 
