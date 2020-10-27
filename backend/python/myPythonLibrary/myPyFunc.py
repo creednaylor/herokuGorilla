@@ -692,10 +692,8 @@ def addTotal(listToProcess, colToTotal, totalsList):
 
 def getShortenedPathLib(pathToShorten, lastDirectoryToInclude):
 
-    
-
     shortenedPath = pathToShorten.parts[:pathToShorten.parts.index('repos') + 1]
-  
+
     return Path(*shortenedPath)
 
 
@@ -989,6 +987,7 @@ def unixMillisecondsToDateObj(unixMilliseconds):
 
 def getUniqueArray(array):
 
+    p('length of array before deduplicate: ' + str(len(array)))
     checkedForDuplicatesSet = set()
     arrayOfUniques = []
 
@@ -996,7 +995,10 @@ def getUniqueArray(array):
         if element not in checkedForDuplicatesSet:
             arrayOfUniques.append(element)
             checkedForDuplicatesSet.add(element)
-            
+
+    p('length of array after deduplicate: ' + str(len(checkedForDuplicatesSet)))
+    p(checkedForDuplicatesSet)
+
     return arrayOfUniques
 
 
