@@ -861,12 +861,13 @@ def onAllFileObjInTreeBreadthFirst(rootDirectory, actionToPerformOnEachFileObj, 
 
         arrayOfFileObjInDir = []
 
-        try:
-            for node in pathToDir.iterdir():
-                # if 'pathsToExclude' in otherDataObj and node not in otherDataObj['pathsToExclude']:
+        
+        for node in pathToDir.iterdir():
+            if 'pathsToExclude' not in otherDataObj or node not in otherDataObj['pathsToExclude']:
+                try:
                     arrayOfFileObjInDir.append(node)
-        except:
-            pass
+                except:
+                    pass
 
         return arrayOfFileObjInDir
 
