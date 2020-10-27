@@ -855,7 +855,7 @@ def numLockIsOff():
 
 
 
-def onAllFileObjInTreeBreadthFirst(rootDirectory, actionToPerformOnEachFileObj, pathsToExclude=[]): 
+def onAllFileObjInTreeBreadthFirst(rootDirectory, actionToPerformOnEachFileObj, otherDataObj={}): 
 
     def getArrayOfFileObjInDir(pathToDir):
 
@@ -863,7 +863,7 @@ def onAllFileObjInTreeBreadthFirst(rootDirectory, actionToPerformOnEachFileObj, 
 
         try:
             for node in pathToDir.iterdir():
-                if node not in pathsToExclude:
+                # if 'pathsToExclude' in otherDataObj and node not in otherDataObj['pathsToExclude']:
                     arrayOfFileObjInDir.append(node)
         except:
             pass
@@ -987,7 +987,6 @@ def unixMillisecondsToDateObj(unixMilliseconds):
 
 def getUniqueArray(array):
 
-    p('length of array before deduplicate: ' + str(len(array)))
     checkedForDuplicatesSet = set()
     arrayOfUniques = []
 
@@ -996,10 +995,24 @@ def getUniqueArray(array):
             arrayOfUniques.append(element)
             checkedForDuplicatesSet.add(element)
 
-    p('length of array after deduplicate: ' + str(len(checkedForDuplicatesSet)))
-    p(checkedForDuplicatesSet)
+    return arrayOfUniques
+
+
+def getUniqueArrayOfObj(array):
+
+    checkedForDuplicatesSet = set()
+    arrayOfUniques = []
+
+    for element in array:
+
+        jsonOfElement = json.dumps(element.items(), sort_keys=True)
+        
+        if jsonOfElement not in checkedForDuplicatesSet:
+            arrayOfUniques.append(element)
+            checkedForDuplicatesSet.add(jsonOfElement)
 
     return arrayOfUniques
+
 
 
 def getArrayOfDuplicatedElements(array):
