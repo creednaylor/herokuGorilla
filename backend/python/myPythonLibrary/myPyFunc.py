@@ -9,6 +9,7 @@ from pprint import pprint as p
 import sqlite3
 import time
 from pytz import timezone
+import os
 
 
 
@@ -1030,3 +1031,14 @@ def getArrayOfDuplicatedElements(array):
             checkedForDuplicatesSet[element] += 1
 
     return arrayOfDuplicates
+
+
+def writeXML(fileToCreateStr, root):
+
+    try:
+        os.remove(fileToCreateStr)
+    except OSError:
+        pass
+
+    root.getroottree().write(fileToCreateStr, pretty_print=True, xml_declaration=True, encoding='utf-8')
+    p('File complete: ' + fileToCreateStr + ' with length: ' + str(len(root)))
