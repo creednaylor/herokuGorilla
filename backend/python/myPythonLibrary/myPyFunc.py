@@ -918,8 +918,8 @@ def reduceArray(array, combine, startingReduceResult):
 
     currentResultOfReduce = startingReduceResult
 
-    for element in array:
-        currentResultOfReduce = combine(currentResultOfReduce, element)
+    for elementToEvaluate in array:
+        currentResultOfReduce = combine(currentResultOfReduce, elementToEvaluate)
 
     return currentResultOfReduce
 
