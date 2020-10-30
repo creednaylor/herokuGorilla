@@ -1042,3 +1042,8 @@ def writeXML(fileToCreateStr, root):
 
     root.getroottree().write(fileToCreateStr, pretty_print=True, xml_declaration=True, encoding='utf-8')
     p('File complete: ' + fileToCreateStr + ' with length: ' + str(len(root)))
+
+
+def unixIntToDateObj(unixInt, timeZoneStr):
+    return addTimezoneToDateObj(unixMillisecondsToDateObj(unixInt), timeZoneStr)
+            
