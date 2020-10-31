@@ -976,17 +976,6 @@ def dateStrToStr(dateStr):
     dateArray = dateStr.split('/')
     return dateArray[2] + dateArray[0].zfill(2) + dateArray[1].zfill(2)
 
-
-
-
-def addTimezoneToDateObj(dateObj, newTimezone):
-    return dateObj.replace(tzinfo=timezone('UTC')).astimezone(timezone(newTimezone))
-
-
-def unixMillisecondsToDateObj(unixMilliseconds):
-    return datetime.utcfromtimestamp(unixMilliseconds/1000)
-
-
 def getUniqueArray(array):
 
     checkedForDuplicatesSet = set()
@@ -1046,4 +1035,18 @@ def writeXML(fileToCreateStr, root):
 
 def unixIntToDateObj(unixInt, timeZoneStr):
     return addTimezoneToDateObj(unixMillisecondsToDateObj(unixInt), timeZoneStr)
-            
+
+def unixStrToDateObj(unixStr, timeZoneStr):
+    return unixIntToDateObj(int(unixStr), timeZoneStr)
+
+def unixStrToDateObjMST(unixStr):
+    return addTimezoneToDateObj(unixMillisecondsToDateObj(int(unixStr)), 'US/Mountain')
+
+def addTimezoneToDateObj(dateObj, newTimezone):
+    return dateObj.replace(tzinfo=timezone('UTC')).astimezone(timezone(newTimezone))
+
+def addMSTToDateObj(dateObj):
+    return addTimezoneToDateObj(dateObj, 'US/Mountain')
+
+def unixMillisecondsToDateObj(unixMilliseconds):
+    return datetime.utcfromtimestamp(unixMilliseconds/1000)
