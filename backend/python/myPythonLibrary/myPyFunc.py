@@ -1050,3 +1050,6 @@ def addMSTToDateObj(dateObj):
 
 def unixMillisecondsToDateObj(unixMilliseconds):
     return datetime.utcfromtimestamp(unixMilliseconds/1000)
+
+def dateObjToUnixMillisecondsStr(dateObj):
+    return str((dateObj - datetime.utcfromtimestamp(0)).total_seconds() * 1000).split('.')[0]
