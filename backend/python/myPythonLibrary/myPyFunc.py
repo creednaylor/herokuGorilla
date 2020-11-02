@@ -985,20 +985,23 @@ def dateStrToStr(dateStr):
     dateArray = dateStr.split('/')
     return dateArray[2] + dateArray[0].zfill(2) + dateArray[1].zfill(2)
 
-def getUniqueArray(array):
-
-    checkedForDuplicatesSet = set()
-    arrayOfUniques = []
-
-    for element in array:
-        if element not in checkedForDuplicatesSet:
-            arrayOfUniques.append(element)
-            checkedForDuplicatesSet.add(element)
-
-    return arrayOfUniques
 
 
-def getUniqueArrayOfObj(array):
+# def getUniqueArray(array):
+
+#     checkedForDuplicatesSet = set()
+#     arrayOfUniques = []
+
+#     for element in array:
+#         if element not in checkedForDuplicatesSet:
+#             arrayOfUniques.append(element)
+#             checkedForDuplicatesSet.add(element)
+
+#     return arrayOfUniques
+
+
+
+def getArrayOfUniqueElements(array):
 
     checkedForDuplicatesSet = set()
     arrayOfUniques = []
