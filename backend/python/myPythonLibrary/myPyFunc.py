@@ -11,8 +11,17 @@ import time
 from pytz import timezone
 import os
 
+startTime = time.time()
 
 
+
+def printTimeSinceImport():
+
+    currentTime = time.time()
+    elapsedMinutesStr = str((currentTime - startTime) // 60).split('.')[0]
+    elapsedSecondsStr = str(round((currentTime - startTime) % 60, 0)).split('.')[0]
+
+    p('Split time: ' + elapsedMinutesStr + ' minutes and ' + elapsedSecondsStr + ' seconds.')
 
 
 
