@@ -39,8 +39,6 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 	comparisonTableName = 'Comparison'
 	endingGPTableName = 'endingGP'
 
-	spreadsheetLevelObj = spreadsheetLevelObj
-
 	bankStatusCol = 0
 	bankDateColumnIndex = 1
 	bankTransactionTypeColumnIndex = 7
@@ -87,8 +85,6 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 	gpPaidToReceivedFromColumnIndex = 14
 	gpTransferColumnIndex = 17
 
-	spacingColumnIndex = 14
-	
 	gpArray = spreadsheetLevelObj.worksheet(gpTableName).get_all_values()
 	gpArray = [currentRow for currentRow in gpArray if currentRow[gpTrxDateColumnIndex] not in ['']]
 
@@ -150,8 +146,12 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 
 
 
-	comparisonArray = [['Bank'] + [''] * (len(bankArray[0])) + ['GP'] + [''] * (len(gpArray[0]) - 1)]
+	comparisonArray = [[bankTableName] + [''] * (len(bankArray[0]) - 1) + [''] + [gpTableName] + [''] * (len(gpArray[0]) - 1)]
 	comparisonArray.append(bankArrayFirstRow + ['Match Status'] + gpArrayFirstRow)
+
+
+	spacingColumnIndex = 14
+
 
 
 
@@ -181,113 +181,174 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 		comparisonArray.append(rowToAppend)
 
 
+	def getRowThatMatchesAmountAndCheckNumber(currentRow):
+		
+		rowToAppend = currentRow
+
+		return rowToAppend
+	
+	
 
 
-	for comparisonCurrentRowIndex, comparisonCurrentRow in enumerate(comparisonArray):
+	# myPyFunc.transferToArray(gpArray, matchedArray, getRowThatMatchesAmountAndDate)
+	
 
-		if len(comparisonCurrentRow) == len(bankArrayFirstRow) + 1 and comparisonCurrentRow[bankTransactionTypeColumnIndex] != 'Check(s) Paid':
 
-			gpRowsThatMatchComparisonCurrentRow = []
+	# columnsToMatch = [
+    #     [17, 19],
+    #     [7, 8]
+    # ]
+
+    # def getRowThatMatchesAmountAndDate(currentRow):
+
+    #     rowToAppend = currentRow
+    #     rowsThatMatch = myPyFunc.getSecondArrayRowsThatMatchFirstArrayCurrentRow(currentRow, bankArray, columnsToMatch)
+
+    #     if len(rowsThatMatch) == 1:
+    #         rowToAppend = rowToAppend + [myPyFunc.getMatchStatus(myPyFunc.getColumnNamesFromFirstRow(columnsToMatch[0], firstArrayFirstRow))] + bankArray.pop(rowsThatMatch[0]['secondArrayRowIndex'])
+    #     elif len(rowsThatMatch) > 1:
+    #         p('More than one row match the first pass')
+
+    #     return rowToAppend
+
+
+    # myPyFunc.transferToArray(gpArray, matchedArray, getRowThatMatchesAmountAndDate)
+
+
+
+
+	# columnsToMatch = [
+	# 	[17, 19],
+	# 	[7, 8]
+	# ]
+
+	# def getMatchedRowToAppend(currentRow):
+
+	# 	rowToAppend = currentRow
+	# 	rowsThatMatch = getSecondArrayRowsThatMatchFirstArrayCurrentRow(secondArray, currentRow, columnsToMatch)
+
+	# 	if len(rowsThatMatch) == 1:
+	# 		rowToAppend = rowToAppend + [getMatchStatus(getColumnNames(columnsToMatch, firstArrayFirstRow))] + secondArray.pop(rowsThatMatch[0]['secondArrayRowIndex'])
+	# 	elif len(rowsThatMatch) > 1:
+	# 		p('More rows that match first pass')
+
+	# 	return rowToAppend
+
+
+	# myPyFunc.transferToArray(bankArray, comparisonArray, getMatchedRowToAppend)
+
+
+
+
+
+
+
+
+	# for comparisonCurrentRowIndex, comparisonCurrentRow in enumerate(comparisonArray):
+
+	# 	if len(comparisonCurrentRow) == len(bankArrayFirstRow) + 1 and comparisonCurrentRow[bankTransactionTypeColumnIndex] != 'Check(s) Paid':
+
+	# 		gpRowsThatMatchComparisonCurrentRow = []
 			
-			for gpArrayCurrentRowIndex, gpArrayCurrentRow in enumerate(gpArray):
+	# 		for gpArrayCurrentRowIndex, gpArrayCurrentRow in enumerate(gpArray):
 
-				if comparisonCurrentRow[bankAmountColumnIndex] == gpArrayCurrentRow[gpAmountColumnIndex] and comparisonCurrentRow[bankDateColumnIndex] == gpArrayCurrentRow[gpTrxDateColumnIndex]: 
+	# 			if comparisonCurrentRow[bankAmountColumnIndex] == gpArrayCurrentRow[gpAmountColumnIndex] and comparisonCurrentRow[bankDateColumnIndex] == gpArrayCurrentRow[gpTrxDateColumnIndex]: 
 
-					if gpArrayCurrentRow[gpTrxTypeColumnIndex] != 'Check' or (gpArrayCurrentRow[gpTrxTypeColumnIndex] == 'Check' and len(gpArrayCurrentRow[gpTrxNumberColumnIndex])!= 5):
-						gpRowsThatMatchComparisonCurrentRow.append({
-							'gpArrayRowIndex': gpArrayCurrentRowIndex,
-							'gpArrayRow': gpArrayCurrentRow})
+	# 				if gpArrayCurrentRow[gpTrxTypeColumnIndex] != 'Check' or (gpArrayCurrentRow[gpTrxTypeColumnIndex] == 'Check' and len(gpArrayCurrentRow[gpTrxNumberColumnIndex])!= 5):
+	# 					gpRowsThatMatchComparisonCurrentRow.append({
+	# 						'gpArrayRowIndex': gpArrayCurrentRowIndex,
+	# 						'gpArrayRow': gpArrayCurrentRow})
 
-			if len(gpRowsThatMatchComparisonCurrentRow) == 1:
+	# 		if len(gpRowsThatMatchComparisonCurrentRow) == 1:
 
-				comparisonArray[comparisonCurrentRowIndex] = comparisonArray[comparisonCurrentRowIndex] + gpArray.pop(gpRowsThatMatchComparisonCurrentRow[0]['gpArrayRowIndex'])
-				comparisonArray[comparisonCurrentRowIndex][spacingColumnIndex] = 'Matched on amount and date'
+	# 			comparisonArray[comparisonCurrentRowIndex] = comparisonArray[comparisonCurrentRowIndex] + gpArray.pop(gpRowsThatMatchComparisonCurrentRow[0]['gpArrayRowIndex'])
+	# 			comparisonArray[comparisonCurrentRowIndex][spacingColumnIndex] = 'Matched on amount and date'
 			
 
 
-	for comparisonCurrentRowIndex, comparisonCurrentRow in enumerate(comparisonArray):
+	# for comparisonCurrentRowIndex, comparisonCurrentRow in enumerate(comparisonArray):
 
-		if len(comparisonCurrentRow) == len(bankArrayFirstRow) + 1 and comparisonCurrentRow[bankTransactionTypeColumnIndex] != 'Check(s) Paid':
+	# 	if len(comparisonCurrentRow) == len(bankArrayFirstRow) + 1 and comparisonCurrentRow[bankTransactionTypeColumnIndex] != 'Check(s) Paid':
 
-			gpRowsThatMatchComparisonCurrentRow = []
+	# 		gpRowsThatMatchComparisonCurrentRow = []
 
-			# if comparisonCurrentRow[bankAmountColumnIndex] == -1100.48:
-			# 	p(1)
+	# 		# if comparisonCurrentRow[bankAmountColumnIndex] == -1100.48:
+	# 		# 	p(1)
 			
-			for gpArrayCurrentRowIndex in reversed(range(0, len(gpArray))):
+	# 		for gpArrayCurrentRowIndex in reversed(range(0, len(gpArray))):
 
-				if comparisonCurrentRow[bankAmountColumnIndex] == gpArray[gpArrayCurrentRowIndex][gpAmountColumnIndex]:
+	# 			if comparisonCurrentRow[bankAmountColumnIndex] == gpArray[gpArrayCurrentRowIndex][gpAmountColumnIndex]:
 
-					if gpArray[gpArrayCurrentRowIndex][gpTrxTypeColumnIndex] != 'Check' or (gpArray[gpArrayCurrentRowIndex][gpTrxTypeColumnIndex] == 'Check' and len(gpArray[gpArrayCurrentRowIndex][gpTrxNumberColumnIndex])!= 5):
+	# 				if gpArray[gpArrayCurrentRowIndex][gpTrxTypeColumnIndex] != 'Check' or (gpArray[gpArrayCurrentRowIndex][gpTrxTypeColumnIndex] == 'Check' and len(gpArray[gpArrayCurrentRowIndex][gpTrxNumberColumnIndex])!= 5):
 
-						gpRowsThatMatchComparisonCurrentRow.append({
-							'gpArrayRowIndex': gpArrayCurrentRowIndex,
-							'gpArrayRow': gpArray[gpArrayCurrentRowIndex]})
+	# 					gpRowsThatMatchComparisonCurrentRow.append({
+	# 						'gpArrayRowIndex': gpArrayCurrentRowIndex,
+	# 						'gpArrayRow': gpArray[gpArrayCurrentRowIndex]})
 
-			if len(gpRowsThatMatchComparisonCurrentRow) == 1:
-				comparisonArray[comparisonCurrentRowIndex] = comparisonArray[comparisonCurrentRowIndex] + gpArray.pop(gpRowsThatMatchComparisonCurrentRow[0]['gpArrayRowIndex'])
-				comparisonArray[comparisonCurrentRowIndex][spacingColumnIndex] = 'Matched on amount, 1 bank row with 1 GP row'
+	# 		if len(gpRowsThatMatchComparisonCurrentRow) == 1:
+	# 			comparisonArray[comparisonCurrentRowIndex] = comparisonArray[comparisonCurrentRowIndex] + gpArray.pop(gpRowsThatMatchComparisonCurrentRow[0]['gpArrayRowIndex'])
+	# 			comparisonArray[comparisonCurrentRowIndex][spacingColumnIndex] = 'Matched on amount, 1 bank row with 1 GP row'
 
-			if len(gpRowsThatMatchComparisonCurrentRow) > 1:
+	# 		if len(gpRowsThatMatchComparisonCurrentRow) > 1:
 
-				comparisonRowsThatMatchComparisonCurrentRow = []
+	# 			comparisonRowsThatMatchComparisonCurrentRow = []
     
-				for comparisonDuplicateRowIndex, comparisonDuplicateRow in enumerate(comparisonArray):
+	# 			for comparisonDuplicateRowIndex, comparisonDuplicateRow in enumerate(comparisonArray):
         
-					if comparisonDuplicateRow[bankAmountColumnIndex] == comparisonCurrentRow[bankAmountColumnIndex] and len(comparisonDuplicateRow) == len(bankArrayFirstRow) + 1:
+	# 				if comparisonDuplicateRow[bankAmountColumnIndex] == comparisonCurrentRow[bankAmountColumnIndex] and len(comparisonDuplicateRow) == len(bankArrayFirstRow) + 1:
 						
-						comparisonRowsThatMatchComparisonCurrentRow.insert(0, {
-							'comparisonDuplicateRowIndex': comparisonDuplicateRowIndex,
-							'comparisonDuplicateRow': comparisonDuplicateRow
-						})
+	# 					comparisonRowsThatMatchComparisonCurrentRow.insert(0, {
+	# 						'comparisonDuplicateRowIndex': comparisonDuplicateRowIndex,
+	# 						'comparisonDuplicateRow': comparisonDuplicateRow
+	# 					})
 
-				gpRowsThatMatchLength = len(gpRowsThatMatchComparisonCurrentRow)			
+	# 			gpRowsThatMatchLength = len(gpRowsThatMatchComparisonCurrentRow)			
     
-				if gpRowsThatMatchLength == len(comparisonRowsThatMatchComparisonCurrentRow):
+	# 			if gpRowsThatMatchLength == len(comparisonRowsThatMatchComparisonCurrentRow):
 					
-					for comparisonDuplicateMatchedRowIndex in range(0, len(comparisonRowsThatMatchComparisonCurrentRow)):
+	# 				for comparisonDuplicateMatchedRowIndex in range(0, len(comparisonRowsThatMatchComparisonCurrentRow)):
 						
-						comparisonArray[comparisonRowsThatMatchComparisonCurrentRow[comparisonDuplicateMatchedRowIndex]['comparisonDuplicateRowIndex']] = comparisonArray[comparisonRowsThatMatchComparisonCurrentRow[comparisonDuplicateMatchedRowIndex]['comparisonDuplicateRowIndex']] + gpArray.pop(gpRowsThatMatchComparisonCurrentRow[comparisonDuplicateMatchedRowIndex]['gpArrayRowIndex'])
-						comparisonArray[comparisonRowsThatMatchComparisonCurrentRow[comparisonDuplicateMatchedRowIndex]['comparisonDuplicateRowIndex']][spacingColumnIndex] = f'Matched on amount, {gpRowsThatMatchLength} bank rows with {gpRowsThatMatchLength} GP rows'
+	# 					comparisonArray[comparisonRowsThatMatchComparisonCurrentRow[comparisonDuplicateMatchedRowIndex]['comparisonDuplicateRowIndex']] = comparisonArray[comparisonRowsThatMatchComparisonCurrentRow[comparisonDuplicateMatchedRowIndex]['comparisonDuplicateRowIndex']] + gpArray.pop(gpRowsThatMatchComparisonCurrentRow[comparisonDuplicateMatchedRowIndex]['gpArrayRowIndex'])
+	# 					comparisonArray[comparisonRowsThatMatchComparisonCurrentRow[comparisonDuplicateMatchedRowIndex]['comparisonDuplicateRowIndex']][spacingColumnIndex] = f'Matched on amount, {gpRowsThatMatchLength} bank rows with {gpRowsThatMatchLength} GP rows'
 		
 
 
-	for comparisonCurrentRowIndex, comparisonCurrentRow in enumerate(comparisonArray):
+	# for comparisonCurrentRowIndex, comparisonCurrentRow in enumerate(comparisonArray):
 
-		if len(comparisonCurrentRow) == len(bankArrayFirstRow) + 1 and comparisonCurrentRow[bankTransactionTypeColumnIndex] != 'Check(s) Paid':
-			# p(comparisonCurrentRow)
+	# 	if len(comparisonCurrentRow) == len(bankArrayFirstRow) + 1 and comparisonCurrentRow[bankTransactionTypeColumnIndex] != 'Check(s) Paid':
+	# 		# p(comparisonCurrentRow)
 
-			for dailyDepositsCurrentRow in dailyDepositsArray:
+	# 		for dailyDepositsCurrentRow in dailyDepositsArray:
 				
-				if comparisonCurrentRow[bankAmountColumnIndex] == dailyDepositsCurrentRow[dailyDepositsAmountColumnIndex]:
+	# 			if comparisonCurrentRow[bankAmountColumnIndex] == dailyDepositsCurrentRow[dailyDepositsAmountColumnIndex]:
 					
-					gpRowsThatMatchComparisonCurrentRow = []
+	# 				gpRowsThatMatchComparisonCurrentRow = []
 
-					for gpArrayCurrentRowIndex in reversed(range(0, len(gpArray))):
+	# 				for gpArrayCurrentRowIndex in reversed(range(0, len(gpArray))):
 
-						if gpArray[gpArrayCurrentRowIndex][gpTrxNumberColumnIndex][2:7] == dailyDepositsCurrentRow[dailyDepositsTransactionIDColumnIndex]:
-							comparisonArray[comparisonCurrentRowIndex] = comparisonArray[comparisonCurrentRowIndex] + gpArray[gpArrayCurrentRowIndex]
-							comparisonArray[comparisonCurrentRowIndex][spacingColumnIndex] = 'Matched from Daily Deposits file'
+	# 					if gpArray[gpArrayCurrentRowIndex][gpTrxNumberColumnIndex][2:7] == dailyDepositsCurrentRow[dailyDepositsTransactionIDColumnIndex]:
+	# 						comparisonArray[comparisonCurrentRowIndex] = comparisonArray[comparisonCurrentRowIndex] + gpArray[gpArrayCurrentRowIndex]
+	# 						comparisonArray[comparisonCurrentRowIndex][spacingColumnIndex] = 'Matched from Daily Deposits file'
 
 
-	for comparisonCurrentRowIndex, comparisonCurrentRow in enumerate(comparisonArray):
+	# for comparisonCurrentRowIndex, comparisonCurrentRow in enumerate(comparisonArray):
 
-		if len(comparisonCurrentRow) == len(bankArrayFirstRow) + 1 and comparisonCurrentRow[bankTransactionTypeColumnIndex] == 'Check(s) Paid':
+	# 	if len(comparisonCurrentRow) == len(bankArrayFirstRow) + 1 and comparisonCurrentRow[bankTransactionTypeColumnIndex] == 'Check(s) Paid':
     
-			gpRowsThatMatchComparisonCurrentRow = []
+	# 		gpRowsThatMatchComparisonCurrentRow = []
 			
-			for gpArrayCurrentRowIndex, gpArrayCurrentRow in enumerate(gpArray):
+	# 		for gpArrayCurrentRowIndex, gpArrayCurrentRow in enumerate(gpArray):
 
-				if comparisonCurrentRow[bankAmountColumnIndex] == gpArrayCurrentRow[gpAmountColumnIndex] and comparisonCurrentRow[bankDateColumnIndex] == gpArrayCurrentRow[gpTrxDateColumnIndex]: 
+	# 			if comparisonCurrentRow[bankAmountColumnIndex] == gpArrayCurrentRow[gpAmountColumnIndex] and comparisonCurrentRow[bankDateColumnIndex] == gpArrayCurrentRow[gpTrxDateColumnIndex]: 
 
-					gpRowsThatMatchComparisonCurrentRow.append({
-						'gpArrayRowIndex': gpArrayCurrentRowIndex,
-						'gpArrayRow': gpArrayCurrentRow})
+	# 				gpRowsThatMatchComparisonCurrentRow.append({
+	# 					'gpArrayRowIndex': gpArrayCurrentRowIndex,
+	# 					'gpArrayRow': gpArrayCurrentRow})
 
-			if len(gpRowsThatMatchComparisonCurrentRow) == 1:
+	# 		if len(gpRowsThatMatchComparisonCurrentRow) == 1:
 
-				comparisonArray[comparisonCurrentRowIndex] = comparisonArray[comparisonCurrentRowIndex] + gpArray.pop(gpRowsThatMatchComparisonCurrentRow[0]['gpArrayRowIndex'])
-				comparisonArray[comparisonCurrentRowIndex][spacingColumnIndex] = 'Matched on amount and date, bank transaction is a check, GP transaction does not have the same check number'
+	# 			comparisonArray[comparisonCurrentRowIndex] = comparisonArray[comparisonCurrentRowIndex] + gpArray.pop(gpRowsThatMatchComparisonCurrentRow[0]['gpArrayRowIndex'])
+	# 			comparisonArray[comparisonCurrentRowIndex][spacingColumnIndex] = 'Matched on amount and date, bank transaction is a check, GP transaction does not have the same check number'
 
 
 	clearAndResizeParameters = [{

@@ -1065,3 +1065,56 @@ def unixMillisecondsToDateObj(unixMilliseconds):
 
 def dateObjToUnixMillisecondsStr(dateObj):
     return str((dateObj - datetime.utcfromtimestamp(0)).total_seconds() * 1000).split('.')[0]
+
+
+
+def getSecondArrayRowsThatMatchFirstArrayCurrentRow(firstArrayCurrentRow, secondArray, columnsToMatch):
+
+    rowsThatMatch = []
+
+    for secondArrayRowIndex, secondArrayCurrentRow in enumerate(secondArray):
+            
+            if columnDataMatches(firstArrayCurrentRow, secondArrayCurrentRow, columnsToMatch):
+                
+                rowsThatMatch.append({
+                    'secondArrayRowIndex': secondArrayRowIndex,
+                    'secondArrayRow': secondArrayCurrentRow
+                })
+
+    return rowsThatMatch
+
+
+
+def columnDataMatches(firstArrayCurrentRow, secondArrayCurrentRow, columnsToMatch):
+
+    for columnIndex, column in enumerate(columnsToMatch[0]):
+
+        if firstArrayCurrentRow[column] != secondArrayCurrentRow[columnsToMatch[1][columnIndex]]:
+            return False
+    
+    return True
+
+
+def getMatchStatus(columnNamesToMatch):
+
+    # p(columnNamesToMatch)
+
+    matchStatus = 'Matched on '
+
+    for columnIndex, column in enumerate(columnNamesToMatch):
+
+        matchStatus += str(column)
+        if columnIndex != len(columnNamesToMatch) - 1: matchStatus += ' and '
+
+    return matchStatus
+
+
+
+def getColumnNamesFromFirstRow(columnIndices, firstArrayFirstRow):
+
+    columnNames = []
+
+    for columnIndex in columnIndices:
+        columnNames.append(firstArrayFirstRow[columnIndex])
+
+    return columnNames
