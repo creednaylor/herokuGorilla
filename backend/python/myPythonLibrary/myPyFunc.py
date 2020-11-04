@@ -942,13 +942,13 @@ def transferToArray(transferringArray, receivingArray, transformElement):
 
 
 
-def filterArray(array, test):
+def filterArray(test, array):
 
     passed = []
 
-    for element in array:
-        if test(element):
-            passed.append(element)
+    for currentIndex, currentElement in enumerate(array):
+        if test(currentIndex, currentElement):
+            passed.append(currentElement)
 
     return passed
 
@@ -1107,12 +1107,27 @@ def getMatchStatus(columnNamesToMatch):
     return matchStatus
 
 
+def allTestsAreTrue(arrayOfTests, firstArrayCurrentRow, secondArrayCurrentRow):
 
-def getColumnNamesFromFirstRow(columnIndices, firstArrayFirstRow):
+    for test in arrayOfTests:
 
-    columnNames = []
+        if not test(firstArrayCurrentRow, secondArrayCurrentRow):
 
-    for columnIndex in columnIndices:
-        columnNames.append(firstArrayFirstRow[columnIndex])
+            return False
 
-    return columnNames
+    return True
+
+def rowsInSecondFromTestsOnFirst(arrayOfTests, firstArrayCurrentRow, secondArray):
+
+    rowsThatMatch = []
+
+    for secondArrayCurrentRowIndex, secondArrayCurrentRow in enumerate(secondArray):
+
+        if allTestsAreTrue(arrayOfTests, firstArrayCurrentRow, secondArrayCurrentRow):
+
+            rowsThatMatch.append({
+                    'secondArrayRowIndex': secondArrayCurrentRowIndex,
+                    'secondArrayRow': secondArrayCurrentRow
+                })
+
+    return rowsThatMatch

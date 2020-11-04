@@ -15,25 +15,25 @@ else:
     from googleSheets.myGoogleSheetsLibrary import myGspreadFunc
 
 
-def dailyDepositsColumnDataMatches(firstArrayCurrentRow, secondArrayCurrentRow):
+def dailyDepositsColumnDataMatches(gpArrayCurrentRow, bankArrayCurrentRow):
 
-    if firstArrayCurrentRow[12][2:7] != secondArrayCurrentRow[8]:
+    if gpArrayCurrentRow[12][2:7] != bankArrayCurrentRow[8]:
         return False
     
     return True
 
 
-def getMatchedDailyDepositsRows(bankArray, firstArrayCurrentRow):
+def getMatchedDailyDepositsRows(bankArray, gpArrayCurrentRow):
 
     rowsThatMatch = []
 
-    for secondArrayRowIndex, secondArrayCurrentRow in enumerate(bankArray):
+    for bankArrayRowIndex, bankArrayCurrentRow in enumerate(bankArray):
             
-            if dailyDepositsColumnDataMatches(firstArrayCurrentRow, secondArrayCurrentRow):
+            if dailyDepositsColumnDataMatches(gpArrayCurrentRow, bankArrayCurrentRow):
                 
                 rowsThatMatch.append({
-                    'secondArrayRowIndex': secondArrayRowIndex,
-                    'secondArrayRow': secondArrayCurrentRow
+                    'secondArrayRowIndex': bankArrayRowIndex,
+                    'secondArrayRow': bankArrayCurrentRow
                 })
 
     return rowsThatMatch
@@ -149,40 +149,11 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 
     dailyDepositsArray = myPyFunc.mapArray(mapDailyDepositsArray, dailyDepositsArray)
 
-    firstArrayFirstRow = gpArray.pop(0)
-    secondArrayFirstRow = bankArray.pop(0)
+    gpArrayFirstRow = gpArray.pop(0)
+    bankArrayFirstRow = bankArray.pop(0)
 
-    matchedArray = [[gpTableName] + [''] * (len(firstArrayFirstRow) - 1) + [''] + [bankTableName] + [''] * (len(secondArrayFirstRow) - 1)]
-    matchedArray.append(firstArrayFirstRow + [''] + secondArrayFirstRow)
-
-
-    def allTestsAreTrue(arrayOfTests, firstArrayCurrentRow, secondArrayCurrentRow):
-
-        for test in arrayOfTests:
-
-            if not test(firstArrayCurrentRow, secondArrayCurrentRow):
-
-                return False
-
-        return True
-
-
-    # def rowForMatchedArrayAmountDate(gpArrayRow):
-
-    #     columnsToMatch = [
-    #         [17, 19],
-    #         [7, 8]
-    #     ]
-
-    #     rowToAppend = gpArrayRow
-    #     rowsThatMatch = myPyFunc.secondArrayRowsMatchFirstArrayRow(gpArrayRow, bankArray, columnsToMatch)
-
-    #     if len(rowsThatMatch) == 1:
-    #         rowToAppend = rowToAppend + [myPyFunc.getMatchStatus(myPyFunc.getColumnNamesFromFirstRow(columnsToMatch[0], firstArrayFirstRow))] + bankArray.pop(rowsThatMatch[0]['secondArrayRowIndex'])
-    #     elif len(rowsThatMatch) > 1:
-    #         p('More than one row match the first pass')
-
-    #     return rowToAppend
+    matchedArray = [[gpTableName] + [''] * (len(gpArrayFirstRow) - 1) + [''] + [bankTableName] + [''] * (len(bankArrayFirstRow) - 1)]
+    matchedArray.append(gpArrayFirstRow + [''] + bankArrayFirstRow)
 
 
 
@@ -200,23 +171,17 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
                 return True
             return False
 
-        arrayOfTests = [amountIsEqual, dateIsEqual]
-        rowsThatMatch = []
+        rowsThatMatch = myPyFunc.rowsInSecondFromTestsOnFirst([amountIsEqual, dateIsEqual], gpArrayCurrentRow, bankArray)
 
-        for bankArrayCurrentRowIndex, bankArrayCurrentRow in enumerate(bankArray):
+        def filterColumnNames(currentIndex, currentElement):
 
-            if allTestsAreTrue(arrayOfTests, gpArrayCurrentRow, bankArrayCurrentRow):
+            if currentIndex in [17, 19]:
+                return True
 
-                rowsThatMatch.append({
-                        'secondArrayRowIndex': bankArrayCurrentRowIndex,
-                        'secondArrayRow': bankArrayCurrentRow
-                    })
-
-
-        # filter
+            return False
 
         if len(rowsThatMatch) == 1:
-            rowToReturn.extend([myPyFunc.getMatchStatus(myPyFunc.getColumnNamesFromFirstRow([17, 19], firstArrayFirstRow))] + bankArray.pop(rowsThatMatch[0]['secondArrayRowIndex']))
+            rowToReturn.extend([myPyFunc.getMatchStatus(myPyFunc.filterArray(filterColumnNames, gpArrayFirstRow))] + bankArray.pop(rowsThatMatch[0]['secondArrayRowIndex']))
         elif len(rowsThatMatch) > 1:
             p('More than one row matches on the first pass')
 
@@ -228,37 +193,57 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 
 
 
-    def addMatchesFromSecondArray(currentRowIndex, currentRow):
+    def rowForMatchedArrayOnAmount(gpArrayCurrentRowIndex, gpArrayCurrentRow):
+        return gpArrayCurrentRow
 
-        columnsToMatch = [
-            [17], 
-            [7]
-        ]
-    
-        if len(currentRow) == len(firstArrayFirstRow):
 
-            rowsThatMatch = myPyFunc.secondArrayRowsMatchFirstArrayRow(currentRow, bankArray, columnsToMatch)
+    myPyFunc.mapArray(rowForMatchedArrayOnAmount, matchedArray)
 
-            criteriaToCheck = {
-                'maxRowLength': 20,
-                'criteria': [
-                    {
-                        'columnIndexToCheck': 17,
-                        'valueToCheckFor': currentRow[17]
-                    }
-                ]
-            }
 
-            if len(rowsThatMatch) == 1 or countNumberOfElements(matchedArray, criteriaToCheck) == len(rowsThatMatch):
 
-                currentRow.extend([myPyFunc.getMatchStatus(myPyFunc.getColumnNamesFromFirstRow(columnsToMatch[0], firstArrayFirstRow))] + bankArray.pop(rowsThatMatch[0]['secondArrayRowIndex']))
+
+
+    # def addMatchesFromSecondArray(currentRowIndex, currentRow):
+
+    #     columnsToMatch = [
+    #         [17], 
+    #         [7]
+    #     ]
+
+    #     if len(currentRow) == len(gpArrayFirstRow):
+
+    #         rowsThatMatch = myPyFunc.secondArrayRowsMatchFirstArrayRow(currentRow, bankArray, columnsToMatch)
+
+    #         criteriaToCheck = {
+    #             'maxRowLength': 20,
+    #             'criteria': [
+    #                 {
+    #                     'columnIndexToCheck': 17,
+    #                     'valueToCheckFor': currentRow[17]
+    #                 }
+    #             ]
+    #         }
+
+    #         def filterColumnNames(currentIndex, currentElement):
+            
+    #             if currentIndex == 17:
+    #                 return True
+
+    #             return False
+
+    #         if len(rowsThatMatch) == 1 or countNumberOfElements(matchedArray, criteriaToCheck) == len(rowsThatMatch):
+
+    #             currentRow.extend([myPyFunc.getMatchStatus(myPyFunc.filterArray(filterColumnNames, gpArrayFirstRow))] + bankArray.pop(rowsThatMatch[0]['secondArrayRowIndex']))
         
-    matchedArray = myPyFunc.mapArray(addMatchesFromSecondArray, matchedArray)
+    # matchedArray = myPyFunc.mapArray(addMatchesFromSecondArray, matchedArray)
+
+
+
 
 
     def addMatchesFromDailyDepositsArray(currentRowIndex, currentRow):
 
-        if len(currentRow) == len(firstArrayFirstRow):
+        if len(currentRow) == len(gpArrayFirstRow):
 
             rowsThatMatch = getMatchedDailyDepositsRows(dailyDepositsArray, currentRow)
 
@@ -285,7 +270,7 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
     myGspreadFunc.clearAndResizeSheets(clearAndResizeParameters)
     myGspreadFunc.displayArray(spreadsheetLevelObj.worksheet(matchedTableName), matchedArray)
 
-    bankArray.insert(0, secondArrayFirstRow)
+    bankArray.insert(0, bankArrayFirstRow)
     myGspreadFunc.displayArray(spreadsheetLevelObj.worksheet(didNotMatchTableName), bankArray)
 
     customTopRows = {'Matched': 2}
