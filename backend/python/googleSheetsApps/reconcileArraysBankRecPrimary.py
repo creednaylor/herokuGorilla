@@ -57,7 +57,7 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 
 	bankArray = list(filter(filterBankArray, bankArray))
 
-	def transformBankArray(currentRowIndex, currentRow):
+	def mapBankArray(currentRowIndex, currentRow):
 
 		if currentRowIndex > 0:
 
@@ -73,7 +73,7 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 				currentRow[bankAmountColumnIndex] = -currentRow[bankAmountColumnIndex]
 
 
-	bankArray = myPyFunc.transformArray(bankArray, transformBankArray)
+	bankArray = myPyFunc.mapArray(mapBankArray, bankArray)
 	bankArrayFirstRow = bankArray.pop(0)
 	bankArray = sortArrayOfArrays(bankArray, bankDateColumnIndex)
 
@@ -89,7 +89,7 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 	gpArray = [currentRow for currentRow in gpArray if currentRow[gpTrxDateColumnIndex] not in ['']]
 
 
-	def transformGPArray(currentRowIndex, currentRow):
+	def mapGPArray(currentRowIndex, currentRow):
 
 		if currentRowIndex == 0:
 			currentRow.append('Transfer')
@@ -115,7 +115,7 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 		if currentRow[gpTransferColumnIndex] == 'Out':
 			currentRow[gpAmountColumnIndex] = -currentRow[gpAmountColumnIndex]
 
-	gpArray = myPyFunc.transformArray(gpArray, transformGPArray)
+	gpArray = myPyFunc.mapArray(mapGPArray, gpArray)
 	gpArrayFirstRow = gpArray.pop(0)
 
 	def filterGPArray(currentRow):
@@ -133,7 +133,7 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 	dailyDepositsArray = spreadsheetLevelObj.worksheet(dailyDepositsTableName).get_all_values()
 
 
-	def dailyDepositsTransform(indexAndElementData):
+	def mapDailyDeposits(indexAndElementData):
 
 		currentRowIndex, currentRow = indexAndElementData
 
@@ -142,7 +142,7 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 
 		return currentRow
 
-	dailyDepositsArray = list(map(dailyDepositsTransform, enumerate(dailyDepositsArray)))
+	dailyDepositsArray = myPyFunc.mapArray(mapDailyDeposits, enumerate(dailyDepositsArray))
 
 
 
@@ -202,7 +202,7 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
     # def getRowThatMatchesAmountAndDate(currentRow):
 
     #     rowToAppend = currentRow
-    #     rowsThatMatch = myPyFunc.getSecondArrayRowsThatMatchFirstArrayCurrentRow(currentRow, bankArray, columnsToMatch)
+    #     rowsThatMatch = myPyFunc.secondArrayRowsMatchFirstArrayRow(currentRow, bankArray, columnsToMatch)
 
     #     if len(rowsThatMatch) == 1:
     #         rowToAppend = rowToAppend + [myPyFunc.getMatchStatus(myPyFunc.getColumnNamesFromFirstRow(columnsToMatch[0], firstArrayFirstRow))] + bankArray.pop(rowsThatMatch[0]['secondArrayRowIndex'])
@@ -225,7 +225,7 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 	# def getMatchedRowToAppend(currentRow):
 
 	# 	rowToAppend = currentRow
-	# 	rowsThatMatch = getSecondArrayRowsThatMatchFirstArrayCurrentRow(secondArray, currentRow, columnsToMatch)
+	# 	rowsThatMatch = secondArrayRowsMatchFirstArrayRow(secondArray, currentRow, columnsToMatch)
 
 	# 	if len(rowsThatMatch) == 1:
 	# 		rowToAppend = rowToAppend + [getMatchStatus(getColumnNames(columnsToMatch, firstArrayFirstRow))] + secondArray.pop(rowsThatMatch[0]['secondArrayRowIndex'])

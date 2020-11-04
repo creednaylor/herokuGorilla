@@ -40,7 +40,7 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 	extractedFilenamesDateColumnIndex = 0
 
 
-	def transformGPTransactions(currentRowIndex, currentRow):
+	def mapGPTransactions(currentRowIndex, currentRow):
 		if currentRowIndex == 0:
 			currentRow.append('Amount')
 		else:
@@ -51,10 +51,10 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 				if isinstance(currentRow[column], str):
 					currentRow[column] = float(currentRow[column].replace(',', ''))
 
-	gpTransactions = myPyFunc.transformArray(gpTransactions, transformGPTransactions)
+	gpTransactions = myPyFunc.mapArray(mapGPTransactions, gpTransactions)
 	gpTransactionsFirstRow = gpTransactions.pop(0)
 
-	def transformExtractedFilenames(currentRowIndex, currentRow):
+	def mapExtractedFilenames(currentRowIndex, currentRow):
 
 		if currentRowIndex > 0:
 			currentRow[extractedFilenamesAmountColumnIndex] = -float(currentRow[extractedFilenamesAmountColumnIndex].replace(',', ''))
@@ -63,7 +63,7 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 			# currentRowDateObj = datetime(int(currentRowDate[0:4]), int(currentRowDate[6:8]), int(currentRowDate[4:6]))
 			# currentRow[extractedFilenamesDateColumnIndex] = f"{currentRowDateObj.day}/{currentRowDateObj.month}/{currentRowDateObj.strftime('%y')}"
 
-	extractedFilenames = myPyFunc.transformArray(extractedFilenames, transformExtractedFilenames)
+	extractedFilenames = myPyFunc.mapArray(mapExtractedFilenames, extractedFilenames)
 	extractedFilenamesFirstRow = extractedFilenames.pop(0)
 
 

@@ -914,10 +914,10 @@ def onAllFileObjInDir(directory, actionToPerform):
 
 
 
-def transformArray(array, transformAction):
+def mapArray(mapFunction, array):
     
     for currentIndex, currentElement in enumerate(array):
-        transformAction(currentIndex, currentElement)
+        mapFunction(currentIndex, currentElement)
     
     return array
 
@@ -934,11 +934,11 @@ def reduceArray(array, combine, startingReduceResult):
 
 
 
-def transferToArray(transferringArray, receivingArray, getElementToAppend):
+def transferToArray(transferringArray, receivingArray, transformElement):
 
     while transferringArray:
-        currentElement = transferringArray.pop(0)
-        receivingArray.append(getElementToAppend(currentElement))
+        currentElementFromTransferringArray = transferringArray.pop(0)
+        receivingArray.append(transformElement(currentElementFromTransferringArray))
 
 
 
@@ -1068,7 +1068,7 @@ def dateObjToUnixMillisecondsStr(dateObj):
 
 
 
-def getSecondArrayRowsThatMatchFirstArrayCurrentRow(firstArrayCurrentRow, secondArray, columnsToMatch):
+def secondArrayRowsMatchFirstArrayRow(firstArrayCurrentRow, secondArray, columnsToMatch):
 
     rowsThatMatch = []
 
@@ -1096,8 +1096,6 @@ def columnDataMatches(firstArrayCurrentRow, secondArrayCurrentRow, columnsToMatc
 
 
 def getMatchStatus(columnNamesToMatch):
-
-    # p(columnNamesToMatch)
 
     matchStatus = 'Matched on '
 
