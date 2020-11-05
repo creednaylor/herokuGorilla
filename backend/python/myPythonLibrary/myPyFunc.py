@@ -455,7 +455,7 @@ def populateTable(totalRows, totalColumns, tblName, sheetDataList, sqlCursor, li
 
     # p(sqlCommand)
     executeSQLStatements([sqlCommand], sqlCursor)
-     
+
 
 
 
@@ -1117,7 +1117,7 @@ def allTestsAreTrue(arrayOfTests, firstArrayCurrentRow, secondArrayCurrentRow):
 
     return True
 
-def rowsInSecondFromTestsOnFirst(arrayOfTests, firstArrayCurrentRow, secondArray):
+def rowIndicesInSecondFromTestsOnFirst(arrayOfTests, firstArrayCurrentRow, secondArray):
 
     rowsThatMatch = []
 
@@ -1125,9 +1125,6 @@ def rowsInSecondFromTestsOnFirst(arrayOfTests, firstArrayCurrentRow, secondArray
 
         if allTestsAreTrue(arrayOfTests, firstArrayCurrentRow, secondArrayCurrentRow):
 
-            rowsThatMatch.append({
-                    'secondArrayRowIndex': secondArrayCurrentRowIndex,
-                    'secondArrayRow': secondArrayCurrentRow
-                })
+            rowsThatMatch.append(secondArrayCurrentRowIndex)
 
     return rowsThatMatch
