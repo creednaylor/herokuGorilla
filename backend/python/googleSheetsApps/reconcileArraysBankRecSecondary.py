@@ -4,6 +4,8 @@ from pathlib import Path
 from pprint import pprint as p
 import sys
 
+from pkg_resources import parse_requirements
+
 pathToThisPythonFile = Path(__file__).resolve()
 
 if os.environ.get('runningOnProductionServer') == 'true':
@@ -40,27 +42,6 @@ else:
 
 
 
-# def elementCriteriaAreTrue(element, criteriaToCheck):
-
-#     if len(element) > criteriaToCheck['maxRowLength']:
-#         return False
-#     else:
-#         for criterion in criteriaToCheck['criteria']:
-#             if element[criterion['columnIndexToCheck']] != criterion['valueToCheckFor']:
-#                 return False
-
-#     return True
-
-
-# def countNumberOfElements(arrayToCount, criteriaToCheck):
-
-#     numberOfRecords = 0
-
-#     for element in arrayToCount:
-#         if elementCriteriaAreTrue(element, criteriaToCheck):
-#             numberOfRecords = numberOfRecords + 1
-
-#     return numberOfRecords
 
 
 def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
@@ -91,8 +72,7 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 
             amount = myPyFunc.strToFloat(currentAmount)
 
-            if 'Decrease Adjustment' == currentType or 'Transfer To' in currentPaidTo:
-                amount = -amount
+            if 'Decrease Adjustment' == currentType or 'Transfer To' in currentPaidTo: amount = -amount
 
             currentRow.append(amount)
             currentRow.append(amount)
@@ -155,39 +135,46 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
     matchedArray = [[gpTableName] + [''] * (len(gpArrayFirstRow) - 1) + [''] + [bankTableName] + [''] * (len(bankArrayFirstRow) - 1)]
     matchedArray.append(gpArrayFirstRow + [''] + bankArrayFirstRow)
 
-    def amountIsEqual(gpArrayCurrentRow, bankArrayCurrentRow):
+    def getFilterByIndexFunction(indicesToFilter):
+        
+        def filterFunction(gpArrayFirstRowElementIndex, gpArrayFirstRowElement):
 
-        if gpArrayCurrentRow[17] == bankArrayCurrentRow[7]:
+            if gpArrayFirstRowElementIndex in indicesToFilter:
 
-            return True
+                return True
 
-        return False
+            return False
 
-    def dateIsEqual(gpArrayCurrentRow, bankArrayCurrentRow):
+        return filterFunction
 
-        if gpArrayCurrentRow[19] == bankArrayCurrentRow[8]:
 
-            return True
+    def getColumnComparisonFunction(firstArrayColumnIndex, secondArrayColumnIndex):
 
-        return False
+        def comparisonFunction(firstArrayCurrentRow, secondArrayCurrentRow):
+
+            if firstArrayCurrentRow[firstArrayColumnIndex] == secondArrayCurrentRow[secondArrayColumnIndex]:
+                
+                return True
+
+            return False
+
+        return comparisonFunction
+
+    amountComparisonFunction = getColumnComparisonFunction(17, 7)
+
+
 
 
     def rowForMatchedArrayOnAmountDate(gpArrayCurrentRow):
 
         rowToReturn = gpArrayCurrentRow
 
-        rowIndicesThatMatch = myPyFunc.rowIndicesInSecondFromTestsOnFirst([amountIsEqual, dateIsEqual], gpArrayCurrentRow, bankArray)
-
-        def filterForColumnNames(gpArrayFirstRowElementIndex, gpArrayFirstRowElement):
-
-            if gpArrayFirstRowElementIndex in [17, 19]:
-
-                return True
-
-            return False
+        dateComparisonFunction = getColumnComparisonFunction(19, 8)
+        rowIndicesThatMatch = myPyFunc.rowIndicesInSecondFromTestsOnFirst([amountComparisonFunction, dateComparisonFunction], gpArrayCurrentRow, bankArray)
 
         if len(rowIndicesThatMatch) == 1:
-            rowToReturn.extend([myPyFunc.getMatchStatus(myPyFunc.filterArray(filterForColumnNames, gpArrayFirstRow))] + bankArray.pop(rowIndicesThatMatch[0]))
+            filterOnAmountDateFunction = getFilterByIndexFunction([17, 19])
+            rowToReturn.extend([myPyFunc.getMatchStatus(myPyFunc.filterArray(filterOnAmountDateFunction, gpArrayFirstRow))] + bankArray.pop(rowIndicesThatMatch[0]))
         elif len(rowIndicesThatMatch) > 1:
             p('More than one row matches on the first pass')
 
@@ -201,17 +188,9 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 
         if len(gpArrayCurrentRow) == len(gpArrayFirstRow):
 
-            rowIndicesThatMatch = myPyFunc.rowIndicesInSecondFromTestsOnFirst([amountIsEqual], gpArrayCurrentRow, bankArray)
+            rowIndicesThatMatch = myPyFunc.rowIndicesInSecondFromTestsOnFirst([amountComparisonFunction], gpArrayCurrentRow, bankArray)
 
-            def filterForColumnNames(gpArrayFirstRowElementIndex, gpArrayFirstRowElement):
-
-                if gpArrayFirstRowElementIndex == 17:
-
-                    return True
-
-                return False
-
-            def filterOnAmountLength(matchedArrayCurrentRowIndex, matchedArrayCurrentRow):
+            def filterOnAmountLengthFunction(matchedArrayCurrentRowIndex, matchedArrayCurrentRow):
                 
                 if len(matchedArrayCurrentRow) == len(gpArrayFirstRow) and matchedArrayCurrentRow[17] == gpArrayCurrentRow[17]:
                 
@@ -219,49 +198,14 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
                 
                 return False
 
-            if len(rowIndicesThatMatch) == 1 or len(rowIndicesThatMatch) == len(myPyFunc.filterArray(filterOnAmountLength, matchedArray)):
+            filterOnAmountFunction = getFilterByIndexFunction([17])
 
-                gpArrayCurrentRow.extend([myPyFunc.getMatchStatus(myPyFunc.filterArray(filterForColumnNames, gpArrayFirstRow))] + bankArray.pop(rowIndicesThatMatch[0]))
+            if len(rowIndicesThatMatch) == 1 or len(rowIndicesThatMatch) == len(myPyFunc.filterArray(filterOnAmountLengthFunction, matchedArray)):
+
+                gpArrayCurrentRow.extend([myPyFunc.getMatchStatus(myPyFunc.filterArray(filterOnAmountFunction, gpArrayFirstRow))] + bankArray.pop(rowIndicesThatMatch[0]))
 
     myPyFunc.mapArray(rowForMatchedArrayOnAmount, matchedArray)
 
-
-
-
-
-    # def addMatchesFromSecondArray(currentRowIndex, currentRow):
-
-    #     columnsToMatch = [
-    #         [17], 
-    #         [7]
-    #     ]
-
-    #     if len(currentRow) == len(gpArrayFirstRow):
-
-    #         rowsThatMatch = myPyFunc.secondArrayRowsMatchFirstArrayRow(currentRow, bankArray, columnsToMatch)
-
-    #         criteriaToCheck = {
-    #             'maxRowLength': 20,
-    #             'criteria': [
-    #                 {
-    #                     'columnIndexToCheck': 17,
-    #                     'valueToCheckFor': currentRow[17]
-    #                 }
-    #             ]
-    #         }
-
-    #         def filterForColumnNames(currentIndex, currentElement):
-
-    #             if currentIndex == 17:
-    #                 return True
-
-    #             return False
-
-    #         if len(rowsThatMatch) == 1 or countNumberOfElements(matchedArray, criteriaToCheck) == len(rowsThatMatch):
-
-    #             currentRow.extend([myPyFunc.getMatchStatus(myPyFunc.filterArray(filterForColumnNames, gpArrayFirstRow))] + bankArray.pop(rowsThatMatch[0]['secondArrayRowIndex']))
-        
-    # matchedArray = myPyFunc.mapArray(addMatchesFromSecondArray, matchedArray)
 
 
 
