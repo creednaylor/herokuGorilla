@@ -4,8 +4,6 @@ from pathlib import Path
 from pprint import pprint as p
 import sys
 
-from pkg_resources import parse_requirements
-
 pathToThisPythonFile = Path(__file__).resolve()
 
 if os.environ.get('runningOnProductionServer') == 'true':
@@ -46,25 +44,22 @@ else:
 
 def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 
-
     pathBelowRepos = pathToThisPythonFile
     spreadsheetLevelObj = myGspreadFunc.getSpreadsheetLevelObj(oAuthMode, pathBelowRepos, googleAccountUsername=googleAccountUsername).open(googleSheetTitle)
 
-    gpTableName = 'GP'
-    bankTableName = 'Bank'
-    matchedTableName = 'Matched'
-    didNotMatchTableName = 'Did Not Match'
-    dailyDepositsTableName = 'Daily Deposits'
-
+    gpSheetName = 'GP'
+    bankSheetName = 'Bank'
+    # dailyDepositsSheetName = 'Daily Deposits'
+    matchedSheetName = 'Matched'
+    notMatchedSheetName = 'Did Not Match'
+    
     amountColumnName = 'Amount+-'
     dateStrColumnName = 'Date String'
 
     def mapGPArray(currentRowIndex, currentRow):
-        if currentRowIndex == 0:
-            currentRow.append(amountColumnName)
-            currentRow.append('Bank Amount')
-            currentRow.append(dateStrColumnName)
-        else:
+
+        if currentRowIndex:
+
             currentAmount = currentRow[5]
             currentType = currentRow[11]
             currentPaidTo = currentRow[14]
@@ -77,62 +72,71 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
             currentRow.append(amount)
             currentRow.append(amount)
             currentRow.append(myPyFunc.dateStrToStr(currentDate))
+        
+        else:
+
+            currentRow.append(amountColumnName)
+            currentRow.append('Bank Amount')
+            currentRow.append(dateStrColumnName)
 
 
-    gpArray = spreadsheetLevelObj.worksheet(gpTableName).get_all_values()
+    gpArray = spreadsheetLevelObj.worksheet(gpSheetName).get_all_values()
     gpArray = myPyFunc.mapArray(mapGPArray, gpArray)
-    
-    
+
 
     def mapBankArray(currentRowIndex, currentRow):
-        if currentRowIndex == 0:
-            currentRow.append(amountColumnName)
-            currentRow.append(dateStrColumnName)
-        else:
+
+        if currentRowIndex:
+
             currentDebitAmount = currentRow[5]
             currentCreditAmount = currentRow[6]
             currentDate = currentRow[0]
 
             currentRow.append(myPyFunc.strToFloat(currentCreditAmount) - myPyFunc.strToFloat(currentDebitAmount))
             currentRow.append(myPyFunc.dateStrToStr(currentDate))
+        
+        else:
 
-    bankArray = spreadsheetLevelObj.worksheet(bankTableName).get_all_values()
+            currentRow.append(amountColumnName)
+            currentRow.append(dateStrColumnName)
+
+    bankArray = spreadsheetLevelObj.worksheet(bankSheetName).get_all_values()
     bankArray = myPyFunc.mapArray(mapBankArray, bankArray)
         
 
-    def mapDailyDepositsArray(currentRowIndex, currentRow):
+    # def mapDailyDepositsArray(currentRowIndex, currentRow):
 
-        if currentRowIndex == 0:
-            currentRow.append('BisTrack Amount')
-            currentRow.append('Bank Amount')
-        else:
-            currentType = currentRow[2]
+    #     if currentRowIndex == 0:
+    #         currentRow.append('BisTrack Amount')
+    #         currentRow.append('Bank Amount')
+    #     else:
+    #         currentType = currentRow[2]
             
-            def getBistrackAmount():
-                currentBistrackAmount = currentRow[6]
-                return myPyFunc.ifConditionFlipSign(myPyFunc.strToFloat(currentBistrackAmount), currentType, 'Debit')
+    #         def getBistrackAmount():
+    #             currentBistrackAmount = currentRow[6]
+    #             return myPyFunc.ifConditionFlipSign(myPyFunc.strToFloat(currentBistrackAmount), currentType, 'Debit')
 
-            def getBankAmount():
-                currentBankAmount = currentRow[4]
-                return myPyFunc.ifConditionFlipSign(myPyFunc.strToFloat(currentBankAmount), currentType, 'Debit')
+    #         def getBankAmount():
+    #             currentBankAmount = currentRow[4]
+    #             return myPyFunc.ifConditionFlipSign(myPyFunc.strToFloat(currentBankAmount), currentType, 'Debit')
 
-            currentDate = currentRow[0]
-            dateToAppend = None
+    #         currentDate = currentRow[0]
+    #         dateToAppend = None
 
-            if currentDate != '':
-                dateToAppend = currentDate
-            currentRow.append(dateToAppend)
+    #         if currentDate != '':
+    #             dateToAppend = currentDate
+    #         currentRow.append(dateToAppend)
 
-            currentRow.append(getBistrackAmount())
-            currentRow.append(getBankAmount())
+    #         currentRow.append(getBistrackAmount())
+    #         currentRow.append(getBankAmount())
 
-    dailyDepositsArray = spreadsheetLevelObj.worksheet(dailyDepositsTableName).get_all_values()
-    dailyDepositsArray = myPyFunc.mapArray(mapDailyDepositsArray, dailyDepositsArray)
+    # dailyDepositsArray = spreadsheetLevelObj.worksheet(dailyDepositsSheetName).get_all_values()
+    # dailyDepositsArray = myPyFunc.mapArray(mapDailyDepositsArray, dailyDepositsArray)
 
     gpArrayFirstRow = gpArray.pop(0)
     bankArrayFirstRow = bankArray.pop(0)
 
-    matchedArray = [[gpTableName] + [''] * (len(gpArrayFirstRow) - 1) + [''] + [bankTableName] + [''] * (len(bankArrayFirstRow) - 1)]
+    matchedArray = [[gpSheetName] + [''] * (len(gpArrayFirstRow) - 1) + [''] + [bankSheetName] + [''] * (len(bankArrayFirstRow) - 1)]
     matchedArray.append(gpArrayFirstRow + [''] + bankArrayFirstRow)
 
     def getFilterByIndexFunction(indicesToFilter):
@@ -224,13 +228,13 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 
 
     clearAndResizeParameters = [{
-        'sheetObj': spreadsheetLevelObj.worksheet(matchedTableName),
+        'sheetObj': spreadsheetLevelObj.worksheet(matchedSheetName),
         'resizeRows': 3,
         'startingRowIndexToClear': 0,
         'resizeColumns': 1
     },
     {
-        'sheetObj': spreadsheetLevelObj.worksheet(didNotMatchTableName),
+        'sheetObj': spreadsheetLevelObj.worksheet(notMatchedSheetName),
         'resizeRows': 2,
         'startingRowIndexToClear': 0,
         'resizeColumns': 1
@@ -238,10 +242,10 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 
 
     myGspreadFunc.clearAndResizeSheets(clearAndResizeParameters)
-    myGspreadFunc.displayArray(spreadsheetLevelObj.worksheet(matchedTableName), matchedArray)
+    myGspreadFunc.displayArray(spreadsheetLevelObj.worksheet(matchedSheetName), matchedArray)
 
     bankArray.insert(0, bankArrayFirstRow)
-    myGspreadFunc.displayArray(spreadsheetLevelObj.worksheet(didNotMatchTableName), bankArray)
+    myGspreadFunc.displayArray(spreadsheetLevelObj.worksheet(notMatchedSheetName), bankArray)
 
     customTopRows = {'Matched': 2}
     myGspreadFunc.setFiltersOnSpreadsheet(spreadsheetLevelObj, customTopRows)
