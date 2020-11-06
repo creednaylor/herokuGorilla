@@ -47,23 +47,45 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
     pathBelowRepos = pathToThisPythonFile
     spreadsheetLevelObj = myGspreadFunc.getSpreadsheetLevelObj(oAuthMode, pathBelowRepos, googleAccountUsername=googleAccountUsername).open(googleSheetTitle)
 
-    gpSheetName = 'GP'
-    bankSheetName = 'Bank'
+
     # dailyDepositsSheetName = 'Daily Deposits'
-    matchedSheetName = 'Matched'
-    notMatchedSheetName = 'Did Not Match'
-    
-    amountColumnName = 'Amount+-'
-    dateStrColumnName = 'Date String'
+
+
+    sheets = {
+        'gp': {
+            'name': 'GP',
+            'colNms': {
+                'amount+-': 'Amount+-',
+                'dateStr': 'Date String'
+            },
+            'colIndx': {
+                'date': 1,
+                'amount': 5,
+                'type': 11,
+                'paidTo': 14
+            }
+        },
+        'bank': {
+            'name': 'Bank'
+        },
+        'matched': {
+            'name': 'Matched'
+        },
+        'notMatched': {
+            'name': 'Did Not Match'
+        },
+        
+    }
+
 
     def mapGPArray(currentRowIndex, currentRow):
 
         if currentRowIndex:
 
-            currentAmount = currentRow[5]
-            currentType = currentRow[11]
-            currentPaidTo = currentRow[14]
-            currentDate = currentRow[1]
+            currentAmount = currentRow[sheets['gp']['colIndx']['amount']]
+            currentType = currentRow[sheets['gp']['colIndx']['type']]
+            currentPaidTo = currentRow[sheets['gp']['colIndx']['paidTo']]
+            currentDate = currentRow[sheets['gp']['colIndx']['date']]
 
             amount = myPyFunc.strToFloat(currentAmount)
 
@@ -75,12 +97,12 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
         
         else:
 
-            currentRow.append(amountColumnName)
+            currentRow.append(sheets['gp']['colNms']['amount+-'])
             currentRow.append('Bank Amount')
-            currentRow.append(dateStrColumnName)
+            currentRow.append(sheets['gp']['colNms']['dateStr'])
 
 
-    gpArray = spreadsheetLevelObj.worksheet(gpSheetName).get_all_values()
+    gpArray = spreadsheetLevelObj.worksheet(sheets['gp']['name']).get_all_values()
     gpArray = myPyFunc.mapArray(mapGPArray, gpArray)
 
 
@@ -97,10 +119,10 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
         
         else:
 
-            currentRow.append(amountColumnName)
-            currentRow.append(dateStrColumnName)
+            currentRow.append(sheets['gp']['colNms']['amount+-'])
+            currentRow.append(sheets['gp']['colNms']['dateStr'])
 
-    bankArray = spreadsheetLevelObj.worksheet(bankSheetName).get_all_values()
+    bankArray = spreadsheetLevelObj.worksheet(sheets['bank']['name']).get_all_values()
     bankArray = myPyFunc.mapArray(mapBankArray, bankArray)
         
 
@@ -136,7 +158,7 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
     gpArrayFirstRow = gpArray.pop(0)
     bankArrayFirstRow = bankArray.pop(0)
 
-    matchedArray = [[gpSheetName] + [''] * (len(gpArrayFirstRow) - 1) + [''] + [bankSheetName] + [''] * (len(bankArrayFirstRow) - 1)]
+    matchedArray = [[sheets['gp']['name']] + [''] * (len(gpArrayFirstRow) - 1) + [''] + [sheets['bank']['name']] + [''] * (len(bankArrayFirstRow) - 1)]
     matchedArray.append(gpArrayFirstRow + [''] + bankArrayFirstRow)
 
     def getFilterByIndexFunction(indicesToFilter):
@@ -228,13 +250,13 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 
 
     clearAndResizeParameters = [{
-        'sheetObj': spreadsheetLevelObj.worksheet(matchedSheetName),
+        'sheetObj': spreadsheetLevelObj.worksheet(sheets['matched']['name']),
         'resizeRows': 3,
         'startingRowIndexToClear': 0,
         'resizeColumns': 1
     },
     {
-        'sheetObj': spreadsheetLevelObj.worksheet(notMatchedSheetName),
+        'sheetObj': spreadsheetLevelObj.worksheet(sheets['notMatched']['name']),
         'resizeRows': 2,
         'startingRowIndexToClear': 0,
         'resizeColumns': 1
@@ -242,10 +264,10 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 
 
     myGspreadFunc.clearAndResizeSheets(clearAndResizeParameters)
-    myGspreadFunc.displayArray(spreadsheetLevelObj.worksheet(matchedSheetName), matchedArray)
+    myGspreadFunc.displayArray(spreadsheetLevelObj.worksheet(sheets['matched']['name']), matchedArray)
 
     bankArray.insert(0, bankArrayFirstRow)
-    myGspreadFunc.displayArray(spreadsheetLevelObj.worksheet(notMatchedSheetName), bankArray)
+    myGspreadFunc.displayArray(spreadsheetLevelObj.worksheet(sheets['notMatched']['name']), bankArray)
 
     customTopRows = {'Matched': 2}
     myGspreadFunc.setFiltersOnSpreadsheet(spreadsheetLevelObj, customTopRows)
