@@ -373,6 +373,26 @@ def reconcileArraysBankRec(oAuthMode, bank, googleSheetTitle, googleAccountUsern
 
         arrayToReturn = myPyFunc.mapArray(rowForMatchedArrayAmount, matchedArray)
 
+
+        # def rowForMatchedArrayDailyDeposits(gpArrayCurrentRowIndex, gpArrayCurrentRow):
+
+        #     if len(gpArrayCurrentRow) == len(gpArrayFirstRow):
+
+        #         rowIndicesThatMatch = myPyFunc.rowIndicesInSecondFromTestsOnFirst([amountComparisonFunction], gpArrayCurrentRow, bankArray)
+
+        #         def filterOnUnmatchedRowsByAmountFunction(matchedArrayCurrentRowIndex, matchedArrayCurrentRow):
+
+        #             if len(matchedArrayCurrentRow) == len(gpArrayFirstRow) and matchedArrayCurrentRow[gpNewAmtColIdx] == gpArrayCurrentRow[gpNewAmtColIdx]:
+
+        #                 return True
+
+        #             return False
+
+        #         if len(rowIndicesThatMatch) == 1 or len(rowIndicesThatMatch) == len(myPyFunc.filterArray(filterOnUnmatchedRowsByAmountFunction, matchedArray)):
+        #             gpArrayCurrentRow.extend(['Matched On New Amount, ignoring transaction type'] + bankArray.pop(rowIndicesThatMatch[0]))
+
+        # arrayToReturn = myPyFunc.mapArray(rowForMatchedArrayDailyDeposits, matchedArray)
+
         return arrayToReturn
 
 
