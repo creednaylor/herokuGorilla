@@ -1068,6 +1068,7 @@ def dateObjToUnixMillisecondsStr(dateObj):
 
 
 
+
 def secondArrayRowsMatchFirstArrayRow(firstArrayCurrentRow, secondArray, columnsToMatch):
 
     rowsThatMatch = []
@@ -1128,3 +1129,29 @@ def rowIndicesInSecondFromTestsOnFirst(arrayOfTests, firstArrayCurrentRow, secon
             rowsThatMatch.append(secondArrayCurrentRowIndex)
 
     return rowsThatMatch
+
+def getColumnComparisonFunction(firstArrayColumnIndex, secondArrayColumnIndex):
+
+    def comparisonFunction(firstArrayCurrentRow, secondArrayCurrentRow):
+
+        if firstArrayCurrentRow[firstArrayColumnIndex] == secondArrayCurrentRow[secondArrayColumnIndex]:
+            
+            return True
+
+        return False
+
+    return comparisonFunction
+
+
+
+def getFilterByIndexFunction(indicesToFilter):
+        
+    def filterFunction(elementIndex, element):
+
+        if elementIndex in indicesToFilter:
+
+            return True
+
+        return False
+
+    return filterFunction
