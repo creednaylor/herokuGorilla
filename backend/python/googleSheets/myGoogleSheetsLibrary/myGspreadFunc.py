@@ -268,11 +268,8 @@ def setFormattingOnSpreadsheet(spreadsheetLevelObj, formatParameters):
                 for range in formatToPerform['range']:
                     if formatToPerform['format'] == 'currencyWithoutSymbol':
                         sheetObj.format(range, {'numberFormat': {'type': 'NUMBER', 'pattern': '#,##0.00; (#,##0.00)'},}) # 'horizontalAlignment': 'RIGHT'})
-                        # sheetObj.format('A:A', {'horizontalAlignment': 'RIGHT'})
 
                         startColumnIndex = columnLetteringToNumber(range.split(':')[0])
-                        # p(range)
-                        # p(startColumnIndex)
 
                         horizontalRightAlignRequest['requests'].append(
                             {
@@ -292,11 +289,6 @@ def setFormattingOnSpreadsheet(spreadsheetLevelObj, formatParameters):
                             }
                         )
 
-    # horizontalRightAlignRequest2 = {
-    #     'requests': [horizontalRightAlignRequest['requests'][0]]
-    # }
-
-    # p(horizontalRightAlignRequest)
     spreadsheetLevelObj.batch_update(horizontalRightAlignRequest)
 
 

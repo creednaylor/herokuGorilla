@@ -16,60 +16,6 @@ else:
 
 
 
-def mapGPArray(currentRowIndex, currentRow):
-
-    newAmtColName = 'New Amount'
-    dteStrColNme = 'Date Str'
-    gpDteColIdx = 1
-    gpAmtColIdx = 5
-    gpTypColIdx = 11
-    gpPdToColIdx = 14
-
-    if currentRowIndex:
-
-        currentType = currentRow[gpTypColIdx]
-        currentPaidTo = currentRow[gpPdToColIdx]
-
-        currentAmount = myPyFunc.strToFloat(currentRow[gpAmtColIdx])
-        if currentType in ['Decrease Adjustment', 'Check', 'Withdrawl'] or 'Transfer To' in currentPaidTo: currentAmount = -currentAmount
-
-        currentTransfer = ''
-
-        if currentRow[gpPdToColIdx]:
-            if currentRow[gpPdToColIdx][0:11] == 'Transfer To':
-                currentTransfer = 'Out'
-            elif currentRow[gpPdToColIdx][0:13] == "Transfer From":
-                currentTransfer = 'In'
-
-
-        currentRow.append(currentAmount)
-        currentRow.append(myPyFunc.dateStrToStr(currentRow[gpDteColIdx]))
-        currentRow.append(currentTransfer)
-
-    else:
-
-        currentRow.append(newAmtColName)
-        currentRow.append(dteStrColNme)
-        currentRow.append('Transfer')
-
-
-
-def getGPArray(spreadsheetLevelObj):
-
-    def removeBlankDates(currentRowIndex, currentRow):
-
-        gpDteColIdx = 1
-
-        if currentRow[gpDteColIdx] == '':
-            return False
-        else:
-            return True
-
-    gpArray = spreadsheetLevelObj.worksheet('GP').get_all_values()
-    gpArray = myPyFunc.filterArray(removeBlankDates, gpArray)
-    return myPyFunc.mapArray(mapGPArray, gpArray)
-
-
 
 # def dailyDepositsColumnDataMatches(gpArrayCurrentRow, bankArrayCurrentRow):
 
@@ -115,6 +61,57 @@ def reconcileArraysBankRec(oAuthMode, bank, googleSheetTitle, googleAccountUsern
     mtchdNme = 'Matched'
     notMtchdNme = 'Did Not Match'
 
+    def mapGPArray(currentRowIndex, currentRow):
+
+        newAmtColName = 'New Amount'
+        dteStrColNme = 'Date Str'
+        gpDteColIdx = 1
+        gpAmtColIdx = 5
+        gpTypColIdx = 11
+        gpPdToColIdx = 14
+
+        if currentRowIndex:
+
+            currentType = currentRow[gpTypColIdx]
+            currentPaidTo = currentRow[gpPdToColIdx]
+
+            currentAmount = myPyFunc.strToFloat(currentRow[gpAmtColIdx])
+            if currentType in ['Decrease Adjustment', 'Check', 'Withdrawl'] or 'Transfer To' in currentPaidTo: currentAmount = -currentAmount
+
+            currentTransfer = ''
+
+            if currentRow[gpPdToColIdx]:
+                if currentRow[gpPdToColIdx][0:11] == 'Transfer To':
+                    currentTransfer = 'Out'
+                elif currentRow[gpPdToColIdx][0:13] == "Transfer From":
+                    currentTransfer = 'In'
+
+
+            for columnToAppend in [currentAmount, myPyFunc.dateStrToStr(currentRow[gpDteColIdx]), currentTransfer]:
+                currentRow.append(columnToAppend)
+
+        else:
+
+            for columnToAppend in [newAmtColName, dteStrColNme, 'Transfer']:
+                currentRow.append(columnToAppend)
+
+
+
+    def getGPArray(spreadsheetLevelObj):
+
+        def removeBlankDates(currentRowIndex, currentRow):
+
+            gpDteColIdx = 1
+
+            if currentRow[gpDteColIdx] == '':
+                return False
+            else:
+                return True
+
+        gpArray = spreadsheetLevelObj.worksheet(gpNme).get_all_values()
+        gpArray = myPyFunc.filterArray(removeBlankDates, gpArray)
+        return myPyFunc.mapArray(mapGPArray, gpArray)
+
 
     gpArray = getGPArray(spreadsheetLevelObj)
     gpArrayFirstRow = gpArray.pop(0)
@@ -129,10 +126,6 @@ def reconcileArraysBankRec(oAuthMode, bank, googleSheetTitle, googleAccountUsern
         bankThrdDescColIdx = 12
 
         def filterBankArray(currentRowIndex, currentRow):
-
-            # p(currentRow)
-            # p(currentRow[bankStatusColIdx])
-            # p(currentRow[bankTypColIdx])
 
             if currentRow[bankStatusColIdx] not in ['H', 'B', 'T'] and currentRow[bankTypColIdx] not in ['Data', 'Ledger Balance', 'Collected + 1 Day', 'Opening Collected', 'One Day Float', '2 Day Float', '3 Day + Float', 'MTD Avg Collected', 'MTD Avg Neg Collected', 'Total Credits', 'Number of Credits', 'Total Debits', 'Number of Debits', 'Float Adjustment(s)']:
                 return True
@@ -159,19 +152,17 @@ def reconcileArraysBankRec(oAuthMode, bank, googleSheetTitle, googleAccountUsern
 
                 currentRow[bankThrdDescColIdx] = currentRow[bankThrdDescColIdx].replace('\n', '')
 
-                # if currentAmount == 140.12:
-                #     p(currentRow[12])
-
-                currentRow.append(currentAmount)
-                currentRow.append(currentDate)
+                for columnToAppend in [currentAmount, currentDate]:
+                    currentRow.append(columnToAppend)
 
             else:
 
-                currentRow.append(newAmtColName)
-                currentRow.append(dteStrColNme)
-
+                for columnToAppend in [newAmtColName, dteStrColNme]:
+                    currentRow.append(columnToAppend)
 
         return myPyFunc.mapArray(mapBankArray, bankArray)
+
+
 
 
     def getPrimaryDailyDepositsArray():
@@ -262,7 +253,7 @@ def reconcileArraysBankRec(oAuthMode, bank, googleSheetTitle, googleAccountUsern
     matchedArray.append(gpArrayFirstRow + [''] + bankArrayFirstRow)
 
 
-    def getPrimaryCompletedMatchedArray():
+    def getPrimaryCompletedMatchedArray(matchedArray):
 
         amountComparisonFunction = myPyFunc.getColumnComparisonFunction(gpNewAmtColIdx, bankNewAmtColIdx)
         dateComparisonFunction = myPyFunc.getColumnComparisonFunction(gpDateStrColIdx, bankDteStrColIdx)
@@ -316,7 +307,7 @@ def reconcileArraysBankRec(oAuthMode, bank, googleSheetTitle, googleAccountUsern
                     filterOnAmountDateFunction = myPyFunc.getFilterByIndexFunction([gpNewAmtColIdx, gpDateStrColIdx])
                     gpArrayCurrentRow.extend([myPyFunc.getMatchStatus(myPyFunc.filterArray(filterOnAmountDateFunction, gpArrayFirstRow))] + bankArray.pop(rowIndicesThatMatch[0]))
 
-        arrayToReturn = myPyFunc.mapArray(rowForMatchedArrayOnAmountDateNotCheck, matchedArray)
+        myPyFunc.mapArray(rowForMatchedArrayOnAmountDateNotCheck, matchedArray)
 
         def rowForMatchedArrayOnAmountNotCheck(gpArrayCurrentRowIndex, gpArrayCurrentRow):
 
@@ -336,7 +327,7 @@ def reconcileArraysBankRec(oAuthMode, bank, googleSheetTitle, googleAccountUsern
                     filterOnAmountFunction = myPyFunc.getFilterByIndexFunction([gpNewAmtColIdx])
                     gpArrayCurrentRow.extend([myPyFunc.getMatchStatus(myPyFunc.filterArray(filterOnAmountFunction, gpArrayFirstRow))] + bankArray.pop(rowIndicesThatMatch[0]))
 
-        arrayToReturn = myPyFunc.mapArray(rowForMatchedArrayOnAmountNotCheck, matchedArray)
+        myPyFunc.mapArray(rowForMatchedArrayOnAmountNotCheck, matchedArray)
 
         def rowForMatchedArrayOnAmountDate(gpArrayCurrentRowIndex, gpArrayCurrentRow):
 
@@ -355,7 +346,7 @@ def reconcileArraysBankRec(oAuthMode, bank, googleSheetTitle, googleAccountUsern
                 if len(rowIndicesThatMatch) == 1 or len(rowIndicesThatMatch) == len(myPyFunc.filterArray(filterOnUnmatchedRowsByAmountFunction, matchedArray)):
                     gpArrayCurrentRow.extend(['Matched On New Amount and Date Str, ignoring transaction type'] + bankArray.pop(rowIndicesThatMatch[0]))
 
-        arrayToReturn = myPyFunc.mapArray(rowForMatchedArrayOnAmountDate, matchedArray)
+        myPyFunc.mapArray(rowForMatchedArrayOnAmountDate, matchedArray)
 
         def rowForMatchedArrayAmount(gpArrayCurrentRowIndex, gpArrayCurrentRow):
 
@@ -374,7 +365,7 @@ def reconcileArraysBankRec(oAuthMode, bank, googleSheetTitle, googleAccountUsern
                 if len(rowIndicesThatMatch) == 1 or len(rowIndicesThatMatch) == len(myPyFunc.filterArray(filterOnUnmatchedRowsByAmountFunction, matchedArray)):
                     gpArrayCurrentRow.extend(['Matched On New Amount, ignoring transaction type'] + bankArray.pop(rowIndicesThatMatch[0]))
 
-        arrayToReturn = myPyFunc.mapArray(rowForMatchedArrayAmount, matchedArray)
+        myPyFunc.mapArray(rowForMatchedArrayAmount, matchedArray)
 
 
         # def rowForMatchedArrayDailyDeposits(gpArrayCurrentRowIndex, gpArrayCurrentRow):
@@ -396,7 +387,7 @@ def reconcileArraysBankRec(oAuthMode, bank, googleSheetTitle, googleAccountUsern
 
         # arrayToReturn = myPyFunc.mapArray(rowForMatchedArrayDailyDeposits, matchedArray)
 
-        return arrayToReturn
+        return matchedArray
 
 
 
@@ -460,7 +451,7 @@ def reconcileArraysBankRec(oAuthMode, bank, googleSheetTitle, googleAccountUsern
         bankScndDescColIdx = 11
         bankNewAmtColIdx = 14
         bankDteStrColIdx = 15
-        matchedArray = getPrimaryCompletedMatchedArray()
+        matchedArray = getPrimaryCompletedMatchedArray(matchedArray)
 
     elif bank == 'Secondary':
         matchedArray = getSecondaryCompletedMatchedArray()
@@ -576,7 +567,7 @@ def reconcileArraysBankRec(oAuthMode, bank, googleSheetTitle, googleAccountUsern
                             "endIndex": sheetInfo['columnToAdjust'] + 1
                         },
                         "properties": {
-                            "pixelSize": 300
+                            "pixelSize": 400
                         },
                         "fields": "pixelSize"
                     }
