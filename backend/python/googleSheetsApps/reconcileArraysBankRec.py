@@ -576,7 +576,7 @@ def reconcileArraysBankRec(oAuthMode, bank, googleSheetTitle, googleAccountUsern
                             "endIndex": sheetInfo['columnToAdjust'] + 1
                         },
                         "properties": {
-                            "pixelSize": 200
+                            "pixelSize": 300
                         },
                         "fields": "pixelSize"
                     }
