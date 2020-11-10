@@ -75,7 +75,7 @@ def getGPArray(spreadsheetLevelObj):
 
 #     if gpArrayCurrentRow[12][2:7] != bankArrayCurrentRow[8]:
 #         return False
-    
+
 #     return True
 
 
@@ -84,9 +84,9 @@ def getGPArray(spreadsheetLevelObj):
 #     rowsThatMatch = []
 
 #     for bankArrayRowIndex, bankArrayCurrentRow in enumerate(bankArray):
-            
+
 #             if dailyDepositsColumnDataMatches(gpArrayCurrentRow, bankArrayCurrentRow):
-                
+
 #                 rowsThatMatch.append({
 #                     'secondArrayRowIndex': bankArrayRowIndex,
 #                     'secondArrayRow': bankArrayCurrentRow
@@ -102,38 +102,39 @@ def reconcileArraysBankRec(oAuthMode, bank, googleSheetTitle, googleAccountUsern
 
     newAmtColName = 'New Amount'
     dteStrColNme = 'Date Str'
-    
+
     gpTypColIdx = 11
     gpNumColIdx = 12
     gpNewAmtColIdx = 17
     gpDateStrColIdx = 18
     gpTrsfrColIdx = 19
-    
 
+    gpNme = 'GP'
+    bankName = 'Bank'
+    dlyDepNme = 'Daily Deposits'
     mtchdNme = 'Matched'
     notMtchdNme = 'Did Not Match'
-    
-    bnkNme = 'Bank'
+
 
     gpArray = getGPArray(spreadsheetLevelObj)
     gpArrayFirstRow = gpArray.pop(0)
+    bankArray = spreadsheetLevelObj.worksheet(bankName).get_all_values()
 
-    def getPrimaryBankArray():
+    def getPrimaryBankArray(bankArray):
 
-        bnkStatusColIdx = 0
-        bnkDteColIdx = 1
-        bnkDrCrColIdx = 8
-        bnkAmtColIdx = 9
-
-        bankArray = spreadsheetLevelObj.worksheet(bnkNme).get_all_values()
+        bankStatusColIdx = 0
+        bankDteColIdx = 1
+        bankDrCrColIdx = 8
+        bankAmtColIdx = 9
+        bankThrdDescColIdx = 12
 
         def filterBankArray(currentRowIndex, currentRow):
 
             # p(currentRow)
-            # p(currentRow[bnkStatusColIdx])
-            # p(currentRow[bnkTypColIdx])
+            # p(currentRow[bankStatusColIdx])
+            # p(currentRow[bankTypColIdx])
 
-            if currentRow[bnkStatusColIdx] not in ['H', 'B', 'T'] and currentRow[bnkTypColIdx] not in ['Data', 'Ledger Balance', 'Collected + 1 Day', 'Opening Collected', 'One Day Float', '2 Day Float', '3 Day + Float', 'MTD Avg Collected', 'MTD Avg Neg Collected', 'Total Credits', 'Number of Credits', 'Total Debits', 'Number of Debits', 'Float Adjustment(s)']:
+            if currentRow[bankStatusColIdx] not in ['H', 'B', 'T'] and currentRow[bankTypColIdx] not in ['Data', 'Ledger Balance', 'Collected + 1 Day', 'Opening Collected', 'One Day Float', '2 Day Float', '3 Day + Float', 'MTD Avg Collected', 'MTD Avg Neg Collected', 'Total Credits', 'Number of Credits', 'Total Debits', 'Number of Debits', 'Float Adjustment(s)']:
                 return True
             else:
                 return False
@@ -144,16 +145,22 @@ def reconcileArraysBankRec(oAuthMode, bank, googleSheetTitle, googleAccountUsern
 
             if currentRowIndex:
 
-                currentAmount = myPyFunc.strToFloat(currentRow[bnkAmtColIdx])
-                currentDate = currentRow[bnkDteColIdx]
+                currentAmount = myPyFunc.strToFloat(currentRow[bankAmtColIdx])
+
+                currentDate = currentRow[bankDteColIdx]
 
                 if len(currentDate) < 8:
                     currentDate = '0' + currentDate
 
                 currentDate = currentDate[4:8] + currentDate[0:4]
 
-                if currentRow[bnkDrCrColIdx] == 'Debit':
+                if currentRow[bankDrCrColIdx] == 'Debit':
                     currentAmount = -currentAmount
+
+                currentRow[bankThrdDescColIdx] = currentRow[bankThrdDescColIdx].replace('\n', '')
+
+                # if currentAmount == 140.12:
+                #     p(currentRow[12])
 
                 currentRow.append(currentAmount)
                 currentRow.append(currentDate)
@@ -168,8 +175,7 @@ def reconcileArraysBankRec(oAuthMode, bank, googleSheetTitle, googleAccountUsern
 
 
     def getPrimaryDailyDepositsArray():
-        
-        dlyDepNme = 'Daily Deposits'
+
         dlyDepAmtColIdx = 5
         dlyDepTrxIdColIdx = 7
         dailyDepositsArray = spreadsheetLevelObj.worksheet(dlyDepNme).get_all_values()
@@ -185,32 +191,29 @@ def reconcileArraysBankRec(oAuthMode, bank, googleSheetTitle, googleAccountUsern
 
 
 
-    def getSecondaryBankArray():
+    def getSecondaryBankArray(bankArray):
 
-        bnkDteColIdx = 0
-        bnkDrColIdx = 5
-        bnkCrColIdx = 6
+        bankDteColIdx = 0
+        bankDrColIdx = 5
+        bankCrColIdx = 6
 
         def mapBankArray(currentRowIndex, currentRow):
 
             if currentRowIndex:
 
-                currentDebitAmount = currentRow[bnkDrColIdx]
-                currentCreditAmount = currentRow[bnkCrColIdx]
-                currentDate = currentRow[bnkDteColIdx]
+                currentDebitAmount = currentRow[bankDrColIdx]
+                currentCreditAmount = currentRow[bankCrColIdx]
+                currentDate = currentRow[bankDteColIdx]
 
                 currentRow.append(myPyFunc.strToFloat(currentCreditAmount) - myPyFunc.strToFloat(currentDebitAmount))
                 currentRow.append(myPyFunc.dateStrToStr(currentDate))
-            
+
             else:
 
                 currentRow.append(newAmtColName)
                 currentRow.append(dteStrColNme)
 
-        bankArray = spreadsheetLevelObj.worksheet(bnkNme).get_all_values()
         return myPyFunc.mapArray(mapBankArray, bankArray)
-
-
 
         # def mapDailyDepositsArray(currentRowIndex, currentRow):
 
@@ -219,7 +222,7 @@ def reconcileArraysBankRec(oAuthMode, bank, googleSheetTitle, googleAccountUsern
         #         currentRow.append('Bank Amount')
         #     else:
         #         currentType = currentRow[2]
-                
+
         #         def getBistrackAmount():
         #             currentBistrackAmount = currentRow[6]
         #             return myPyFunc.ifConditionFlipSign(myPyFunc.strToFloat(currentBistrackAmount), currentType, 'Debit')
@@ -243,36 +246,36 @@ def reconcileArraysBankRec(oAuthMode, bank, googleSheetTitle, googleAccountUsern
 
 
     if bank == 'Primary':
-        bnkTypColIdx = 7
-        bankArray = getPrimaryBankArray()
+        bankTypColIdx = 7
+        bankArray = getPrimaryBankArray(bankArray)
         dailyDepositsArray = getPrimaryDailyDepositsArray()
-        
-    elif bank == 'Secondary':
-        bnkNewAmtColIdx = 7
-        bnkDteStrColIdx = 8
-        bankArray = getSecondaryBankArray()
 
-        
+    elif bank == 'Secondary':
+        bankNewAmtColIdx = 7
+        bankDteStrColIdx = 8
+        bankArray = getSecondaryBankArray(bankArray)
+
+
     bankArrayFirstRow = bankArray.pop(0)
 
-    matchedArray = [['GP'] + [''] * (len(gpArrayFirstRow) - 1) + [''] + [bnkNme] + [''] * (len(bankArrayFirstRow) - 1)]
+    matchedArray = [[gpNme] + [''] * (len(gpArrayFirstRow) - 1) + [''] + [bankName] + [''] * (len(bankArrayFirstRow) - 1)]
     matchedArray.append(gpArrayFirstRow + [''] + bankArrayFirstRow)
 
 
     def getPrimaryCompletedMatchedArray():
 
-        amountComparisonFunction = myPyFunc.getColumnComparisonFunction(gpNewAmtColIdx, bnkNewAmtColIdx)
-        dateComparisonFunction = myPyFunc.getColumnComparisonFunction(gpDateStrColIdx, bnkDteStrColIdx)
+        amountComparisonFunction = myPyFunc.getColumnComparisonFunction(gpNewAmtColIdx, bankNewAmtColIdx)
+        dateComparisonFunction = myPyFunc.getColumnComparisonFunction(gpDateStrColIdx, bankDteStrColIdx)
 
         def rowForMatchedArrayOnAmountTrxNumType(gpArrayCurrentRow):
 
             rowToReturn = gpArrayCurrentRow
 
-            trxNumComparisonFunction = myPyFunc.getColumnComparisonFunction(gpNumColIdx, bnkScndDescColIdx)
+            trxNumComparisonFunction = myPyFunc.getColumnComparisonFunction(gpNumColIdx, bankScndDescColIdx)
 
             def typeComparisonFunction(gpArrayCurrentRow, bankArrayCurrentRow):
 
-                if gpArrayCurrentRow[gpTypColIdx] == bankArrayCurrentRow[bnkTypColIdx][0:6]:
+                if gpArrayCurrentRow[gpTypColIdx] == bankArrayCurrentRow[bankTypColIdx][0:6]:
                     return True
                 return True
 
@@ -399,13 +402,13 @@ def reconcileArraysBankRec(oAuthMode, bank, googleSheetTitle, googleAccountUsern
 
     def getSecondaryCompletedMatchedArray():
 
-        amountComparisonFunction = myPyFunc.getColumnComparisonFunction(gpNewAmtColIdx, bnkNewAmtColIdx)
+        amountComparisonFunction = myPyFunc.getColumnComparisonFunction(gpNewAmtColIdx, bankNewAmtColIdx)
 
         def rowForMatchedArrayOnAmountDateNotCheck(gpArrayCurrentRow):
 
             rowToReturn = gpArrayCurrentRow
 
-            dateComparisonFunction = myPyFunc.getColumnComparisonFunction(gpDateStrColIdx, bnkDteStrColIdx)
+            dateComparisonFunction = myPyFunc.getColumnComparisonFunction(gpDateStrColIdx, bankDteStrColIdx)
             rowIndicesThatMatch = myPyFunc.rowIndicesInSecondFromTestsOnFirst([amountComparisonFunction, dateComparisonFunction], gpArrayCurrentRow, bankArray)
 
             if len(rowIndicesThatMatch) == 1:
@@ -427,11 +430,11 @@ def reconcileArraysBankRec(oAuthMode, bank, googleSheetTitle, googleAccountUsern
                 rowIndicesThatMatch = myPyFunc.rowIndicesInSecondFromTestsOnFirst([amountComparisonFunction], gpArrayCurrentRow, bankArray)
 
                 def filterOnUnmatchedRowsByAmountFunction(matchedArrayCurrentRowIndex, matchedArrayCurrentRow):
-                    
+
                     if len(matchedArrayCurrentRow) == len(gpArrayFirstRow) and matchedArrayCurrentRow[gpNewAmtColIdx] == gpArrayCurrentRow[gpNewAmtColIdx]:
-                    
+
                         return True
-                    
+
                     return False
 
 
@@ -450,13 +453,13 @@ def reconcileArraysBankRec(oAuthMode, bank, googleSheetTitle, googleAccountUsern
 
         #         if len(rowsThatMatch) == 1:
         #             pass
-        
+
         # matchedArray = myPyFunc.mapArray(addMatchesFromDailyDepositsArray, matchedArray)
 
     if bank == 'Primary':
-        bnkScndDescColIdx = 11
-        bnkNewAmtColIdx = 14
-        bnkDteStrColIdx = 15
+        bankScndDescColIdx = 11
+        bankNewAmtColIdx = 14
+        bankDteStrColIdx = 15
         matchedArray = getPrimaryCompletedMatchedArray()
 
     elif bank == 'Secondary':
@@ -468,13 +471,13 @@ def reconcileArraysBankRec(oAuthMode, bank, googleSheetTitle, googleAccountUsern
         'sheetObj': spreadsheetLevelObj.worksheet(mtchdNme),
         'resizeRows': 3,
         'startingRowIndexToClear': 0,
-        'resizeColumns': 1
+        'resizeColumns': 2
     },
     {
         'sheetObj': spreadsheetLevelObj.worksheet(notMtchdNme),
         'resizeRows': 2,
         'startingRowIndexToClear': 0,
-        'resizeColumns': 1
+        'resizeColumns': 3
     }]
 
 
@@ -484,9 +487,122 @@ def reconcileArraysBankRec(oAuthMode, bank, googleSheetTitle, googleAccountUsern
     bankArray.insert(0, bankArrayFirstRow)
     myGspreadFunc.displayArray(spreadsheetLevelObj.worksheet(notMtchdNme), bankArray)
 
-    customTopRows = {'Matched': 2}
-    myGspreadFunc.setFiltersOnSpreadsheet(spreadsheetLevelObj, customTopRows)
+    topRowsParameters = {mtchdNme: 2}
+    myGspreadFunc.setFiltersOnSpreadsheet(spreadsheetLevelObj, topRowsParameters)
+
+    gpFormatParameters = [
+        {
+            'range': ['F:F', 'G:G'],
+            'format': 'currencyWithoutSymbol'
+        }
+    ]
+
+
+
+    formatParameters = {
+        gpNme: gpFormatParameters,
+        mtchdNme: gpFormatParameters + [
+            {
+                'range': ['R:R'],
+                'format': 'currencyWithoutSymbol'
+            }
+        ]
+    }
+
+    myGspreadFunc.setFormattingOnSpreadsheet(spreadsheetLevelObj, formatParameters)
+
+    if bank == 'Primary':
+
+        bankFormatParameters = [
+            {
+                'range': ['J:J'],
+                'format': 'currencyWithoutSymbol'
+            }
+        ]
+
+        formatParameters = {
+            bankName: bankFormatParameters,
+            dlyDepNme: [
+                {
+                    'range': ['F:F'],
+                    'format': 'currencyWithoutSymbol'
+                }
+            ],
+            mtchdNme: [
+                {
+                    'range': ['AE:AE', 'AJ:AJ'],
+                    'format': 'currencyWithoutSymbol'
+                }
+            ],
+            notMtchdNme: bankFormatParameters + [
+                {
+                    'range': ['O:O'],
+                    'format': 'currencyWithoutSymbol'
+                }
+            ]
+        }
+
+        myGspreadFunc.setFormattingOnSpreadsheet(spreadsheetLevelObj, formatParameters)
+        
     myGspreadFunc.autoAlignColumnsInSpreadsheet(spreadsheetLevelObj)
+
+
+    if bank == 'Primary':
+
+        columnWidthParameters = [
+            {
+                'sheetName': mtchdNme,
+                'columnToAdjust': 33
+            },
+            {
+                'sheetName': notMtchdNme,
+                'columnToAdjust': 12
+            }
+        ]
+
+        columnWidthRequest = {
+            "requests": []
+        }
+        
+
+        for sheetInfo in columnWidthParameters:
+            columnWidthRequest['requests'].append(
+                {
+                    "updateDimensionProperties": {
+                        "range": {
+                            "sheetId": spreadsheetLevelObj.worksheet(sheetInfo['sheetName'])._properties['sheetId'],
+                            "dimension": "COLUMNS",
+                            "startIndex": sheetInfo['columnToAdjust'],
+                            "endIndex": sheetInfo['columnToAdjust'] + 1
+                        },
+                        "properties": {
+                            "pixelSize": 200
+                        },
+                        "fields": "pixelSize"
+                    }
+                }
+            )
+
+            columnWidthRequest['requests'].append(
+                {
+                    "repeatCell": {
+                        "range": {
+                            "sheetId": spreadsheetLevelObj.worksheet(sheetInfo['sheetName'])._properties['sheetId'],
+                            "startColumnIndex": sheetInfo['columnToAdjust'],
+                            "endColumnIndex": sheetInfo['columnToAdjust'] + 1
+                        },
+                        "cell": {
+                            "userEnteredFormat": {
+                                "wrapStrategy" : "CLIP",
+                            }
+                        },
+                        "fields": "userEnteredFormat(wrapStrategy)"
+                    }
+                }
+            )
+
+        # p(columnWidthRequest)
+        spreadsheetLevelObj.batch_update(columnWidthRequest)
 
 
 
