@@ -16,7 +16,7 @@ else:
 
 
 
-def reconcileArraysBankRec(oAuthMode, bank, googleSheetTitle, googleAccountUsername=None):
+def reconcileArraysBankRec(oAuthMode, bank, googleSheetTitle, googleAccountUsername, copyNotes):
 
     pathBelowRepos = pathToThisPythonFile
     spreadsheetLevelObj = myGspreadFunc.getSpreadsheetLevelObj(oAuthMode, pathBelowRepos, googleAccountUsername=googleAccountUsername).open(googleSheetTitle)
@@ -32,7 +32,7 @@ def reconcileArraysBankRec(oAuthMode, bank, googleSheetTitle, googleAccountUsern
     gpTrsfrColIdx = 19
 
     gpNme = 'GP'
-    bankName = 'Bank'
+    bankNme = 'Bank'
     dlyDepNme = 'Daily Deposits'
     mtchdNme = 'Matched'
     notMtchdNme = 'Did Not Match'
@@ -89,7 +89,7 @@ def reconcileArraysBankRec(oAuthMode, bank, googleSheetTitle, googleAccountUsern
 
     gpArray = getGPArray(spreadsheetLevelObj)
     gpArrayFirstRow = gpArray.pop(0)
-    bankArray = spreadsheetLevelObj.worksheet(bankName).get_all_values()
+    bankArray = spreadsheetLevelObj.worksheet(bankNme).get_all_values()
 
     def getPrimaryBankArray(bankArray):
 
@@ -97,6 +97,49 @@ def reconcileArraysBankRec(oAuthMode, bank, googleSheetTitle, googleAccountUsern
         bankDteColIdx = 1
         bankDrCrColIdx = 8
         bankThrdDescColIdx = 12
+        bankNotesColIdx = 13
+
+        if copyNotes:
+
+            def rowsMatch(notMtchdArrayRow, bankArrayRow):
+
+                for columnIndex in range(0, 13):
+
+                    if notMtchdArrayRow[columnIndex] != bankArrayRow[columnIndex]:
+                        
+                        return False
+
+                return True
+
+            def removeCarriageReturn(currentRow):
+
+                currentRow[bankThrdDescColIdx] = currentRow[bankThrdDescColIdx].replace('\n', '')
+                return currentRow
+
+            bankArray = list(map(removeCarriageReturn, bankArray))
+
+            notMtchdArray = spreadsheetLevelObj.worksheet(notMtchdNme).get_all_values()
+            
+            for notMtchdArrayRow in notMtchdArray:
+
+                for bankArrayRow in bankArray:
+
+                    if rowsMatch(notMtchdArrayRow, bankArrayRow):
+                        
+                        bankArrayRow[bankNotesColIdx] = notMtchdArrayRow[bankNotesColIdx]
+
+            clearAndResizeParameters = [
+                {
+                    'sheetObj': spreadsheetLevelObj.worksheet(bankNme),
+                    'resizeRows': 2,
+                    'startingRowIndexToClear': 0,
+                    'resizeColumns': 2
+                }
+            ]
+
+            myGspreadFunc.clearAndResizeSheets(clearAndResizeParameters)
+            myGspreadFunc.displayArray(spreadsheetLevelObj.worksheet(bankNme), bankArray)
+
 
         def filterBankArray(currentRow):
 
@@ -136,6 +179,9 @@ def reconcileArraysBankRec(oAuthMode, bank, googleSheetTitle, googleAccountUsern
                     currentRow.append(columnToAppend)
 
         return myPyFunc.mapArray(mapBankArray, bankArray)
+
+
+
 
 
 
@@ -216,7 +262,7 @@ def reconcileArraysBankRec(oAuthMode, bank, googleSheetTitle, googleAccountUsern
         dlyDepNetAmtColIdx = 5
         bankArray = getPrimaryBankArray(bankArray)
         dailyDepositsArray = getPrimaryDailyDepositsArray()
-        # p(dailyDepositsArray[0:4])
+
 
     elif bank == 'Secondary':
         bankNewAmtColIdx = 7
@@ -226,7 +272,7 @@ def reconcileArraysBankRec(oAuthMode, bank, googleSheetTitle, googleAccountUsern
 
     bankArrayFirstRow = bankArray.pop(0)
 
-    matchedArray = [[gpNme] + [''] * (len(gpArrayFirstRow) - 1) + [''] + [bankName] + [''] * (len(bankArrayFirstRow) - 1)]
+    matchedArray = [[gpNme] + [''] * (len(gpArrayFirstRow) - 1) + [''] + [bankNme] + [''] * (len(bankArrayFirstRow) - 1)]
     matchedArray.append(gpArrayFirstRow + [''] + bankArrayFirstRow)
 
 
@@ -377,54 +423,54 @@ def reconcileArraysBankRec(oAuthMode, bank, googleSheetTitle, googleAccountUsern
         matchedArray = list(map(rowForMatchedArrayOnDlyDepBistrackID, matchedArray))
 
 
-        def rowForMatchedArrayOnDlyDepFirstAmount(matchedArrayCurrentRow):
+        # def rowForMatchedArrayOnDlyDepFirstAmount(matchedArrayCurrentRow):
 
-            if len(matchedArrayCurrentRow) == len(gpArrayFirstRow):
+        #     if len(matchedArrayCurrentRow) == len(gpArrayFirstRow):
 
-                def dailyDepFirstAmountComparisonFunction(matchedArrayCurrentRow, dailyDepositsArrayCurrentRow):
+        #         def dailyDepFirstAmountComparisonFunction(matchedArrayCurrentRow, dailyDepositsArrayCurrentRow):
 
-                    if matchedArrayCurrentRow[gpAmtColIdx] == dailyDepositsArrayCurrentRow[dlyDepNetAmtColIdx]:
-                        return True
-                    return False
+        #             if matchedArrayCurrentRow[gpAmtColIdx] == dailyDepositsArrayCurrentRow[dlyDepNetAmtColIdx]:
+        #                 return True
+        #             return False
 
-                rowIndicesThatMatch = myPyFunc.rowIndicesInSecondFromTestsOnFirst([dailyDepFirstAmountComparisonFunction], matchedArrayCurrentRow, dailyDepositsArray)
-                filterOnUnmatchedRowsByAmountFunction = createFilterOnUnmatchedRows(matchedArrayCurrentRow)
+        #         rowIndicesThatMatch = myPyFunc.rowIndicesInSecondFromTestsOnFirst([dailyDepFirstAmountComparisonFunction], matchedArrayCurrentRow, dailyDepositsArray)
+        #         filterOnUnmatchedRowsByAmountFunction = createFilterOnUnmatchedRows(matchedArrayCurrentRow)
             
-                if len(rowIndicesThatMatch) == 1 or len(rowIndicesThatMatch) == len(list(filter(filterOnUnmatchedRowsByAmountFunction, matchedArray))):
+        #         if len(rowIndicesThatMatch) == 1 or len(rowIndicesThatMatch) == len(list(filter(filterOnUnmatchedRowsByAmountFunction, matchedArray))):
                     
-                    def filterBankArrayOnAmount(currentRow):
+        #             def filterBankArrayOnAmount(currentRow):
                         
-                        if currentRow[bankAmtColIdx] == matchedArrayCurrentRow[gpAmtColIdx]
-                        #get row from bankarray
+        #                 if currentRow[bankAmtColIdx] == matchedArrayCurrentRow[gpAmtColIdx]
+        #                 #get row from bankarray
 
-                    return matchedArrayCurrentRow + ['AMOUNT DOESN\'T MATCH! Matched to Daily Deposits on net amount'] + dailyDepositsArray.pop(rowIndicesThatMatch[0])
+        #             return matchedArrayCurrentRow + ['AMOUNT DOESN\'T MATCH! Matched to Daily Deposits on net amount'] + dailyDepositsArray.pop(rowIndicesThatMatch[0])
 
-            return matchedArrayCurrentRow
+        #     return matchedArrayCurrentRow
 
-        matchedArray = list(map(rowForMatchedArrayOnDlyDepFirstAmount, matchedArray))
+        # matchedArray = list(map(rowForMatchedArrayOnDlyDepFirstAmount, matchedArray))
 
 
-        def rowForMatchedArrayOnDlyDepGrossAmount(matchedArrayCurrentRow):
+        # def rowForMatchedArrayOnDlyDepGrossAmount(matchedArrayCurrentRow):
 
-            if len(matchedArrayCurrentRow) == len(gpArrayFirstRow):
+        #     if len(matchedArrayCurrentRow) == len(gpArrayFirstRow):
 
-                def dailyDepGrossAmountComparisonFunction(matchedArrayCurrentRow, dailyDepositsArrayCurrentRow):
+        #         def dailyDepGrossAmountComparisonFunction(matchedArrayCurrentRow, dailyDepositsArrayCurrentRow):
 
-                    dlyDepGrossAmtColIdx = 6
+        #             dlyDepGrossAmtColIdx = 6
 
-                    if matchedArrayCurrentRow[gpAmtColIdx] == dailyDepositsArrayCurrentRow[dlyDepGrossAmtColIdx]:
-                        return True
-                    return False
+        #             if matchedArrayCurrentRow[gpAmtColIdx] == dailyDepositsArrayCurrentRow[dlyDepGrossAmtColIdx]:
+        #                 return True
+        #             return False
 
-                rowIndicesThatMatch = myPyFunc.rowIndicesInSecondFromTestsOnFirst([dailyDepGrossAmountComparisonFunction], matchedArrayCurrentRow, dailyDepositsArray)
-                filterOnUnmatchedRowsByAmountFunction = createFilterOnUnmatchedRows(matchedArrayCurrentRow)
+        #         rowIndicesThatMatch = myPyFunc.rowIndicesInSecondFromTestsOnFirst([dailyDepGrossAmountComparisonFunction], matchedArrayCurrentRow, dailyDepositsArray)
+        #         filterOnUnmatchedRowsByAmountFunction = createFilterOnUnmatchedRows(matchedArrayCurrentRow)
             
-                if len(rowIndicesThatMatch) == 1 or len(rowIndicesThatMatch) == len(list(filter(filterOnUnmatchedRowsByAmountFunction, matchedArray))):
-                    return matchedArrayCurrentRow + ['AMOUNT DOESN\'T MATCH! Matched to Daily Deposits on gross amount'] + dailyDepositsArray.pop(rowIndicesThatMatch[0])
+        #         if len(rowIndicesThatMatch) == 1 or len(rowIndicesThatMatch) == len(list(filter(filterOnUnmatchedRowsByAmountFunction, matchedArray))):
+        #             return matchedArrayCurrentRow + ['AMOUNT DOESN\'T MATCH! Matched to Daily Deposits on gross amount'] + dailyDepositsArray.pop(rowIndicesThatMatch[0])
 
-            return matchedArrayCurrentRow
+        #     return matchedArrayCurrentRow
 
-        matchedArray = list(map(rowForMatchedArrayOnDlyDepGrossAmount, matchedArray))
+        # matchedArray = list(map(rowForMatchedArrayOnDlyDepGrossAmount, matchedArray))
 
         return matchedArray
 
@@ -507,7 +553,7 @@ def reconcileArraysBankRec(oAuthMode, bank, googleSheetTitle, googleAccountUsern
             'sheetObj': spreadsheetLevelObj.worksheet(mtchdNme),
             'resizeRows': 3,
             'startingRowIndexToClear': 0,
-            'resizeColumns': 2
+            'resizeColumns': 3
         },
         {
             'sheetObj': spreadsheetLevelObj.worksheet(notMtchdNme),
@@ -556,7 +602,7 @@ def reconcileArraysBankRec(oAuthMode, bank, googleSheetTitle, googleAccountUsern
         ]
 
         allFormatParameters = {
-            bankName: bankFormatParameters,
+            bankNme: bankFormatParameters,
             dlyDepNme: [
                 {
                     'range': ['F:F'],
@@ -642,7 +688,14 @@ def reconcileArraysBankRec(oAuthMode, bank, googleSheetTitle, googleAccountUsern
 
 
 def mainFunction(arrayOfArguments):
-    reconcileArraysBankRec(True, arrayOfArguments[1], 'Bank Rec ' + arrayOfArguments[1], googleAccountUsername=arrayOfArguments[2])
+
+    copyNotes = False
+
+    if len(arrayOfArguments) == 4 and arrayOfArguments[3] == 'copyNotes':
+        copyNotes = True
+
+
+    reconcileArraysBankRec(True, arrayOfArguments[1], 'Bank Rec ' + arrayOfArguments[1], googleAccountUsername=arrayOfArguments[2], copyNotes=copyNotes)
 
 
 if __name__ == '__main__':
