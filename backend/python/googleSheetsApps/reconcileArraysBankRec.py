@@ -21,15 +21,14 @@ def reconcileArraysBankRec(bankAccount, googleSheetTitle, googleAccountUsername,
     pathBelowRepos = pathToThisPythonFile
     spreadsheetLevelObj = myGspreadFunc.getSpreadsheetLevelObj(True, pathBelowRepos, googleAccountUsername=googleAccountUsername).open(googleSheetTitle)
 
+    dteStrColNme = 'New Date'
     newAmtColName = 'New Amount'
-    dteStrColNme = 'Date Str'
 
     gpAmtColIdx = 5
     gpTypColIdx = 11
     gpNumColIdx = 12
-    gpNewAmtColIdx = 17
-    gpDateStrColIdx = 18
-    # gpTrsfrColIdx = 19
+    gpDateStrColIdx = 19
+    gpNewAmtColIdx = 20
 
     gpNme = 'GP'
     bankNme = 'Bank'
@@ -54,8 +53,6 @@ def reconcileArraysBankRec(bankAccount, googleSheetTitle, googleAccountUsername,
 
         def mapGPArray(currentRowIndex, currentRow):
 
-            newAmtColName = 'New Amount'
-            dteStrColNme = 'Date Str'
             gpDteColIdx = 1
             gpTypColIdx = 11
             gpPdToColIdx = 14
@@ -68,21 +65,29 @@ def reconcileArraysBankRec(bankAccount, googleSheetTitle, googleAccountUsername,
                 currentAmount = myPyFunc.strToFloat(currentRow[gpAmtColIdx])
                 if currentType in ['Decrease Adjustment', 'Check', 'Withdrawl'] or 'Transfer To' in currentPaidTo: currentAmount = -currentAmount
 
-                currentTransfer = ''
+                gpTypObj = {
+                    'Check': 2,
+                    'Decrease Adjustment': 5,
+                    'Deposit': 1,
+                    'Increase Adjustment': 4,
+                    'Withdrawl': 3,
+                    'Interest Income': 8
+                }
+
+                newGPTyp = str(gpTypObj[currentRow[gpTypColIdx]]) + ' - ' + currentRow[gpTypColIdx]
 
                 if currentRow[gpPdToColIdx]:
                     if currentRow[gpPdToColIdx][:11] == 'Transfer To':
-                        currentTransfer = 'Out'
+                        newGPTyp = '6 - Transfer Out'
                     elif currentRow[gpPdToColIdx][:13] == "Transfer From":
-                        currentTransfer = 'In'
-
-
-                for columnToAppend in [currentAmount, myPyFunc.dateStrToStr(currentRow[gpDteColIdx]), currentTransfer]:
+                        newGPTyp = '7 - Transfer In'
+    
+                for columnToAppend in [newGPTyp, currentRow[gpNumColIdx], myPyFunc.dateStrToStr(currentRow[gpDteColIdx]), currentAmount]:
                     currentRow.append(columnToAppend)
 
             else:
 
-                for columnToAppend in [newAmtColName, dteStrColNme, 'Transfer']:
+                for columnToAppend in ['New CM Trx Type', 'New CM Trx Number', dteStrColNme, newAmtColName]:
                     currentRow.append(columnToAppend)
             
             return currentRow
@@ -99,17 +104,16 @@ def reconcileArraysBankRec(bankAccount, googleSheetTitle, googleAccountUsername,
         bankStatusColIdx = 0
         bankDteColIdx = 1
         bankDrCrColIdx = 8
-        bankThrdDescColIdx = 12
         bankNotesColIdx = 13
 
         if copyNotes:
 
             def rowsMatch(notMtchdArrayRow, bankArrayRow):
 
-                for columnIndex in range(0, 13):
+                for columnIndex in range(0, bankNotesColIdx):
 
                     if notMtchdArrayRow[columnIndex] != bankArrayRow[columnIndex]:
-                        
+
                         return False
 
                 return True
@@ -181,8 +185,6 @@ def reconcileArraysBankRec(bankAccount, googleSheetTitle, googleAccountUsername,
                     currentRow.append(columnToAppend)
 
         return myPyFunc.mapArray(mapBankArray, bankArray)
-
-
 
 
 
@@ -259,9 +261,12 @@ def reconcileArraysBankRec(bankAccount, googleSheetTitle, googleAccountUsername,
 
 
     if bankAccount == 'Primary':
-        bankAmtColIdx = 9
         bankTypColIdx = 7
+        bankAmtColIdx = 9
+        bankThrdDescColIdx = 12
+
         dlyDepNetAmtColIdx = 5
+        
         bankArray = transformPrimaryBankArray(bankArray)
         dailyDepositsArray = getPrimaryDailyDepositsArray()
 
@@ -560,6 +565,10 @@ def reconcileArraysBankRec(bankAccount, googleSheetTitle, googleAccountUsername,
     ]
 
 
+    for row in matchedArray:
+        pass
+        # row.insert()
+
     myGspreadFunc.clearAndResizeSheets(clearAndResizeParameters)
     myGspreadFunc.displayArray(spreadsheetLevelObj.worksheet(mtchdNme), matchedArray)
 
@@ -569,24 +578,17 @@ def reconcileArraysBankRec(bankAccount, googleSheetTitle, googleAccountUsername,
     topRowsParameters = {mtchdNme: 2}
     myGspreadFunc.setFiltersOnSpreadsheet(spreadsheetLevelObj, topRowsParameters)
 
-    gpFormatParameters = [
-        {
-            'range': ['F:F', 'G:G'],
-            'format': 'currencyWithoutSymbol'
-        }
-    ]
-
-    allFormatParameters = {
-        gpNme: gpFormatParameters,
-        mtchdNme: gpFormatParameters + [
+    gpFormatParameters = {
+        gpNme: [
             {
-                'range': ['R:R'],
+                'range': ['F:F', 'G:G'],
                 'format': 'currencyWithoutSymbol'
             }
         ]
     }
 
-    myGspreadFunc.setFormattingOnSpreadsheet(spreadsheetLevelObj, allFormatParameters)
+
+    myGspreadFunc.setFormattingOnSpreadsheet(spreadsheetLevelObj, gpFormatParameters)
 
     if bankAccount == 'Primary':
 
@@ -605,9 +607,9 @@ def reconcileArraysBankRec(bankAccount, googleSheetTitle, googleAccountUsername,
                     'format': 'currencyWithoutSymbol'
                 }
             ],
-            mtchdNme: [
+            mtchdNme: gpFormatParameters[gpNme] + [
                 {
-                    'range': ['AE:AE', 'AJ:AJ'],
+                    'range': ['U:U', 'AF:AF', 'AK:AK'],
                     'format': 'currencyWithoutSymbol'
                 }
             ],
@@ -629,11 +631,11 @@ def reconcileArraysBankRec(bankAccount, googleSheetTitle, googleAccountUsername,
         columnWidthParameters = [
             {
                 'sheetName': mtchdNme,
-                'columnToAdjust': 33
+                'columnToAdjust': len(gpArrayFirstRow) + 1 + bankThrdDescColIdx
             },
             {
                 'sheetName': notMtchdNme,
-                'columnToAdjust': 12
+                'columnToAdjust': bankThrdDescColIdx
             }
         ]
 
@@ -678,7 +680,6 @@ def reconcileArraysBankRec(bankAccount, googleSheetTitle, googleAccountUsername,
                 }
             )
 
-        # p(columnWidthRequest)
         spreadsheetLevelObj.batch_update(columnWidthRequest)
 
 
