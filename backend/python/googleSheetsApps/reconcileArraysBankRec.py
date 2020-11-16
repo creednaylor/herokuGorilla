@@ -609,6 +609,10 @@ def reconcileArraysBankRec(bankAccount, googleSheetTitle, googleAccountUsername,
                 }
             )
 
+        import json
+        print(json.dumps(columnWidthRequest, indent=4, sort_keys=True))
+
+        # p(columnWidthRequest)
         spreadsheetLevelObj.batch_update(columnWidthRequest)
 
 
