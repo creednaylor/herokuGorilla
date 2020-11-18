@@ -889,7 +889,9 @@ def findFilePathBreadthFirst(rootDirectory, ifCorrectFileObj, pathsToExclude=[])
         if ifCorrectFileObj(currentFileObj): return currentFileObj
 
 
-def getArrayOfFileObjInTreeBreadthFirst(rootDirectory, ifAddFileObj, pathsToExclude=[]):
+def getArrayOfFileObjInTreeBreadthFirst(rootDirectory, fileObjToAdd, pathsToExclude=[]):
+
+
 
     currentArrayOfFileObj = [rootDirectory]
     arrayOfFileObjInTree = []
@@ -900,9 +902,9 @@ def getArrayOfFileObjInTreeBreadthFirst(rootDirectory, ifAddFileObj, pathsToExcl
 
         if currentFileObj.is_dir(): currentArrayOfFileObj.extend(getArrayOfFileObjFromDir(currentFileObj, pathsToExclude))
 
-        pathToAdd = addFileObj(currentFileObj)
+        pathToAdd = fileObjToAdd(currentFileObj)
 
-        if pathsToAdd: arrayOfFileObjInTree.append(pathToAdd)
+        if pathToAdd: arrayOfFileObjInTree.append(pathToAdd)
 
     return arrayOfFileObjInTree
 
