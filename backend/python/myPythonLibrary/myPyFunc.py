@@ -863,18 +863,20 @@ def numLockIsOff():
     return getKeyState(VK_NUMLOCK)
 
 
+
+def getArrayOfFileObjFromDir(dirToAdd, pathsToExclude):
+
+    arrayOfFileObjInDir = []
+
+    for fileObjInDirToAdd in dirToAdd.iterdir():
+        if fileObjInDirToAdd not in pathsToExclude:
+            arrayOfFileObjInDir.append(fileObjInDirToAdd)
+
+    return arrayOfFileObjInDir
+
+
+
 def findFilePathBreadthFirst(rootDirectory, ifCorrectFileObj, pathsToExclude=[]):
-
-    def getArrayOfFileObjFromDir(dirToAdd):
-
-        arrayOfFileObjInDir = []
-
-        for fileObjInDirToAdd in dirToAdd.iterdir():
-            if fileObjInDirToAdd not in pathsToExclude:
-                arrayOfFileObjInDir.append(fileObjInDirToAdd)
-
-        return arrayOfFileObjInDir
-
 
     currentArrayOfFileObj = [rootDirectory]
 
@@ -882,12 +884,22 @@ def findFilePathBreadthFirst(rootDirectory, ifCorrectFileObj, pathsToExclude=[])
 
         currentFileObj = currentArrayOfFileObj.pop(0)
 
-        if currentFileObj.is_dir(): currentArrayOfFileObj.extend(getArrayOfFileObjFromDir(currentFileObj))
+        if currentFileObj.is_dir(): currentArrayOfFileObj.extend(getArrayOfFileObjFromDir(currentFileObj, pathsToExclude))
 
         if ifCorrectFileObj(currentFileObj): return currentFileObj
 
 
-def getArrayOfFileObjInTreeBreadthFirst():
+def getArrayOfFileObjInTreeBreadthFirst(rootDirectory, ifAddFileObj, pathsToExclude=[]):
+
+    currentArrayOfFileObj = [rootDirectory]
+
+    while currentArrayOfFileObj:
+
+        currentFileObj = currentArrayOfFileObj.pop(0)
+
+        if currentFileObj.is_dir(): currentArrayOfFileObj.extend(getArrayOfFileObjFromDir(currentFileObj, pathsToExclude))
+
+        if ifCorrectFileObj(currentFileObj): return currentFileObj
 
     return []
 
