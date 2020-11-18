@@ -1,4 +1,6 @@
 import pyautogui as g
+from pprint import pprint as p
+from pathlib import Path
 
 
 def typeCharactersOnRemoteDesktop(charactersToType, priorPyAutoGuiPause, pause=None):
@@ -31,36 +33,59 @@ def repetitiveKeyPress(numberOfTabs, keyToPress):
         g.press(keyToPress)
 
 
-def clickImageAfterWaiting(pngFileName, confidence=.9):
+def clickImageWhenAppears(imageFileName, confidence=.9):
 
-    g.click(getCoordinatesAfterWaiting(pngFileName, confidence=confidence))
+    g.click(getCoordinatesWhenImageAppears(imageFileName, confidence=confidence))
 
 
-def getCoordinatesAfterWaiting(pngFileName, confidence=.9, center=True):
+def clickWhenLocalPNGAppears(pngFileStem, pngFileDirectory, confidence=.9):
+
+    pngFilePath = str(Path(pngFileDirectory, pngFileStem + '.png'))
+    clickImageWhenAppears(pngFilePath, confidence=confidence)
+
+def getCoordinatesWhenLocalPNGAppears(pngFileStem, pngFileDirectory, confidence=.9, center=True):
+
+    pngFilePath = str(Path(pngFileDirectory, pngFileStem + '.png'))
+    getCoordinatesWhenImageAppears(pngFilePath, confidence=.9, center=True)
+
+def getCoordinatesWhenImageAppears(imageFileName, confidence=.9, center=True):
 
     coordinatesToReturn = None
 
     while not coordinatesToReturn:
-        p(f'Looking for {pngFileName[:-4]}')
+        p(f'Looking for {imageFileName}')
 
         if center:
-            coordinatesToReturn = g.locateCenterOnScreen(pngFileName, confidence=confidence)
+            coordinatesToReturn = g.locateCenterOnScreen(imageFileName, confidence=confidence)
         else:
-            coordinatesToReturn = g.locateOnScreen(pngFileName, confidence=confidence)
+            coordinatesToReturn = g.locateOnScreen(imageFileName, confidence=confidence)
 
     return coordinatesToReturn
 
+def getCoordinatesIfLocalPNGIsShowing(pngFileStem, pngFileDirectory, confidence=.9):
 
-def waitUntilGone(pngFileName, confidence=.9, center=True):
+    pngFilePath = str(Path(pngFileDirectory, pngFileStem + '.png'))
 
-    coordinatesToReturn = g.locateOnScreen(pngFileName, confidence=confidence)
+    return g.locateOnScreen(pngFilePath, confidence=confidence)
+
+
+def waitUntilLocalPNGDisappears(pngFileStem, pngFileDirectory):
+
+    pngFilePath = str(Path(pngFileDirectory, pngFileStem + '.png'))
+
+    waitUntilImageDisappears(pngFilePath)
+
+
+def waitUntilImageDisappears(imageFileName, confidence=.9, center=True):
+
+    coordinatesToReturn = g.locateOnScreen(imageFileName, confidence=confidence)
 
     while coordinatesToReturn:
-        p(f'Waiting for {pngFileName[:-4]} to disappear.')
+        p(f'Waiting for {imageFileName} to disappear.')
 
         if center:
-            coordinatesToReturn = g.locateCenterOnScreen(pngFileName, confidence=confidence)
+            coordinatesToReturn = g.locateCenterOnScreen(imageFileName, confidence=confidence)
         else:
-            coordinatesToReturn = g.locateOnScreen(pngFileName, confidence=confidence)
+            coordinatesToReturn = g.locateOnScreen(imageFileName, confidence=confidence)
 
     return coordinatesToReturn
