@@ -863,11 +863,36 @@ def numLockIsOff():
     return getKeyState(VK_NUMLOCK)
 
 
+def findFilePathBreadthFirst(rootDirectory, ifCorrectFileObj, pathsToExclude=[]):
+
+    def getArrayOfFileObjFromDir(dirToAdd):
+
+        arrayOfFileObjInDir = []
+
+        for fileObjInDirToAdd in dirToAdd.iterdir():
+            if fileObjInDirToAdd not in pathsToExclude:
+                arrayOfFileObjInDir.append(fileObjInDirToAdd)
+
+        return arrayOfFileObjInDir
+
+
+    currentArrayOfFileObj = [rootDirectory]
+
+    while currentArrayOfFileObj:
+
+        currentFileObj = currentArrayOfFileObj.pop(0)
+
+        if currentFileObj.is_dir(): currentArrayOfFileObj.extend(getArrayOfFileObjFromDir(currentFileObj))
+
+        if ifCorrectFileObj(currentFileObj): return currentFileObj
+
+
+
 
 
 def onAllFileObjInTreeBreadthFirst(rootDirectory, actionToPerformOnEachFileObj, otherDataObj={}): 
 
-    def getArrayOfFileObjInDir(pathToDir):
+    def getArrayOfFileObjFromDir(pathToDir):
 
         arrayOfFileObjInDir = []
 
@@ -890,7 +915,7 @@ def onAllFileObjInTreeBreadthFirst(rootDirectory, actionToPerformOnEachFileObj, 
         currentFileObj = currentArrayOfFileObj.pop(0)
 
         if currentFileObj.is_dir():
-            currentArrayOfFileObj.extend(getArrayOfFileObjInDir(currentFileObj))
+            currentArrayOfFileObj.extend(getArrayOfFileObjFromDir(currentFileObj))
 
         dataForActionObj['currentFileObj'] = currentFileObj
 
