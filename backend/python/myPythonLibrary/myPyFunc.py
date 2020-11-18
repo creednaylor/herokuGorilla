@@ -968,7 +968,7 @@ def onAllFileObjInDir(directory, actionToPerform):
 
 def mapArray(mapFunction, array):
     
-    mappedArray = []
+    # mappedArray = []
     
     for currentIndex, currentElement in enumerate(array):
         mapFunction(currentIndex, currentElement)
