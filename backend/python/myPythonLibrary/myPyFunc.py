@@ -868,8 +868,17 @@ def getArrayOfFileObjFromDir(dirToAdd, pathsToExclude):
 
     arrayOfFileObjInDir = []
 
+    def fileObjHasPathToExclude(fileObj, pathsToExclude):
+
+        for pathToExclude in pathsToExclude:
+
+            if pathToExclude in str(fileObj): return True
+
+        return False
+
     for fileObjInDirToAdd in dirToAdd.iterdir():
-        if fileObjInDirToAdd not in pathsToExclude:
+
+        if not fileObjHasPathToExclude(fileObjInDirToAdd, pathsToExclude):
             arrayOfFileObjInDir.append(fileObjInDirToAdd)
 
     return arrayOfFileObjInDir
