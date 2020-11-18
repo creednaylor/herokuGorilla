@@ -887,7 +887,9 @@ def findFilePathBreadthFirst(rootDirectory, ifCorrectFileObj, pathsToExclude=[])
         if ifCorrectFileObj(currentFileObj): return currentFileObj
 
 
+def getArrayOfFileObjInTreeBreadthFirst():
 
+    return []
 
 
 def onAllFileObjInTreeBreadthFirst(rootDirectory, actionToPerformOnEachFileObj, otherDataObj={}): 
