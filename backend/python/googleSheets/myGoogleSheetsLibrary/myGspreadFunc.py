@@ -145,7 +145,7 @@ def autoAlignColumnsInSpreadsheet(spreadsheetLevelObj):
     spreadsheetLevelObj.batch_update(autoAlignColsRequest)
 
 
-def setFiltersOnSpreadsheet(spreadsheetLevelObj, topRowsParameters):
+def setFiltersOnSpreadsheet(spreadsheetLevelObj, topRowsParameters=[]):
 
     for sheetLevelObj in spreadsheetLevelObj.worksheets():
         if sheetLevelObj.title in topRowsParameters:
