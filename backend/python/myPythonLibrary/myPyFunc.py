@@ -27,7 +27,7 @@ def printTimeSinceImport():
 
 def printElapsedTime(priorTime, message):
 
-    
+
     currentTime = time.time()
 
     if not priorTime:
@@ -724,16 +724,16 @@ def getPathUpFolderTree(pathToClimb, directoryToFind):
 
 
 def replacePartOfPath(pathToConvert, partToBeReplaced, partToReplace):
-    
+
     return Path(str(pathToConvert).replace(partToBeReplaced, partToReplace))
 
 
 
 
 def saveToFile(dataObj, nameOfDataObj, fileExtensionToSave, pathToSaveFileTo):
-    
+
     if pathToSaveFileTo:
-        
+
         fullPathToSaveFileTo = Path(pathToSaveFileTo, nameOfDataObj + '.' + fileExtensionToSave)
 
         if fileExtensionToSave == 'json':
@@ -743,7 +743,7 @@ def saveToFile(dataObj, nameOfDataObj, fileExtensionToSave, pathToSaveFileTo):
             fileObj = open(fullPathToSaveFileTo, 'w+')
             fileObj.write(nameOfDataObj + ' = ' + str(dataObj))
             fileObj.close()
-    
+
 
 
 
@@ -872,7 +872,7 @@ def getArrayOfFileObjFromDir(dirToAdd, pathsToExclude):
 
         for pathToExclude in pathsToExclude:
 
-            if pathToExclude in str(fileObj): return True
+            if str(pathToExclude) in str(fileObj): return True
 
         return False
 
@@ -900,15 +900,19 @@ def findFilePathBreadthFirst(rootDirectory, ifCorrectFileObj, pathsToExclude=[])
 
 def getArrayOfFileObjInTreeBreadthFirst(rootDirectory, fileObjToAdd, pathsToExclude=[]):
 
-
     currentArrayOfFileObj = [rootDirectory]
     arrayOfFileObjInTree = []
-
+    
     while currentArrayOfFileObj:
 
         currentFileObj = currentArrayOfFileObj.pop(0)
 
-        if currentFileObj.is_dir(): currentArrayOfFileObj.extend(getArrayOfFileObjFromDir(currentFileObj, pathsToExclude))
+        # print(repr(str(currentFileObj)))
+        # p(os.path.exists(currentFileObj))
+
+        if currentFileObj.is_dir():
+
+            currentArrayOfFileObj.extend(getArrayOfFileObjFromDir(currentFileObj, pathsToExclude))
 
         pathToAdd = fileObjToAdd(currentFileObj)
 
@@ -917,13 +921,12 @@ def getArrayOfFileObjInTreeBreadthFirst(rootDirectory, fileObjToAdd, pathsToExcl
     return arrayOfFileObjInTree
 
 
-def onAllFileObjInTreeBreadthFirst(rootDirectory, actionToPerformOnEachFileObj, otherDataObj={}): 
+def onAllFileObjInTreeBreadthFirst(rootDirectory, actionToPerformOnEachFileObj, otherDataObj={}):
 
     def getArrayOfFileObjFromDir(pathToDir):
 
         arrayOfFileObjInDir = []
 
-        
         for node in pathToDir.iterdir():
             if 'pathsToExclude' not in otherDataObj or node not in otherDataObj['pathsToExclude']:
                 # try:
@@ -967,12 +970,12 @@ def onAllFileObjInDir(directory, actionToPerform):
 
 
 def mapArray(mapFunction, array):
-    
+
     # mappedArray = []
-    
+
     for currentIndex, currentElement in enumerate(array):
         mapFunction(currentIndex, currentElement)
-    
+
     return array
 
 
@@ -1014,7 +1017,7 @@ def filterArray(test, array):
 #     for currentIndex, currentElement in enumerate(originalArray):
 #         if getNewElement(currentIndex, currentElement):
 #             newArray.append(getNewElement((currentIndex, currentElement)))
-    
+
 #     return newArray
 
 
@@ -1029,7 +1032,7 @@ def ifConditionFlipSign(amount, firstToken, secondToken):
 
     if firstToken == secondToken:
         return -amount
-    
+
     return amount
 
 
@@ -1063,7 +1066,7 @@ def getArrayOfUniqueElements(array):
     for element in array:
 
         elementItemsTuple = tuple(element.items())
-        
+
         if elementItemsTuple not in checkedForDuplicatesSet:
             arrayOfUniques.append(element)
             checkedForDuplicatesSet.add(elementItemsTuple)
@@ -1073,7 +1076,7 @@ def getArrayOfUniqueElements(array):
 
 
 def getArrayOfDuplicatedElements(array):
-    
+
     checkedForDuplicatesSet = {}
     arrayOfDuplicates = []
 
@@ -1128,9 +1131,9 @@ def secondArrayRowsMatchFirstArrayRow(firstArrayCurrentRow, secondArray, columns
     rowsThatMatch = []
 
     for secondArrayRowIndex, secondArrayCurrentRow in enumerate(secondArray):
-            
+
             if columnDataMatches(firstArrayCurrentRow, secondArrayCurrentRow, columnsToMatch):
-                
+
                 rowsThatMatch.append({
                     'secondArrayRowIndex': secondArrayRowIndex,
                     'secondArrayRow': secondArrayCurrentRow
@@ -1146,7 +1149,7 @@ def columnDataMatches(firstArrayCurrentRow, secondArrayCurrentRow, columnsToMatc
 
         if firstArrayCurrentRow[column] != secondArrayCurrentRow[columnsToMatch[1][columnIndex]]:
             return False
-    
+
     return True
 
 
@@ -1189,7 +1192,7 @@ def getColumnComparisonFunction(firstArrayColumnIndex, secondArrayColumnIndex):
     def comparisonFunction(firstArrayCurrentRow, secondArrayCurrentRow):
 
         if firstArrayCurrentRow[firstArrayColumnIndex] == secondArrayCurrentRow[secondArrayColumnIndex]:
-            
+
             return True
 
         return False
@@ -1199,7 +1202,7 @@ def getColumnComparisonFunction(firstArrayColumnIndex, secondArrayColumnIndex):
 
 
 def getFilterByIndexFunction(indicesToFilter):
-        
+
     def filterFunction(elementIndex, element):
 
         if elementIndex in indicesToFilter:
