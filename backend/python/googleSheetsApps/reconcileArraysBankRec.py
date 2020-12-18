@@ -414,15 +414,16 @@ def reconcileArraysBankRec(bankAccount, googleSheetTitle, googleAccountUsername,
 
         matchedArray = list(map(rowForMatchedArrayOnDlyDepBistrackID, matchedArray))
 
+        p(1)
         return matchedArray
 
 
 
-    def getMatchedArraySecondary():
+    def getMatchedArraySecondary(matchedArray):
 
         amountComparisonFunction = myPyFunc.getColumnComparisonFunction(gpNewAmtColIdx, bankNewAmtColIdx)
 
-        def rowForMatchedArrayOnAmountDateNotCheck(gpArrayCurrentRow):
+        def rowForMatchedArrayOnAmountDate(gpArrayCurrentRow):
 
             rowToReturn = gpArrayCurrentRow
 
@@ -438,10 +439,9 @@ def reconcileArraysBankRec(bankAccount, googleSheetTitle, googleAccountUsername,
             return rowToReturn
 
 
-        myPyFunc.transferToArray(gpArray, matchedArray, rowForMatchedArrayOnAmountDateNotCheck)
+        myPyFunc.transferToArray(gpArray, matchedArray, rowForMatchedArrayOnAmountDate)
 
-
-        def rowForMatchedArrayOnAmountDateNotCheck(matchedArrayCurrentRow):
+        def rowForMatchedArrayOnAmount(matchedArrayCurrentRow):
 
             if len(matchedArrayCurrentRow) == len(gpArrayFirstRow):
 
@@ -456,18 +456,20 @@ def reconcileArraysBankRec(bankAccount, googleSheetTitle, googleAccountUsername,
 
             return matchedArrayCurrentRow
 
-        matchedArray = list(map(rowForMatchedArrayOnAmountDateNotCheck, matchedArray))
+        matchedArray = list(map(rowForMatchedArrayOnAmount, matchedArray))
 
-        # def addMatchesFromDailyDepositsArray(currentRowIndex, currentRow):
+        # # def addMatchesFromDailyDepositsArray(currentRowIndex, currentRow):
 
-        #     if len(currentRow) == len(gpArrayFirstRow):
+        # #     if len(currentRow) == len(gpArrayFirstRow):
 
-        #         rowsThatMatch = getMatchedDailyDepositsRows(dailyDepositsArray, currentRow)
+        # #         rowsThatMatch = getMatchedDailyDepositsRows(dailyDepositsArray, currentRow)
 
-        #         if len(rowsThatMatch) == 1:
-        #             pass
+        # #         if len(rowsThatMatch) == 1:
+        # #             pass
 
-        # matchedArray = myPyFunc.mapArray(addMatchesFromDailyDepositsArray, matchedArray)
+        # # matchedArray = myPyFunc.mapArray(addMatchesFromDailyDepositsArray, matchedArray)
+
+        return matchedArray
 
 
     if bankAccount == 'Primary':
@@ -477,7 +479,7 @@ def reconcileArraysBankRec(bankAccount, googleSheetTitle, googleAccountUsername,
         matchedArray = getMatchedArrayPrimary(matchedArray)
 
     elif bankAccount == 'Secondary':
-        matchedArray = getMatchedArraySecondary()
+        matchedArray = getMatchedArraySecondary(matchedArray)
 
     bankArray.insert(0, bankArrayFirstRow)
     
