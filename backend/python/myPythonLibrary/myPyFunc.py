@@ -876,7 +876,14 @@ def getArrayOfFileObjFromDir(dirToAdd, pathsToExclude):
 
         return False
 
-    for fileObjInDirToAdd in dirToAdd.iterdir():
+    try:
+        dirToAddArray = dirToAdd.iterdir()
+    except:
+        p('Couldn\'t perform .iterdir() on ' + str(dirToAdd))
+        dirToAddArray = []
+
+
+    for fileObjInDirToAdd in dirToAddArray:
 
         if not fileObjHasPathToExclude(fileObjInDirToAdd, pathsToExclude):
             arrayOfFileObjInDir.append(fileObjInDirToAdd)
