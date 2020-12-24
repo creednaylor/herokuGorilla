@@ -876,12 +876,17 @@ def getArrayOfFileObjFromDir(dirToAdd, pathsToExclude):
 
         return False
 
+    
+
     try:
-        dirToAddArray = dirToAdd.iterdir()
+
+        dirToAddArray = os.listdir(dirToAdd)
+
     except:
-        p('Couldn\'t perform .iterdir() on ' + str(dirToAdd))
+        p('Can\'t add fileObj\'s from ' + str(dirToAdd))
         dirToAddArray = []
 
+    dirToAddArray = [Path(dirToAdd, fileObjName) for fileObjName in dirToAddArray]
 
     for fileObjInDirToAdd in dirToAddArray:
 
