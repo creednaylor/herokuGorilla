@@ -253,7 +253,7 @@ def reconcileArraysBankRec(bankAccount, googleSheetTitle, googleAccountUsername,
 
         bankArray = getBankArrayForReconPrimary(bankArray)
 
-        p([row for row in bankArray if row[14] == 14771.6 or row[14] == -14771.6])
+        # p([row for row in bankArray if row[14] == 14771.6 or row[14] == -14771.6])
 
         dailyDepositsArray = getDailyDepositsArrayForReconPrimary()
 
