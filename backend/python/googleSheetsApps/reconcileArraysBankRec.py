@@ -414,7 +414,7 @@ def reconcileArraysBankRec(bankAccount, googleSheetTitle, googleAccountUsername,
 
         matchedArray = list(map(rowForMatchedArrayOnDlyDepBistrackID, matchedArray))
 
-        p(1)
+        # p(1)
         return matchedArray
 
 
@@ -611,8 +611,8 @@ def reconcileArraysBankRec(bankAccount, googleSheetTitle, googleAccountUsername,
                 }
             )
 
-        import json
-        print(json.dumps(columnWidthRequest, indent=4, sort_keys=True))
+        # import json
+        # p(json.dumps(columnWidthRequest, indent=4, sort_keys=True))
 
         # p(columnWidthRequest)
         spreadsheetLevelObj.batch_update(columnWidthRequest)
