@@ -252,6 +252,9 @@ def reconcileArraysBankRec(bankAccount, googleSheetTitle, googleAccountUsername,
         dlyDepNetAmtColIdx = 5
 
         bankArray = getBankArrayForReconPrimary(bankArray)
+
+        p([row for row in bankArray if row[14] == 14771.6 or row[14] == -14771.6])
+
         dailyDepositsArray = getDailyDepositsArrayForReconPrimary()
 
 
@@ -414,7 +417,6 @@ def reconcileArraysBankRec(bankAccount, googleSheetTitle, googleAccountUsername,
 
         matchedArray = list(map(rowForMatchedArrayOnDlyDepBistrackID, matchedArray))
 
-        # p(1)
         return matchedArray
 
 
@@ -498,9 +500,6 @@ def reconcileArraysBankRec(bankAccount, googleSheetTitle, googleAccountUsername,
         }
     ]
 
-    for row in matchedArray:
-        pass
-        # row.insert()
 
     myGspreadFunc.clearAndResizeSheets(clearAndResizeParameters)
     myGspreadFunc.displayArray(spreadsheetLevelObj.worksheet(mtchdNme), matchedArray)
