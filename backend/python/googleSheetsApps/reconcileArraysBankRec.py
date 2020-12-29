@@ -623,7 +623,7 @@ def mainFunction(arrayOfArguments):
     copyNotes = False
 
     if len(arrayOfArguments) == 4 and arrayOfArguments[3] == 'copyNotes': copyNotes = True
-    reconcileArraysBankRec(arrayOfArguments[1], 'Bank Rec ' + arrayOfArguments[1], googleAccountUsername=arrayOfArguments[2], copyNotes=copyNotes)
+    reconcileArraysBankRec(arrayOfArguments[2], 'Bank Rec ' + arrayOfArguments[2], googleAccountUsername=arrayOfArguments[1], copyNotes=copyNotes)
 
 
 if __name__ == '__main__':
