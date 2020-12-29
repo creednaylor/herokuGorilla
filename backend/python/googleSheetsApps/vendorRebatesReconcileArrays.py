@@ -19,7 +19,7 @@ else:
 	from googleSheets.myGoogleSheetsLibrary import myGspreadFunc
 
 
-def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
+def reconcileArrays(oAuthMode, googleAccountUsername, googleSheetTitle):
 
 	pathBelowRepos = pathToThisPythonFile
 	spreadsheetLevelObj = myGspreadFunc.getSpreadsheetLevelObj(oAuthMode, pathBelowRepos, googleAccountUsername=googleAccountUsername).open(googleSheetTitle)
@@ -175,7 +175,7 @@ def reconcileArrays(oAuthMode, googleSheetTitle, googleAccountUsername=None):
 
 
 def mainFunction(arrayOfArguments):
-    reconcileArrays(True, arrayOfArguments[1], googleAccountUsername=arrayOfArguments[2])
+    reconcileArrays(True, arrayOfArguments[1], arrayOfArguments[2])
 
 
 if __name__ == '__main__':

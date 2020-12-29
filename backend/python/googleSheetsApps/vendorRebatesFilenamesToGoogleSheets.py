@@ -9,7 +9,7 @@ import googleSheets.myGoogleSheetsLibrary.myGspreadFunc as myGspreadFunc
 from pprint import pprint as p
 
 
-def getFilenamesFromDisk(pathToDirectoryOfFilesForNameExtraction, googleAccountUsername):
+def getFilenamesFromDisk(googleAccountUsername, pathToDirectoryOfFilesForNameExtraction):
     # p(Path(pathToDirectoryOfFilesForNameExtraction).parents[3])
     
     extractedFilenamesToDisplay = [['Check Date', 'Vendor', 'Amount']]
