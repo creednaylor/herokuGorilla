@@ -26,8 +26,14 @@ def rowsMatch(firstArrayRow, secondArrayRow, colIdxLimit):
     return True
 
 
-def reconcileArraysBankRec(bankAccount, googleSheetTitle, googleAccountUsername, copyNotes):
+def reconcileArraysBankRec(arrayOfArguments):
 
+    # p(arrayOfArguments)
+
+    googleAccountUsername = arrayOfArguments[1]
+    bankAccount = arrayOfArguments[2]
+    googleSheetTitle = 'Bank Rec ' + bankAccount
+    
     pathBelowRepos = pathToThisPythonFile
     spreadsheetLevelObj = myGspreadFunc.getSpreadsheetLevelObj(True, pathBelowRepos, googleAccountUsername=googleAccountUsername).open(googleSheetTitle)
 
@@ -130,7 +136,7 @@ def reconcileArraysBankRec(bankAccount, googleSheetTitle, googleAccountUsername,
 
             return bankArray
 
-        if copyNotes: bankArray = writeNotesToBankArray(bankArray)
+        if len(arrayOfArguments) > 3 and arrayOfArguments[3] == 'copyNotes': bankArray = writeNotesToBankArray(bankArray)
 
 
         def filterBankArrayPrimary(currentRow):
@@ -620,10 +626,7 @@ def reconcileArraysBankRec(bankAccount, googleSheetTitle, googleAccountUsername,
 
 def mainFunction(arrayOfArguments):
 
-    copyNotes = False
-
-    if len(arrayOfArguments) == 4 and arrayOfArguments[3] == 'copyNotes': copyNotes = True
-    reconcileArraysBankRec(arrayOfArguments[2], 'Bank Rec ' + arrayOfArguments[2], googleAccountUsername=arrayOfArguments[1], copyNotes=copyNotes)
+    reconcileArraysBankRec(arrayOfArguments)
 
 
 if __name__ == '__main__':
