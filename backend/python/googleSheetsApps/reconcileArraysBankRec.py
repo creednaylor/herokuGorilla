@@ -443,6 +443,9 @@ def reconcileArraysBankRec(arrayOfArguments):
                 rowToReturn.extend([myPyFunc.getMatchStatus(myPyFunc.filterArray(filterFieldsForMatchStatus, gpArrayFirstRow))] + bankArray.pop(rowIndicesThatMatch[0]))
             elif len(rowIndicesThatMatch) > 1:
                 p('More than one row matches on the first pass')
+                
+                for rowIndexThatMatches in rowIndicesThatMatch:
+                    p(bankArray[rowIndexThatMatches])
 
             return rowToReturn
 
