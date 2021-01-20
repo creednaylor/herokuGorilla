@@ -136,6 +136,8 @@ def reconcileArraysBankRec(arrayOfArguments):
 
             return bankArray
 
+        # p(arrayOfArguments)
+        # if arrayOfArguments[3] == 'copyNotes': p(1)
         if len(arrayOfArguments) > 3 and arrayOfArguments[3] == 'copyNotes': bankArray = writeNotesToBankArray(bankArray)
 
 
